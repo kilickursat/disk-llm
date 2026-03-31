@@ -1,0 +1,218 @@
+:root {
+  --ink: #0f2d57;
+  --ink-soft: rgba(15, 45, 87, 0.76);
+  --blue: #1f88d8;
+  --cyan: #2fd7cf;
+  --line: rgba(15, 45, 87, 0.12);
+  --paper: #fbfdff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Aptos", "Trebuchet MS", sans-serif;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at top right, rgba(47, 215, 207, 0.22), transparent 28%),
+    radial-gradient(circle at left center, rgba(31, 136, 216, 0.16), transparent 26%),
+    linear-gradient(180deg, #ffffff 0%, #eef7ff 100%);
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(15, 45, 87, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15, 45, 87, 0.045) 1px, transparent 1px);
+  background-size: 76px 76px;
+  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.88), transparent);
+  pointer-events: none;
+}
+
+.page {
+  width: min(1180px, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: 1.5rem 0 4rem;
+}
+
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(280px, 430px);
+  gap: 2.5rem;
+  align-items: center;
+  min-height: 92svh;
+}
+
+.eyebrow,
+.label {
+  display: inline-block;
+  padding: 0.36rem 0.78rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.66);
+  font-size: 0.78rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.hero h1,
+.band h2,
+.commands h2,
+.final-cta h2,
+.workflow h3 {
+  font-family: "Bahnschrift", "Trebuchet MS", sans-serif;
+  letter-spacing: -0.04em;
+}
+
+.hero h1 {
+  margin: 0.9rem 0 0;
+  font-size: clamp(3rem, 7vw, 6rem);
+  line-height: 0.93;
+}
+
+.hero p,
+.band p,
+.workflow p,
+.commands p {
+  color: var(--ink-soft);
+  line-height: 1.75;
+  font-size: 1.03rem;
+}
+
+.hero p {
+  max-width: 36rem;
+}
+
+.hero-media {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.hero-media img {
+  width: min(100%, 440px);
+  filter: drop-shadow(0 36px 54px rgba(21, 77, 120, 0.18));
+  animation: floatLogo 6s ease-in-out infinite;
+}
+
+.actions {
+  display: flex;
+  gap: 0.85rem;
+  flex-wrap: wrap;
+  margin-top: 1.6rem;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 10rem;
+  padding: 0.95rem 1.2rem;
+  border-radius: 999px;
+  text-decoration: none;
+  transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease;
+}
+
+.button:hover {
+  transform: translateY(-2px);
+}
+
+.button-primary {
+  color: white;
+  background: linear-gradient(135deg, var(--ink), var(--blue));
+  box-shadow: 0 22px 34px rgba(15, 45, 87, 0.18);
+}
+
+.button-secondary {
+  color: var(--ink);
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.64);
+}
+
+.band,
+.workflow,
+.commands,
+.final-cta {
+  border-top: 1px solid var(--line);
+  padding-top: 2rem;
+  margin-top: 2rem;
+}
+
+.band {
+  display: grid;
+  grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+  gap: 2rem;
+  align-items: end;
+}
+
+.band h2,
+.commands h2,
+.final-cta h2 {
+  margin: 0.9rem 0 0;
+  font-size: clamp(2rem, 3vw, 3.25rem);
+  line-height: 1;
+}
+
+.workflow {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.4rem;
+}
+
+.workflow h3 {
+  margin: 0.85rem 0 0.5rem;
+  font-size: 1.5rem;
+}
+
+.commands {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  gap: 1.8rem;
+  align-items: start;
+}
+
+pre {
+  margin: 0;
+  padding: 1.4rem;
+  overflow: auto;
+  border: 1px solid rgba(15, 45, 87, 0.1);
+  background: linear-gradient(180deg, rgba(12, 34, 64, 0.98), rgba(15, 45, 87, 0.93));
+  color: #eaf7ff;
+}
+
+code {
+  font-family: "Cascadia Code", "Consolas", monospace;
+  font-size: 0.96rem;
+  line-height: 1.7;
+}
+
+.final-cta {
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+  align-items: flex-start;
+  padding-bottom: 1rem;
+}
+
+@keyframes floatLogo {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@media (max-width: 940px) {
+  .hero,
+  .band,
+  .commands,
+  .workflow {
+    grid-template-columns: 1fr;
+  }
+
+  .hero {
+    min-height: auto;
+    padding-top: 1rem;
+  }
+}

@@ -1,0 +1,16 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.venv/
+venv/
+build/
+dist/
+artifacts/
+checkpoints/
+packed_models/
+tmp/
+.tmp*/
+.tmp_tests/
+*.log
+impplan.txt

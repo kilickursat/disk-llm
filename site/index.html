@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Disk-LLM</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <div class="hero-copy">
+        <div class="eyebrow">Disk-backed Research Kit</div>
+        <h1>Disk-LLM makes local inference inspectable.</h1>
+        <p>
+          Convert checkpoints into layer-packed shards, run short text-only experiments on CPU,
+          and watch the runtime surface the parts that usually stay hidden: tensor layout,
+          logical bytes mapped, and per-layer latency.
+        </p>
+        <div class="actions">
+          <a href="../README.md" class="button button-primary">Read the README</a>
+          <a href="../docs/architecture.md" class="button button-secondary">See the architecture</a>
+        </div>
+      </div>
+      <div class="hero-media">
+        <img src="../logo.png" alt="Disk-LLM logo">
+      </div>
+    </section>
+
+    <section class="band">
+      <div>
+        <span class="label">Inspect</span>
+        <h2>Know the checkpoint before you touch the runtime.</h2>
+      </div>
+      <p>
+        The source inspector parses safetensors headers directly, counts tensors, estimates memory,
+        and previews which parts of a multimodal checkpoint belong to the text path.
+      </p>
+    </section>
+
+    <section class="workflow">
+      <div>
+        <span class="label">Pack</span>
+        <h3>Layer-oriented shards</h3>
+        <p>Disk-LLM rewrites selected tensors into memmap-friendly shards instead of treating the raw source layout as final.</p>
+      </div>
+      <div>
+        <span class="label">Run</span>
+        <h3>Short CPU loops</h3>
+        <p>The v1 runtime is intentionally narrow: batch size 1, short prompts, and honest visibility into what the adapter is doing.</p>
+      </div>
+      <div>
+        <span class="label">Measure</span>
+        <h3>Telemetry first</h3>
+        <p>Every run can expose first-token latency, tokens per second, tensors touched, and layer timing without pretending to be a production engine.</p>
+      </div>
+    </section>
+
+    <section class="commands">
+      <div class="commands-copy">
+        <span class="label">Try it</span>
+        <h2>From source snapshot to generated tokens.</h2>
+        <p>The CLI keeps the whole workflow compact and reproducible.</p>
+      </div>
+      <pre><code>disk-llm inspect --source-dir /path/to/Qwen3.5-9B
+disk-llm convert /path/to/Qwen3.5-9B ./packed-qwen35
+disk-llm inspect --manifest ./packed-qwen35/manifest.json
+disk-llm generate ./packed-qwen35/manifest.json --prompt-ids 1,2,3</code></pre>
+    </section>
+
+    <section class="final-cta">
+      <span class="label">Open Source</span>
+      <h2>Built for contributors who care about layout, transparency, and reproducible experiments.</h2>
+      <a href="../CONTRIBUTING.md" class="button button-primary">Contribute</a>
+    </section>
+  </main>
+</body>
+</html>

@@ -1,0 +1,2 @@
+include logo.png
+recursive-include src/disk_llm/assets *.png

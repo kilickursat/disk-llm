@@ -1,0 +1,51 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "disk-llm"
+version = "0.1.0"
+description = "Inspectable disk-backed LLM research kit built around memmap layouts and telemetry."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { file = "LICENSE" }
+authors = [{ name = "kilickursat" }]
+keywords = ["llm", "numpy", "memmap", "safetensors", "research", "inference"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Science/Research",
+  "License :: OSI Approved :: Apache Software License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+  "numpy>=2.0",
+]
+
+[project.optional-dependencies]
+hf = [
+  "safetensors>=0.5.0",
+  "transformers>=4.57.0",
+]
+demo = [
+  "gradio>=5.0.0",
+  "transformers>=4.57.0",
+]
+test = [
+  "pytest>=8.0.0",
+]
+
+[project.scripts]
+disk-llm = "disk_llm.cli:main"
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+disk_llm = ["assets/*.png"]
