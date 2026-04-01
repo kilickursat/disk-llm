@@ -19,7 +19,7 @@ A branded static landing page is included at [`site/index.html`](site/index.html
 
 - `convert`: implemented
 - `inspect`: implemented
-- `bench`: implemented
+- `bench`: implemented, with reproducible CSV/plot scripts for repeated experiments
 - `generate`: implemented
 - `demo`: implemented as an optional Gradio wrapper
 - Qwen 3.5 text runtime: experimental adapter scaffold
@@ -71,8 +71,10 @@ pip install -e .
 Optional extras:
 
 ```bash
-pip install -e .[hf,demo,test]
+pip install -e .[hf,demo,test,bench]
 ```
+
+For Hugging Face parity or CPU-baseline benchmarks, make sure a CPU PyTorch build is also available in the environment.
 
 ### 2. Inspect a Hugging Face snapshot
 
@@ -111,6 +113,42 @@ disk-llm generate ./packed-qwen35/manifest.json --prompt "Explain disk-backed in
 ```bash
 disk-llm demo ./packed-qwen35/manifest.json --tokenizer /path/to/Qwen3.5-9B
 ```
+
+### 8. Run repeated benchmark cases
+
+Save repeated runs, prompt-length sweeps, and process-memory timelines:
+
+```bash
+python scripts/benchmark.py ./packed-qwen35/manifest.json \
+  --prompt "Explain disk-backed inference in one paragraph." \
+  --tokenizer /path/to/Qwen3.5-9B \
+  --backends disk_llm,hf_cpu \
+  --hf-model /path/to/Qwen3.5-9B \
+  --prompt-lengths 8,64,256,512 \
+  --max-new-tokens 16 \
+  --runs 3 \
+  --output-dir ./benchmark-results/qwen35-cpu
+```
+
+This writes:
+
+- `benchmark_runs.csv`
+- `benchmark_summary.csv`
+- `memory_timeline.csv`
+- `benchmark_metadata.json`
+
+### 9. Generate comparison plots
+
+```bash
+python scripts/plot_results.py ./benchmark-results/qwen35-cpu
+```
+
+The plot step produces:
+
+- throughput bar charts
+- first-token latency curves
+- RSS timeline plots
+- a Markdown comparison table for reports or README updates
 
 ## What gets packed
 
@@ -154,6 +192,8 @@ Every runtime call can emit:
 
 These metrics are intentionally approximate on CPU because page-cache behavior is owned by the OS, but they are still useful for comparative experiments.
 
+The benchmark scripts extend that with repeated-run CSVs, RSS sampling via `psutil`, and an optional Hugging Face CPU reference backend.
+
 ## Development
 
 Run the stdlib test suite:
@@ -171,6 +211,7 @@ The repository is designed to remain importable even when optional dependencies 
 - add parity checks against a reference backend when `transformers` is installed
 - deepen telemetry with cache-specific metrics and disk-fault sampling
 - add focused docs for custom adapters and alternate packing strategies
+- publish real Qwen benchmark results and figures from converted checkpoints
 
 ## Open source contribution
 
@@ -178,6 +219,6 @@ Please read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request. Go
 
 - new tensor-name adapters
 - improved block-layout inspection
-- benchmark datasets and reproducible reports
+- benchmark datasets and published result bundles
 - runtime correctness tests against reference implementations
 - tokenizer and chat-template integration improvements

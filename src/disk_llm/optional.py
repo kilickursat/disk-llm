@@ -27,6 +27,31 @@ def require_gradio():
     return gr
 
 
+def require_psutil():
+    """Import psutil only when benchmark telemetry needs process metrics."""
+    try:
+        import psutil
+    except ImportError as exc:  # pragma: no cover - exercised through callers
+        raise DependencyMissingError(
+            "psutil is required for benchmark RSS and IO sampling. Install it with `pip install -e .[bench]`."
+        ) from exc
+    return psutil
+
+
+def require_matplotlib_pyplot():
+    """Import matplotlib only for offline plot generation."""
+    try:
+        import matplotlib
+
+        matplotlib.use("Agg", force=True)
+        from matplotlib import pyplot as plt
+    except ImportError as exc:  # pragma: no cover - exercised through callers
+        raise DependencyMissingError(
+            "matplotlib is required for plot generation. Install it with `pip install -e .[bench]`."
+        ) from exc
+    return plt
+
+
 def require_auto_tokenizer():
     """Import Hugging Face tokenizer support only when text prompts are used."""
     try:
@@ -36,3 +61,14 @@ def require_auto_tokenizer():
             "Transformers is required for text prompts. Install it with `pip install -e .[hf]`."
         ) from exc
     return AutoTokenizer
+
+
+def require_auto_model_for_causal_lm():
+    """Import Hugging Face causal language-model support on demand."""
+    try:
+        from transformers import AutoModelForCausalLM
+    except ImportError as exc:  # pragma: no cover - exercised through callers
+        raise DependencyMissingError(
+            "Transformers is required for the Hugging Face baseline. Install it with `pip install -e .[hf]`."
+        ) from exc
+    return AutoModelForCausalLM
