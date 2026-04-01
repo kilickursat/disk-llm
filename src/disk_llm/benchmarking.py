@@ -240,9 +240,10 @@ class HuggingFaceCPUBenchmarkBackend:
     name = "hf_cpu"
     label = "HF CPU"
 
-    def __init__(self, model_path: str | Path, *, trust_remote_code: bool = False):
+    def __init__(self, model_path: str | Path, *, trust_remote_code: bool = False, dtype: str = "float32"):
         self.model_path = Path(model_path)
         self.trust_remote_code = trust_remote_code
+        self.dtype = dtype
         self.model = None
         self.torch = None
         self.eos_token_id: int | None = None
@@ -254,8 +255,13 @@ class HuggingFaceCPUBenchmarkBackend:
         except ImportError as exc:  # pragma: no cover
             raise DependencyMissingError("PyTorch is required for the Hugging Face CPU baseline. Install a CPU build alongside `pip install -e .[hf]`.") from exc
         self.torch = torch
+        torch_dtype = self._resolve_torch_dtype(torch)
         try:
-            self.model = AutoModelForCausalLM.from_pretrained(str(self.model_path), torch_dtype=torch.float32, trust_remote_code=self.trust_remote_code)
+            self.model = AutoModelForCausalLM.from_pretrained(
+                str(self.model_path),
+                torch_dtype=torch_dtype,
+                trust_remote_code=self.trust_remote_code,
+            )
         except Exception as exc:  # pragma: no cover
             raise DiskLLMError(f"Failed to load Hugging Face model from {self.model_path}: {exc}") from exc
         self.model.to("cpu")
@@ -289,7 +295,16 @@ class HuggingFaceCPUBenchmarkBackend:
                 logits = outputs.logits[:, -1, :]
                 past_key_values = outputs.past_key_values
         elapsed = time.perf_counter() - started
-        return {"generated_tokens": generated_tokens, "elapsed_seconds": elapsed, "first_token_seconds": first_token_seconds, "tokens_per_second": generated_tokens / elapsed if elapsed > 0 else 0.0, "logical_bytes_mapped_mb": None, "tensors_touched": None, "layer_count": None, "notes": ["float32_cpu_reference"]}
+        return {
+            "generated_tokens": generated_tokens,
+            "elapsed_seconds": elapsed,
+            "first_token_seconds": first_token_seconds,
+            "tokens_per_second": generated_tokens / elapsed if elapsed > 0 else 0.0,
+            "logical_bytes_mapped_mb": None,
+            "tensors_touched": None,
+            "layer_count": None,
+            "notes": [f"{self.dtype}_cpu_reference"],
+        }
 
     def _sample_token(self, logits, *, temperature: float, top_p: float, generator) -> int:
         torch = self.torch
@@ -311,15 +326,34 @@ class HuggingFaceCPUBenchmarkBackend:
         self.torch = None
         gc.collect()
 
+    def _resolve_torch_dtype(self, torch):
+        normalized = self.dtype.strip().lower()
+        if normalized == "float32":
+            return torch.float32
+        if normalized == "float16":
+            return torch.float16
+        if normalized == "bfloat16":
+            return torch.bfloat16
+        if normalized == "auto":
+            return "auto"
+        raise DiskLLMError(f"Unsupported hf_cpu dtype: {self.dtype}")
 
-def create_backend(backend_name: str, *, manifest_path: str | Path, hf_model_path: str | Path | None, trust_remote_code: bool):
+
+def create_backend(
+    backend_name: str,
+    *,
+    manifest_path: str | Path,
+    hf_model_path: str | Path | None,
+    trust_remote_code: bool,
+    hf_dtype: str = "float32",
+):
     normalized = backend_name.strip().lower()
     if normalized == "disk_llm":
         return DiskLLMBenchmarkBackend(manifest_path)
     if normalized == "hf_cpu":
         if hf_model_path is None:
             raise DiskLLMError("The hf_cpu backend requires --hf-model or a manifest with a valid source snapshot.")
-        return HuggingFaceCPUBenchmarkBackend(hf_model_path, trust_remote_code=trust_remote_code)
+        return HuggingFaceCPUBenchmarkBackend(hf_model_path, trust_remote_code=trust_remote_code, dtype=hf_dtype)
     raise DiskLLMError(f"Unknown backend: {backend_name}")
 
 
@@ -360,6 +394,7 @@ def run_benchmark_suite(
     seed: int | None = 0,
     backends: Sequence[str] | None = None,
     hf_model_path: str | Path | None = None,
+    hf_dtype: str = "float32",
     sample_interval_seconds: float = 0.025,
     trust_remote_code: bool = False,
 ) -> BenchmarkReport:
@@ -380,7 +415,13 @@ def run_benchmark_suite(
     run_rows: list[dict[str, Any]] = []
     timeline_rows: list[dict[str, Any]] = []
     for backend_name in backend_names:
-        backend = create_backend(backend_name, manifest_path=manifest_path, hf_model_path=resolved_hf_model_path, trust_remote_code=trust_remote_code)
+        backend = create_backend(
+            backend_name,
+            manifest_path=manifest_path,
+            hf_model_path=resolved_hf_model_path,
+            trust_remote_code=trust_remote_code,
+            hf_dtype=hf_dtype,
+        )
         backend.load()
         try:
             for prompt_case in prompt_cases:
@@ -435,6 +476,7 @@ def run_benchmark_suite(
         "source_dir": manifest.source_dir,
         "tokenizer_path": None if tokenizer_path is None else str(Path(tokenizer_path).resolve()),
         "hf_model_path": None if resolved_hf_model_path is None else str(Path(resolved_hf_model_path).resolve()),
+        "hf_dtype": hf_dtype,
         "prompt_lengths": [case.prompt_tokens for case in prompt_cases],
         "max_new_tokens": list(max_tokens_cases),
         "runs": int(runs),

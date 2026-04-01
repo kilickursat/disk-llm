@@ -150,6 +150,13 @@ The plot step produces:
 - RSS timeline plots
 - a Markdown comparison table for reports or README updates
 
+### 10. Run the full workflow on Modal
+
+If you want to keep the Qwen snapshot off your local machine, use the remote runner and saved command sequence in [`docs/modal_remote_run.md`](docs/modal_remote_run.md). The helper wrappers are:
+
+- `scripts/run_modal_qwen35_9b.sh`
+- `scripts/run_modal_qwen35_9b.ps1`
+
 ## What gets packed
 
 The default v1 converter targets the text-only path:

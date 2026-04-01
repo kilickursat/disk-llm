@@ -32,6 +32,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--backends", default="disk_llm", help="Comma-separated backends: disk_llm,hf_cpu")
     parser.add_argument("--hf-model", help="Path to a Hugging Face source snapshot for the hf_cpu baseline.")
+    parser.add_argument("--hf-dtype", default="float32", help="HF CPU dtype: float32, float16, bfloat16, or auto.")
     parser.add_argument("--sample-interval-ms", type=float, default=25.0, help="RSS/IO sampling interval in milliseconds.")
     parser.add_argument("--trust-remote-code", action="store_true", help="Allow remote-code model/tokenizer adapters for Hugging Face.")
     parser.add_argument("--output-dir", default="benchmark-results", help="Directory for CSV artifacts.")
@@ -57,6 +58,7 @@ def main(argv: list[str] | None = None) -> int:
             seed=args.seed,
             backends=parse_name_list(args.backends),
             hf_model_path=args.hf_model,
+            hf_dtype=args.hf_dtype,
             sample_interval_seconds=args.sample_interval_ms / 1000.0,
             trust_remote_code=args.trust_remote_code,
         )
