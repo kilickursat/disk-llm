@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Disk-LLM | Documentation</title>
+<meta name="description" content="Complete documentation for Disk-LLM: installation, model conversion, runtime telemetry, and API reference."/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;600&family=Space+Grotesk:wght@500&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+tailwind.config = {
+  darkMode: "class",
+  theme: {
+    extend: {
+      colors: {
+        "primary": "#0052dd",
+        "primary-dim": "#0048c3",
+        "primary-container": "#dbe1ff",
+        "on-primary": "#f8f7ff",
+        "on-primary-container": "#0047c1",
+        "surface": "#fcf9f8",
+        "surface-container": "#f0eded",
+        "surface-container-low": "#f6f3f2",
+        "surface-container-high": "#eae8e7",
+        "surface-container-highest": "#e4e2e2",
+        "surface-container-lowest": "#ffffff",
+        "surface-dim": "#dbdad9",
+        "on-surface": "#323233",
+        "on-surface-variant": "#5f5f5f",
+        "outline": "#7b7a7a",
+        "outline-variant": "#b3b2b1",
+        "inverse-surface": "#0e0e0e",
+        "secondary": "#5f5f5f",
+        "background": "#fcf9f8",
+        "on-background": "#323233",
+      },
+      fontFamily: {
+        "headline": ["IBM Plex Sans", "sans-serif"],
+        "body": ["IBM Plex Sans", "sans-serif"],
+        "label": ["Space Grotesk", "sans-serif"],
+        "mono": ["IBM Plex Mono", "monospace"]
+      },
+      borderRadius: { "DEFAULT": "0px", "lg": "0px", "xl": "0px", "full": "9999px" },
+    },
+  },
+}
+</script>
+<style>
+body { font-family: 'IBM Plex Sans', sans-serif; }
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+}
+.code-block {
+  background-color: #161616;
+  color: #f4f4f4;
+  font-family: 'IBM Plex Mono', monospace;
+  border-left: 4px solid #0052dd;
+}
+</style>
+</head>
+<body class="bg-surface text-on-surface">
+<!-- Sidebar -->
+<aside class="h-screen w-64 fixed left-0 top-0 bg-neutral-50 flex flex-col py-8 px-0 font-['IBM_Plex_Sans'] text-sm tracking-tight z-50 hidden lg:flex">
+<div class="px-8 mb-12">
+  <a href="index.html" class="font-['IBM_Plex_Mono'] font-bold text-lg tracking-tighter text-neutral-900 hover:text-primary transition-colors">Disk-LLM</a>
+  <p class="text-[10px] text-outline font-mono uppercase tracking-widest mt-1">v0.1.0-alpha</p>
+</div>
+<nav class="flex-1">
+  <div class="space-y-1">
+    <a class="flex items-center gap-3 px-8 text-blue-600 font-semibold border-l-2 border-blue-600 py-2 hover:bg-neutral-200 transition-colors duration-150" href="#getting-started">
+      <span class="material-symbols-outlined text-[18px]">terminal</span>
+      <span>Getting Started</span>
+    </a>
+    <a class="flex items-center gap-3 px-8 text-neutral-500 border-l-2 border-transparent py-2 hover:bg-neutral-200 transition-colors duration-150" href="#model-conversion">
+      <span class="material-symbols-outlined text-[18px]">transform</span>
+      <span>Model Conversion</span>
+    </a>
+    <a class="flex items-center gap-3 px-8 text-neutral-500 border-l-2 border-transparent py-2 hover:bg-neutral-200 transition-colors duration-150" href="#telemetry">
+      <span class="material-symbols-outlined text-[18px]">analytics</span>
+      <span>Runtime Telemetry</span>
+    </a>
+    <a class="flex items-center gap-3 px-8 text-neutral-500 border-l-2 border-transparent py-2 hover:bg-neutral-200 transition-colors duration-150" href="#benchmarks">
+      <span class="material-symbols-outlined text-[18px]">speed</span>
+      <span>Benchmarks</span>
+    </a>
+    <a class="flex items-center gap-3 px-8 text-neutral-500 border-l-2 border-transparent py-2 hover:bg-neutral-200 transition-colors duration-150" href="#modal">
+      <span class="material-symbols-outlined text-[18px]">cloud</span>
+      <span>Modal Remote Run</span>
+    </a>
+  </div>
+</nav>
+<div class="px-8 mt-auto">
+  <div class="p-4 bg-surface-container-high flex flex-col gap-2">
+    <span class="font-label text-[10px] uppercase text-outline tracking-widest">Links</span>
+    <a class="text-left text-xs font-medium hover:text-primary transition-colors" href="https://github.com/kilickursat/disk-llm" target="_blank">GitHub Repository</a>
+    <a class="text-left text-xs font-medium hover:text-primary transition-colors" href="index.html">Back to Home</a>
+  </div>
+</div>
+</aside>
+
+<!-- Top Nav -->
+<header class="fixed top-0 right-0 left-0 lg:left-64 h-14 z-40 bg-white border-b border-neutral-200 flex items-center justify-between px-8 w-full font-['IBM_Plex_Sans'] text-sm font-medium">
+<div class="flex items-center gap-8">
+  <a href="index.html" class="font-['IBM_Plex_Mono'] font-bold text-neutral-900 lg:hidden">Disk-LLM</a>
+  <span class="font-['IBM_Plex_Mono'] font-bold text-neutral-900 hidden lg:block">Documentation</span>
+  <nav class="hidden md:flex items-center gap-6">
+    <a class="text-blue-600 border-b-2 border-blue-600 pb-4 transition-all duration-200" href="documentation.html">Docs</a>
+    <a class="text-neutral-500 hover:text-blue-500 transition-all duration-200" href="converter.html">Converter</a>
+    <a class="text-neutral-500 hover:text-blue-500 transition-all duration-200" href="telemetry.html">Dashboard</a>
+    <a class="text-neutral-500 hover:text-blue-500 transition-all duration-200" href="https://github.com/kilickursat/disk-llm" target="_blank">GitHub</a>
+  </nav>
+</div>
+</header>
+
+<!-- Main Content -->
+<main class="lg:ml-64 pt-24 pb-24 px-6 lg:px-12 max-w-6xl">
+
+<!-- Section 01: Getting Started -->
+<section class="mb-20" id="getting-started">
+<div class="flex items-baseline gap-4 mb-8">
+  <span class="font-mono text-primary text-sm font-bold">01</span>
+  <h1 class="text-5xl font-light tracking-tight text-on-surface">Getting Started</h1>
+</div>
+<div class="grid grid-cols-12 gap-12">
+  <div class="col-span-12 lg:col-span-8">
+    <h3 class="text-xl font-semibold mb-6">Installation</h3>
+    <p class="text-on-surface-variant mb-6 leading-relaxed">
+      Disk-LLM is an inspectable disk-backed LLM research kit. Install the base package or include optional extras for Hugging Face integration, benchmarking, Gradio demos, and testing.
+    </p>
+    <div class="code-block p-6 relative group mb-6">
+      <span class="absolute right-4 top-4 text-[10px] text-outline font-label uppercase">Terminal</span>
+      <code>pip install -e .</code>
+    </div>
+    <p class="text-on-surface-variant mb-6 leading-relaxed">Optional extras:</p>
+    <div class="code-block p-6 relative group mb-12">
+      <span class="absolute right-4 top-4 text-[10px] text-outline font-label uppercase">Terminal</span>
+      <code>pip install -e .[hf,demo,test,bench]</code>
+    </div>
+    <div class="bg-surface-container-low p-8 border-l-4 border-primary">
+      <h4 class="font-label text-xs uppercase tracking-widest text-primary mb-2">Requirement Note</h4>
+      <p class="text-sm text-on-surface-variant">Requires Python ≥ 3.11. For HF parity or CPU-baseline benchmarks, ensure a CPU PyTorch build is available in the environment.</p>
+    </div>
+  </div>
+  <div class="col-span-12 lg:col-span-4">
+    <div class="p-6 bg-surface-container-lowest shadow-sm">
+      <h5 class="font-label text-[10px] uppercase tracking-widest text-outline mb-4">On this page</h5>
+      <ul class="space-y-3 text-xs font-medium">
+        <li><a class="text-primary hover:underline" href="#getting-started">Installation Overview</a></li>
+        <li><a class="text-on-surface-variant hover:text-on-surface" href="#model-conversion">Model Conversion</a></li>
+        <li><a class="text-on-surface-variant hover:text-on-surface" href="#telemetry">Runtime Telemetry</a></li>
+        <li><a class="text-on-surface-variant hover:text-on-surface" href="#benchmarks">Benchmarks</a></li>
+        <li><a class="text-on-surface-variant hover:text-on-surface" href="#modal">Modal Remote Run</a></li>
+      </ul>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- Section 02: Model Conversion -->
+<section class="mb-20" id="model-conversion">
+<div class="flex items-baseline gap-4 mb-8">
+  <span class="font-mono text-primary text-sm font-bold">02</span>
+  <h2 class="text-4xl font-light tracking-tight text-on-surface">Model Conversion</h2>
+</div>
+<div class="grid grid-cols-12 gap-8 mb-12">
+  <div class="col-span-12 lg:col-span-7">
+    <p class="text-on-surface mb-8 leading-relaxed text-lg">
+      Disk-LLM re-organizes weights into layer-oriented shards. This alignment ensures that when a transformer block requests its weights, the OS can fetch exactly those bytes from disk in a single sequential I/O operation.
+    </p>
+    <p class="text-on-surface-variant mb-8">
+      The default v1 converter targets the text-only path: embed_tokens, model.layers.*, model.norm, and lm_head. Known multimodal tensors like visual.* are skipped.
+    </p>
+  </div>
+</div>
+<div class="code-block p-6 mb-8">
+  <div class="flex justify-between items-center mb-4">
+    <span class="text-[10px] text-outline font-label uppercase">Inspect</span>
+  </div>
+  <code>disk-llm inspect --source-dir /path/to/Qwen3.5-9B</code>
+</div>
+<div class="code-block p-6 mb-8">
+  <div class="flex justify-between items-center mb-4">
+    <span class="text-[10px] text-outline font-label uppercase">Convert</span>
+  </div>
+  <code>disk-llm convert /path/to/Qwen3.5-9B ./packed-qwen35</code>
+</div>
+<div class="code-block p-6 mb-16">
+  <div class="flex justify-between items-center mb-4">
+    <span class="text-[10px] text-outline font-label uppercase">Verify Manifest</span>
+  </div>
+  <code>disk-llm inspect --manifest ./packed-qwen35/manifest.json</code>
+</div>
+
+<!-- Data Table -->
+<div class="mb-12">
+  <h3 class="text-xl font-semibold mb-8">Packed Shard Structure</h3>
+  <div class="overflow-x-auto">
+    <table class="w-full text-left font-mono text-xs border-collapse">
+      <thead>
+        <tr class="bg-surface-container-highest border-b border-outline-variant/20">
+          <th class="p-4 font-label uppercase tracking-widest text-[10px]">Shard</th>
+          <th class="p-4 font-label uppercase tracking-widest text-[10px]">Contents</th>
+          <th class="p-4 font-label uppercase tracking-widest text-[10px]">Format</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-outline-variant/10">
+        <tr class="hover:bg-surface-container transition-colors">
+          <td class="p-4 text-primary font-bold">embeddings/embeddings.bin</td>
+          <td class="p-4">model.embed_tokens</td>
+          <td class="p-4">memmap</td>
+        </tr>
+        <tr class="hover:bg-surface-container transition-colors">
+          <td class="p-4 text-primary font-bold">layers/layer_000.bin</td>
+          <td class="p-4">model.layers.0.*</td>
+          <td class="p-4">memmap</td>
+        </tr>
+        <tr class="hover:bg-surface-container transition-colors">
+          <td class="p-4 text-primary font-bold">layers/layer_001.bin</td>
+          <td class="p-4">model.layers.1.*</td>
+          <td class="p-4">memmap</td>
+        </tr>
+        <tr class="hover:bg-surface-container transition-colors">
+          <td class="p-4 text-primary font-bold">final/final.bin</td>
+          <td class="p-4">model.norm + lm_head</td>
+          <td class="p-4">memmap</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+</section>
+
+<!-- Section 03: Telemetry -->
+<section class="mb-20" id="telemetry">
+<div class="flex items-baseline gap-4 mb-8">
+  <span class="font-mono text-primary text-sm font-bold">03</span>
+  <h2 class="text-4xl font-light tracking-tight text-on-surface">Runtime Telemetry</h2>
+</div>
+<p class="text-on-surface-variant mb-8 max-w-3xl leading-relaxed">
+  Every runtime call can emit: logical bytes mapped, tensors touched, per-layer wall time, first-token latency, generated token count, and tokens per second.
+</p>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-1 mb-8">
+  <div class="bg-surface-container-lowest p-6 border-l-2 border-primary">
+    <span class="font-mono text-[10px] text-outline block mb-1">FIRST_TOKEN_LATENCY</span>
+    <div class="flex items-baseline gap-2">
+      <span class="text-2xl font-mono font-bold">1.2s</span>
+      <span class="text-[10px] text-primary">▼ 0.4s</span>
+    </div>
+  </div>
+  <div class="bg-surface-container-lowest p-6 border-l-2 border-primary">
+    <span class="font-mono text-[10px] text-outline block mb-1">TOKENS_PER_SECOND</span>
+    <div class="flex items-baseline gap-2">
+      <span class="text-2xl font-mono font-bold">4.8</span>
+      <span class="text-[10px] text-primary">tok/s</span>
+    </div>
+  </div>
+  <div class="bg-surface-container-lowest p-6 border-l-2 border-primary">
+    <span class="font-mono text-[10px] text-outline block mb-1">PEAK_RSS</span>
+    <div class="flex items-baseline gap-2">
+      <span class="text-2xl font-mono font-bold">3.4GB</span>
+      <span class="text-[10px] text-primary">MONITORED</span>
+    </div>
+  </div>
+</div>
+<div class="code-block p-6 mb-8">
+  <div class="flex justify-between items-center mb-4">
+    <span class="text-[10px] text-outline font-label uppercase">Generate with telemetry</span>
+  </div>
+  <code>disk-llm generate ./packed-qwen35/manifest.json --prompt "Hello" --show-telemetry</code>
+</div>
+<p class="text-on-surface-variant text-sm">
+  <a href="telemetry.html" class="text-primary hover:underline">View full telemetry dashboard →</a>
+</p>
+</section>
+
+<!-- Section 04: Benchmarks -->
+<section class="mb-20" id="benchmarks">
+<div class="flex items-baseline gap-4 mb-8">
+  <span class="font-mono text-primary text-sm font-bold">04</span>
+  <h2 class="text-4xl font-light tracking-tight text-on-surface">Benchmarks</h2>
+</div>
+<p class="text-on-surface-variant mb-8 max-w-3xl leading-relaxed">
+  Run repeated benchmark cases across prompt lengths with Disk-LLM vs HF CPU baseline comparison.
+</p>
+<div class="code-block p-6 mb-8">
+  <div class="flex justify-between items-center mb-4">
+    <span class="text-[10px] text-outline font-label uppercase">Run benchmarks</span>
+  </div>
+  <div class="space-y-1">
+    <code>python scripts/benchmark.py ./packed-qwen35/manifest.json \</code><br/>
+    <code>  --prompt "Explain disk-backed inference in one paragraph." \</code><br/>
+    <code>  --tokenizer /path/to/Qwen3.5-9B \</code><br/>
+    <code>  --backends disk_llm,hf_cpu \</code><br/>
+    <code>  --prompt-lengths 8,64,256,512 \</code><br/>
+    <code>  --runs 3 --output-dir ./benchmark-results</code>
+  </div>
+</div>
+<div class="code-block p-6 mb-8">
+  <div class="flex justify-between items-center mb-4">
+    <span class="text-[10px] text-outline font-label uppercase">Generate plots</span>
+  </div>
+  <code>python scripts/plot_results.py ./benchmark-results</code>
+</div>
+<p class="text-on-surface-variant text-sm">
+  Outputs: benchmark_runs.csv, benchmark_summary.csv, memory_timeline.csv, throughput charts, latency curves, and RSS timeline plots.
+</p>
+</section>
+
+<!-- Section 05: Modal Remote Run -->
+<section class="mb-20" id="modal">
+<div class="flex items-baseline gap-4 mb-8">
+  <span class="font-mono text-primary text-sm font-bold">05</span>
+  <h2 class="text-4xl font-light tracking-tight text-on-surface">Modal Remote Run</h2>
+</div>
+<p class="text-on-surface-variant mb-8 max-w-3xl leading-relaxed">
+  Run the entire Qwen benchmark workflow on Modal cloud infrastructure. The 9B model stays in Modal's volume — never touches your local machine.
+</p>
+<div class="code-block p-6 mb-8">
+  <div class="flex justify-between items-center mb-4">
+    <span class="text-[10px] text-outline font-label uppercase">Windows PowerShell</span>
+  </div>
+  <code>powershell -ExecutionPolicy Bypass -File .\scripts\run_modal_qwen35_9b.ps1</code>
+</div>
+<div class="code-block p-6 mb-8">
+  <div class="flex justify-between items-center mb-4">
+    <span class="text-[10px] text-outline font-label uppercase">Linux / macOS</span>
+  </div>
+  <code>bash scripts/run_modal_qwen35_9b.sh</code>
+</div>
+<div class="code-block p-6 mb-8">
+  <div class="flex justify-between items-center mb-4">
+    <span class="text-[10px] text-outline font-label uppercase">Pull results back</span>
+  </div>
+  <code>modal volume get disk-llm-benchmarks /vol/results/Qwen--Qwen3.5-9B/qwen35-9b-modal-cpu ./modal-results</code>
+</div>
+</section>
+
+</main>
+
+<!-- Footer -->
+<footer class="lg:ml-64 bg-surface-container-low py-12 px-12 border-t-0">
+<div class="max-w-6xl flex flex-col md:flex-row justify-between items-center gap-4">
+  <div class="flex gap-8 items-center">
+    <span class="font-mono text-[10px] font-bold text-outline">DISK-LLM PROJECT</span>
+    <span class="text-[10px] text-outline">v0.1.0 — April 2026</span>
+  </div>
+  <div class="flex gap-6">
+    <a class="text-[10px] font-label uppercase tracking-widest text-outline hover:text-primary" href="https://github.com/kilickursat/disk-llm" target="_blank">GitHub</a>
+    <a class="text-[10px] font-label uppercase tracking-widest text-outline hover:text-primary" href="index.html">Home</a>
+  </div>
+</div>
+</footer>
+</body>
+</html>

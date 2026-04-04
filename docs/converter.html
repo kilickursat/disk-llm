@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Disk-LLM | Model Converter</title>
+<meta name="description" content="Disk-LLM Model Converter — convert HuggingFace checkpoints into layer-packed memmap shards for disk-backed inference."/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Space+Grotesk:wght@500&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script>
+tailwind.config = {
+  darkMode: "class",
+  theme: {
+    extend: {
+      colors: {
+        "primary": "#0052dd", "primary-dim": "#0048c3", "primary-container": "#dbe1ff",
+        "on-primary": "#f8f7ff", "on-primary-container": "#0047c1",
+        "surface": "#fcf9f8", "surface-container": "#f0eded", "surface-container-low": "#f6f3f2",
+        "surface-container-high": "#eae8e7", "surface-container-highest": "#e4e2e2",
+        "surface-container-lowest": "#ffffff", "surface-dim": "#dbdad9",
+        "on-surface": "#323233", "on-surface-variant": "#5f5f5f",
+        "outline": "#7b7a7a", "outline-variant": "#b3b2b1",
+        "inverse-surface": "#0e0e0e", "error": "#9f403d",
+        "on-tertiary-container": "#4d4762", "background": "#fcf9f8",
+      },
+      fontFamily: {
+        "headline": ["IBM Plex Sans", "sans-serif"], "body": ["IBM Plex Sans", "sans-serif"],
+        "label": ["Space Grotesk", "sans-serif"], "mono": ["IBM Plex Mono", "monospace"]
+      },
+      borderRadius: { "none": "0", "DEFAULT": "0", "lg": "0", "xl": "0", "full": "9999px" },
+    },
+  },
+}
+</script>
+<style>
+.material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24; vertical-align: middle; }
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #b3b2b1; }
+body { font-family: 'IBM Plex Sans', sans-serif; }
+</style>
+</head>
+<body class="bg-surface font-body text-on-surface">
+<!-- TopNavBar -->
+<nav class="flex justify-between items-center px-4 w-full h-12 border-b-0 bg-white font-['IBM_Plex_Sans'] text-sm tracking-tight fixed top-0 z-50">
+<div class="flex items-center gap-8">
+  <a href="index.html" class="font-['IBM_Plex_Mono'] font-bold text-lg uppercase tracking-tighter text-[#0e0e0e]">DISK-LLM</a>
+  <div class="hidden md:flex gap-6">
+    <a class="text-[#0e0e0e] opacity-60 hover:opacity-100 transition-colors duration-150 px-2 py-1" href="index.html">Home</a>
+    <a class="text-[#0e0e0e] opacity-60 hover:opacity-100 transition-colors duration-150 px-2 py-1" href="documentation.html">Docs</a>
+    <a class="text-[#0052dd] font-semibold px-2 py-1" href="converter.html">Converter</a>
+    <a class="text-[#0e0e0e] opacity-60 hover:opacity-100 transition-colors duration-150 px-2 py-1" href="telemetry.html">Telemetry</a>
+    <a class="text-[#0e0e0e] opacity-60 hover:opacity-100 transition-colors duration-150 px-2 py-1" href="https://github.com/kilickursat/disk-llm" target="_blank">GitHub</a>
+  </div>
+</div>
+<div class="flex items-center gap-4">
+  <a href="documentation.html" class="material-symbols-outlined text-on-surface-variant hover:text-primary p-1 cursor-pointer">menu_book</a>
+  <a href="https://github.com/kilickursat/disk-llm" target="_blank" class="material-symbols-outlined text-on-surface-variant hover:text-primary p-1 cursor-pointer">code</a>
+</div>
+</nav>
+
+<!-- Sidebar -->
+<aside class="fixed left-0 top-12 h-[calc(100vh-3rem)] w-64 flex-col z-40 bg-[#f6f3f2] font-['IBM_Plex_Sans'] text-xs uppercase font-medium hidden lg:flex">
+<div class="p-4 border-b border-outline-variant/10">
+  <div class="text-[#0052dd] tracking-widest font-bold">CONVERTER_TOOL</div>
+  <div class="opacity-50 text-[10px]">v0.1.0</div>
+</div>
+<div class="flex-1 py-4">
+  <nav class="flex flex-col">
+    <a href="telemetry.html" class="text-[#0e0e0e] px-4 py-3 flex items-center gap-3 opacity-70 hover:bg-[#f0eded] transition-all cursor-pointer">
+      <span class="material-symbols-outlined text-sm">analytics</span> Overview
+    </a>
+    <a href="#" class="text-[#0e0e0e] px-4 py-3 flex items-center gap-3 opacity-70 hover:bg-[#f0eded] transition-all cursor-pointer">
+      <span class="material-symbols-outlined text-sm">timer</span> Layer Latency
+    </a>
+    <div class="bg-white border-l-4 border-[#0052dd] text-[#0052dd] px-4 py-3 flex items-center gap-3 cursor-pointer">
+      <span class="material-symbols-outlined text-sm">grid_view</span> Tensor Mapping
+    </div>
+    <a href="#" class="text-[#0e0e0e] px-4 py-3 flex items-center gap-3 opacity-70 hover:bg-[#f0eded] transition-all cursor-pointer">
+      <span class="material-symbols-outlined text-sm">memory</span> Memory Pressure
+    </a>
+  </nav>
+</div>
+<div class="border-t border-outline-variant/10 py-4">
+  <a href="documentation.html" class="text-[#0e0e0e] px-4 py-2 flex items-center gap-3 opacity-70 hover:bg-[#f0eded] transition-all cursor-pointer">
+    <span class="material-symbols-outlined text-sm">menu_book</span> Documentation
+  </a>
+</div>
+</aside>
+
+<!-- Main Canvas -->
+<main class="lg:ml-64 mt-12 p-8 min-h-screen">
+<header class="mb-12">
+  <div class="flex items-center gap-2 mb-2">
+    <span class="w-8 h-px bg-primary"></span>
+    <span class="font-label text-xs uppercase tracking-[0.2em] text-primary">Converter_Protocol</span>
+  </div>
+  <h1 class="text-5xl font-headline font-light tracking-tight text-inverse-surface mb-4">Weight Packing Utility</h1>
+  <p class="text-on-surface-variant max-w-2xl leading-relaxed">Convert HuggingFace model checkpoints into the Disk-LLM optimized format — layer-packed memmap shards designed for sequential disk access during inference.</p>
+</header>
+
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-12 gap-6 items-start">
+  <!-- Configuration Column -->
+  <div class="col-span-12 lg:col-span-5 space-y-6">
+    <!-- Source Input -->
+    <section class="bg-surface-container p-6">
+      <div class="flex items-center justify-between mb-6">
+        <h3 class="font-label text-sm uppercase tracking-wider font-semibold">01. Source Input</h3>
+        <span class="text-[10px] bg-outline-variant/20 px-2 py-0.5 font-mono">STATUS: READY</span>
+      </div>
+      <div class="space-y-4">
+        <label class="block text-[10px] font-mono text-on-surface-variant uppercase">Local Checkpoint Path</label>
+        <div class="flex">
+          <input class="flex-1 bg-surface-container-lowest border-b-2 border-outline focus:border-primary focus:ring-0 px-4 py-3 font-mono text-sm" placeholder="/path/to/Qwen3.5-9B/" type="text"/>
+          <button class="bg-surface-container-highest px-4 hover:bg-outline-variant/30 transition-colors">
+            <span class="material-symbols-outlined">folder_open</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sharding Config -->
+    <section class="bg-surface-container p-6">
+      <h3 class="font-label text-sm uppercase tracking-wider font-semibold mb-6">02. Sharding Config</h3>
+      <div class="space-y-8">
+        <div>
+          <div class="flex justify-between items-center mb-4">
+            <label class="text-[10px] font-mono text-on-surface-variant uppercase">Shard Strategy</label>
+            <span class="font-mono text-sm text-primary">Layer-Oriented</span>
+          </div>
+        </div>
+        <div class="space-y-4">
+          <label class="flex items-center gap-3 group cursor-pointer">
+            <div class="w-5 h-5 border-2 border-primary flex items-center justify-center">
+              <div class="w-3 h-3 bg-primary"></div>
+            </div>
+            <span class="text-xs font-medium uppercase tracking-tight">Layer-Oriented Packing</span>
+          </label>
+          <label class="flex items-center gap-3 group cursor-pointer opacity-50">
+            <div class="w-5 h-5 border-2 border-outline flex items-center justify-center"></div>
+            <span class="text-xs font-medium uppercase tracking-tight">Subgraph Filtering (Text-only)</span>
+          </label>
+        </div>
+      </div>
+    </section>
+
+    <!-- Output Manifest -->
+    <section class="bg-inverse-surface text-surface p-6 relative overflow-hidden">
+      <div class="absolute top-0 right-0 p-8 opacity-5">
+        <span class="material-symbols-outlined text-9xl">inventory_2</span>
+      </div>
+      <h3 class="font-label text-sm uppercase tracking-wider font-semibold mb-6 text-primary">03. Output Manifest</h3>
+      <div class="grid grid-cols-2 gap-4 mb-8">
+        <div class="border-l-2 border-primary-dim pl-4 py-1">
+          <div class="text-[10px] font-mono opacity-50 uppercase">Shard Layout</div>
+          <div class="text-2xl font-mono">embeddings/ layers/ final/</div>
+        </div>
+        <div class="border-l-2 border-primary-dim pl-4 py-1">
+          <div class="text-[10px] font-mono opacity-50 uppercase">Manifest</div>
+          <div class="text-2xl font-mono">JSON</div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Conversion Console -->
+  <div class="col-span-12 lg:col-span-7">
+    <section class="bg-[#121212] flex flex-col h-full border border-outline-variant/10">
+      <div class="bg-[#1a1a1a] p-4 flex justify-between items-center border-b border-white/5">
+        <div class="flex items-center gap-3">
+          <div class="flex gap-1.5">
+            <div class="w-2.5 h-2.5 rounded-full bg-error/40"></div>
+            <div class="w-2.5 h-2.5 rounded-full bg-on-tertiary-container/40"></div>
+            <div class="w-2.5 h-2.5 rounded-full bg-primary/40"></div>
+          </div>
+          <span class="font-mono text-[10px] text-white/40 ml-4">CONVERSION_CONSOLE</span>
+        </div>
+      </div>
+      <div class="flex-1 p-6 font-mono text-xs text-white/80 space-y-2 overflow-y-auto max-h-[600px]">
+        <div class="text-primary">[INFO] INITIALIZING DISK-LLM CONVERTER...</div>
+        <div class="text-white/40">[INFO] disk-llm convert /path/to/Qwen3.5-9B ./packed-qwen35</div>
+        <div class="text-white/40">[INFO] MAPPING SOURCE DIRECTORY...</div>
+        <div class="text-white/40">[INFO] DETECTED: safetensors format</div>
+        <div class="text-white/40">[INFO] SCANNING TENSOR NAMES...</div>
+        <div class="text-white/40">[INFO] TEXT-PATH TENSORS: model.embed_tokens, model.layers.*, model.norm, lm_head</div>
+        <div class="text-white/40">[INFO] SKIPPING MULTIMODAL: visual.* (recorded in manifest)</div>
+        <div class="pt-4">
+          <div class="flex justify-between mb-1">
+            <span>PACKING WEIGHTS: layers/layer_024.bin</span>
+            <span>42%</span>
+          </div>
+          <div class="w-full bg-white/10 h-1 overflow-hidden">
+            <div class="bg-primary h-full w-[42%]"></div>
+          </div>
+        </div>
+        <div class="text-white/40">[INFO] WRITING: embeddings/embeddings.bin... OK</div>
+        <div class="text-white/40">[INFO] WRITING: layers/layer_000.bin... OK</div>
+        <div class="text-white/40">[INFO] WRITING: layers/layer_001.bin... OK</div>
+        <div class="text-white/40">[INFO] WRITING: manifest.json... OK</div>
+        <div class="text-primary/60">[INFO] CHECKSUM VERIFICATION: PASS</div>
+        <div class="animate-pulse inline-block w-2 h-4 bg-primary align-middle ml-1"></div>
+      </div>
+      <div class="p-6 bg-[#0a0a0a] border-t border-white/5 flex gap-4">
+        <button class="flex-1 py-3 bg-primary text-white font-bold text-xs uppercase tracking-widest hover:brightness-110">
+          START CONVERSION
+        </button>
+        <button class="px-6 py-3 border border-white/20 text-white/60 font-bold text-xs uppercase tracking-widest hover:bg-white/5">
+          ABORT
+        </button>
+      </div>
+    </section>
+  </div>
+</div>
+
+<!-- Metric Footer -->
+<footer class="mt-12 grid grid-cols-1 md:grid-cols-4 gap-4">
+  <div class="bg-surface-container-lowest p-4 border-l-2 border-primary">
+    <div class="text-[10px] font-mono text-on-surface-variant uppercase">SHARD_FORMAT</div>
+    <div class="font-mono text-lg text-primary">memmap</div>
+  </div>
+  <div class="bg-surface-container-lowest p-4 border-l-2 border-primary">
+    <div class="text-[10px] font-mono text-on-surface-variant uppercase">ALIGNMENT</div>
+    <div class="font-mono text-lg text-primary">4KB pages</div>
+  </div>
+  <div class="bg-surface-container-lowest p-4 border-l-2 border-primary">
+    <div class="text-[10px] font-mono text-on-surface-variant uppercase">TEXT_PATH</div>
+    <div class="font-mono text-lg text-primary">Filtered</div>
+  </div>
+  <div class="bg-surface-container-lowest p-4 border-l-2 border-primary">
+    <div class="text-[10px] font-mono text-on-surface-variant uppercase">MANIFEST</div>
+    <div class="font-mono text-lg text-primary">JSON + checksums</div>
+  </div>
+</footer>
+</main>
+</body>
+</html>

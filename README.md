@@ -13,7 +13,7 @@ This repository is intentionally opinionated. It is not trying to beat mature in
 
 Run short text-only generations from a disk-packed model layout on CPU while exposing live telemetry for researchers and contributors.
 
-A branded static landing page is included at [`site/index.html`](site/index.html), and the local demo UI now uses the project logo directly.
+A branded project website is published at [kilickursat.github.io/disk-llm](https://kilickursat.github.io/disk-llm/), and the local demo UI now uses the project logo directly.
 
 ## Current status
 
@@ -55,7 +55,11 @@ disk-llm/
 │     ├─ model.py
 │     └─ telemetry.py
 ├─ docs/
-│  └─ architecture.md
+│  ├─ architecture.md
+│  ├─ documentation.html
+│  ├─ converter.html
+│  ├─ index.html
+│  └─ telemetry.html
 ├─ tests/
 └─ pyproject.toml
 ```

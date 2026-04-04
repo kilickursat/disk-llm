@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Disk-LLM | Runtime Telemetry Dashboard</title>
+<meta name="description" content="Real-time telemetry dashboard for Disk-LLM runtime — layer latency, memory pressure, tensor mapping, and system logs."/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@500&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script>
+tailwind.config = {
+  darkMode: "class",
+  theme: {
+    extend: {
+      colors: {
+        "primary": "#0052dd", "primary-dim": "#0048c3", "primary-container": "#dbe1ff",
+        "on-primary": "#f8f7ff",
+        "surface": "#fcf9f8", "surface-container": "#f0eded", "surface-container-low": "#f6f3f2",
+        "surface-container-high": "#eae8e7", "surface-container-highest": "#e4e2e2",
+        "surface-container-lowest": "#ffffff", "surface-dim": "#dbdad9",
+        "on-surface": "#323233", "on-surface-variant": "#5f5f5f",
+        "outline": "#7b7a7a", "outline-variant": "#b3b2b1",
+        "inverse-surface": "#0e0e0e", "error": "#9f403d",
+        "secondary": "#5f5f5f", "background": "#fcf9f8", "on-background": "#323233",
+      },
+      fontFamily: {
+        "headline": ["IBM Plex Sans", "sans-serif"], "body": ["IBM Plex Sans", "sans-serif"],
+        "label": ["Space Grotesk", "sans-serif"], "mono": ["IBM Plex Mono", "monospace"]
+      },
+      borderRadius: { "DEFAULT": "0px", "lg": "0px", "xl": "0px", "full": "9999px" },
+    },
+  },
+}
+</script>
+<style>
+.material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+body { font-family: 'IBM Plex Sans', sans-serif; }
+.mono-text { font-family: 'IBM Plex Mono', monospace; }
+</style>
+</head>
+<body class="bg-background text-on-background overflow-hidden h-screen flex flex-col">
+<!-- TopNavBar -->
+<header class="w-full h-12 border-b-0 bg-[#f0eded] flex justify-between items-center px-4 z-50">
+<div class="flex items-center gap-8">
+  <a href="index.html" class="font-['IBM_Plex_Mono'] font-bold text-lg uppercase tracking-tighter text-[#0e0e0e]">DISK-LLM // TELEMETRY</a>
+  <nav class="hidden md:flex gap-6 items-center">
+    <a class="text-[#0e0e0e] opacity-60 hover:opacity-100 transition-colors duration-150 font-['IBM_Plex_Sans'] text-sm tracking-tight px-2 py-1" href="index.html">Home</a>
+    <a class="text-[#0e0e0e] opacity-60 hover:opacity-100 transition-colors duration-150 font-['IBM_Plex_Sans'] text-sm tracking-tight px-2 py-1" href="documentation.html">Docs</a>
+    <a class="text-[#0e0e0e] opacity-60 hover:opacity-100 transition-colors duration-150 font-['IBM_Plex_Sans'] text-sm tracking-tight px-2 py-1" href="converter.html">Converter</a>
+    <a class="text-[#0052dd] font-semibold font-['IBM_Plex_Sans'] text-sm tracking-tight" href="telemetry.html">Telemetry</a>
+    <a class="text-[#0e0e0e] opacity-60 hover:opacity-100 transition-colors duration-150 font-['IBM_Plex_Sans'] text-sm tracking-tight px-2 py-1" href="https://github.com/kilickursat/disk-llm" target="_blank">GitHub</a>
+  </nav>
+</div>
+</header>
+
+<div class="flex flex-1 overflow-hidden">
+<!-- Sidebar -->
+<aside class="w-64 bg-[#f6f3f2] pt-0 flex-col hidden lg:flex">
+<div class="p-6">
+  <div class="font-['IBM_Plex_Sans'] text-xs uppercase font-medium tracking-widest opacity-60">RUNTIME_TELEMETRY</div>
+  <div class="mono-text text-[10px] text-primary">v0.1.0</div>
+</div>
+<nav class="flex-1">
+  <a class="bg-white border-l-4 border-[#0052dd] text-[#0052dd] px-4 py-3 flex items-center gap-3 font-['IBM_Plex_Sans'] text-xs uppercase font-medium" href="#">
+    <span class="material-symbols-outlined">analytics</span> Overview
+  </a>
+  <a class="text-[#0e0e0e] px-4 py-3 flex items-center gap-3 opacity-70 hover:bg-[#f0eded] transition-all font-['IBM_Plex_Sans'] text-xs uppercase font-medium" href="#">
+    <span class="material-symbols-outlined">timer</span> Layer Latency
+  </a>
+  <a class="text-[#0e0e0e] px-4 py-3 flex items-center gap-3 opacity-70 hover:bg-[#f0eded] transition-all font-['IBM_Plex_Sans'] text-xs uppercase font-medium" href="#">
+    <span class="material-symbols-outlined">grid_view</span> Tensor Mapping
+  </a>
+  <a class="text-[#0e0e0e] px-4 py-3 flex items-center gap-3 opacity-70 hover:bg-[#f0eded] transition-all font-['IBM_Plex_Sans'] text-xs uppercase font-medium" href="#">
+    <span class="material-symbols-outlined">memory</span> Memory Pressure
+  </a>
+</nav>
+<div class="mt-auto border-t border-outline-variant/10">
+  <a class="text-[#0e0e0e] px-4 py-3 flex items-center gap-3 opacity-70 hover:bg-[#f0eded] font-['IBM_Plex_Sans'] text-xs uppercase font-medium" href="documentation.html">
+    <span class="material-symbols-outlined">menu_book</span> Documentation
+  </a>
+  <a class="text-[#0e0e0e] px-4 py-3 flex items-center gap-3 opacity-70 hover:bg-[#f0eded] font-['IBM_Plex_Sans'] text-xs uppercase font-medium" href="converter.html">
+    <span class="material-symbols-outlined">transform</span> Converter
+  </a>
+</div>
+</aside>
+
+<!-- Main Canvas -->
+<main class="flex-1 overflow-y-auto bg-surface p-8">
+<!-- Header -->
+<div class="mb-12">
+  <h1 class="text-5xl font-light tracking-tight text-inverse-surface mb-2 font-headline">SYSTEM_STATE: READY</h1>
+  <div class="flex gap-4 items-center">
+    <span class="mono-text text-sm text-primary">DISK-LLM RUNTIME</span>
+    <span class="h-px w-12 bg-outline-variant/30"></span>
+    <span class="mono-text text-sm opacity-50">Qwen3.5-9B Adapter</span>
+  </div>
+</div>
+
+<div class="grid grid-cols-12 gap-px bg-outline-variant/10">
+  <!-- Layer Latency Map -->
+  <section class="col-span-12 lg:col-span-8 bg-surface-container-lowest p-6">
+    <div class="flex justify-between items-end mb-8">
+      <div>
+        <span class="font-label text-[10px] uppercase tracking-widest text-secondary block mb-1">METRIC_STREAM_01</span>
+        <h2 class="text-2xl font-semibold font-headline">LAYER LATENCY MAP</h2>
+      </div>
+      <div class="mono-text text-xs text-primary bg-primary-container/30 px-2 py-1">AVG: 12.4ms</div>
+    </div>
+    <div class="space-y-3">
+      <div class="group">
+        <div class="flex justify-between text-[10px] mono-text mb-1 opacity-50">
+          <span>TRANSFORMER_L1</span><span>14.2ms</span>
+        </div>
+        <div class="h-4 w-full bg-surface-container"><div class="h-full bg-primary" style="width: 82%"></div></div>
+      </div>
+      <div class="group">
+        <div class="flex justify-between text-[10px] mono-text mb-1 opacity-50">
+          <span>TRANSFORMER_L2</span><span>9.1ms</span>
+        </div>
+        <div class="h-4 w-full bg-surface-container"><div class="h-full bg-primary" style="width: 55%"></div></div>
+      </div>
+      <div class="group">
+        <div class="flex justify-between text-[10px] mono-text mb-1 opacity-50">
+          <span>TRANSFORMER_L3</span><span>21.8ms</span>
+        </div>
+        <div class="h-4 w-full bg-surface-container"><div class="h-full bg-error" style="width: 95%"></div></div>
+      </div>
+      <div class="group">
+        <div class="flex justify-between text-[10px] mono-text mb-1 opacity-50">
+          <span>TRANSFORMER_L4</span><span>11.4ms</span>
+        </div>
+        <div class="h-4 w-full bg-surface-container"><div class="h-full bg-primary" style="width: 68%"></div></div>
+      </div>
+      <div class="group">
+        <div class="flex justify-between text-[10px] mono-text mb-1 opacity-50">
+          <span>TRANSFORMER_L5</span><span>8.2ms</span>
+        </div>
+        <div class="h-4 w-full bg-surface-container"><div class="h-full bg-primary" style="width: 48%"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Memory Pressure -->
+  <section class="col-span-12 lg:col-span-4 bg-surface-container-low p-6">
+    <span class="font-label text-[10px] uppercase tracking-widest text-secondary block mb-1">CAPACITY_GAUGE</span>
+    <h2 class="text-2xl font-semibold font-headline mb-8">MEMORY PRESSURE</h2>
+    <div class="relative pt-12 pb-8 flex flex-col items-center">
+      <div class="w-48 h-48 rounded-full border-[16px] border-surface-container flex items-center justify-center relative overflow-hidden">
+        <div class="absolute bottom-0 left-0 w-full bg-primary opacity-20" style="height: 74%"></div>
+        <div class="text-center z-10">
+          <div class="mono-text text-4xl font-bold">74.2%</div>
+          <div class="mono-text text-[10px] opacity-60">RAM_OCCUPANCY</div>
+        </div>
+      </div>
+      <div class="mt-8 grid grid-cols-2 gap-4 w-full">
+        <div class="bg-surface-container-lowest p-3 border-l-2 border-primary">
+          <div class="mono-text text-[10px] opacity-60">ALLOCATED</div>
+          <div class="mono-text text-sm font-semibold">48.2 GB</div>
+        </div>
+        <div class="bg-surface-container-lowest p-3 border-l-2 border-outline">
+          <div class="mono-text text-[10px] opacity-60">RESERVED</div>
+          <div class="mono-text text-sm font-semibold">12.5 GB</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Live Tensor Map -->
+  <section class="col-span-12 bg-surface-container-lowest p-6 mt-px">
+    <div class="flex justify-between items-center mb-6">
+      <div>
+        <span class="font-label text-[10px] uppercase tracking-widest text-secondary block mb-1">SPATIAL_ALLOCATION</span>
+        <h2 class="text-2xl font-semibold font-headline">LIVE TENSOR MAP</h2>
+      </div>
+      <div class="flex gap-4 mono-text text-[10px]">
+        <div class="flex items-center gap-2"><span class="w-2 h-2 bg-primary"></span> MAPPED</div>
+        <div class="flex items-center gap-2"><span class="w-2 h-2 bg-surface-container-highest"></span> UNMAPPED</div>
+        <div class="flex items-center gap-2"><span class="w-2 h-2 bg-error"></span> FRAGMENTED</div>
+      </div>
+    </div>
+    <div class="grid grid-cols-16 md:grid-cols-24 gap-1" id="tensor-grid">
+    </div>
+    <script>
+      const grid = document.getElementById('tensor-grid');
+      for (let i = 0; i < 120; i++) {
+        const div = document.createElement('div');
+        const r = Math.random();
+        div.className = `h-4 w-full ${r > 0.3 ? 'bg-primary' : (r > 0.08 ? 'bg-surface-container-highest' : 'bg-error')}`;
+        grid.appendChild(div);
+      }
+    </script>
+  </section>
+
+  <!-- Runtime Logs -->
+  <section class="col-span-12 bg-[#0e0e0e] text-white p-0 mt-px">
+    <div class="flex items-center justify-between px-6 py-2 bg-[#1a1a1a] border-b border-white/5">
+      <div class="flex items-center gap-3">
+        <span class="material-symbols-outlined text-xs text-primary">terminal</span>
+        <span class="mono-text text-[10px] tracking-widest opacity-80 uppercase">RUNTIME_TERMINAL_OUTPUT // TTY1</span>
+      </div>
+      <div class="flex gap-2">
+        <div class="w-2 h-2 rounded-full bg-error"></div>
+        <div class="w-2 h-2 rounded-full bg-surface-dim"></div>
+        <div class="w-2 h-2 rounded-full bg-primary"></div>
+      </div>
+    </div>
+    <div class="p-6 h-64 overflow-y-auto mono-text text-[11px] leading-relaxed">
+      <div class="mb-1"><span class="text-primary">[INFO]</span> Initializing Disk-LLM runtime pipeline...</div>
+      <div class="mb-1"><span class="text-primary">[INFO]</span> Loading manifest: ./packed-qwen35/manifest.json</div>
+      <div class="mb-1"><span class="text-primary">[INFO]</span> Mapping tensors via numpy.memmap...</div>
+      <div class="mb-1"><span class="text-primary">[INFO]</span> Disk-swapping layer_012 weights (4.2GB)</div>
+      <div class="mb-1"><span class="text-error">[WARN]</span> High memory pressure detected — RSS approaching limit</div>
+      <div class="mb-1 opacity-40">Processing batch_size=1, prompt_tokens=64</div>
+      <div class="mb-1 opacity-40">First token latency: 1.24s</div>
+      <div class="mb-1"><span class="text-primary">[INFO]</span> Latency spike in L3 attributed to I/O wait.</div>
+      <div class="mb-1"><span class="text-primary">[INFO]</span> Throughput: 4.8 tokens/sec</div>
+      <div class="mb-1 opacity-40">Generation complete: 16 tokens produced</div>
+      <div class="mb-1 text-primary animate-pulse">_</div>
+    </div>
+  </section>
+</div>
+</main>
+
+<!-- Right Side Data Column -->
+<aside class="w-80 bg-surface-container-low border-l border-outline-variant/10 p-6 flex-col gap-8 overflow-y-auto hidden xl:flex">
+<div>
+  <span class="font-label text-[10px] uppercase tracking-widest text-secondary block mb-4">SYSTEM_HEALTH</span>
+  <div class="space-y-4">
+    <div class="flex justify-between items-center">
+      <span class="text-xs font-mono">CPU_USAGE</span>
+      <div class="flex gap-1">
+        <div class="w-1 h-3 bg-primary"></div>
+        <div class="w-1 h-3 bg-primary"></div>
+        <div class="w-1 h-3 bg-primary"></div>
+        <div class="w-1 h-3 bg-surface-container"></div>
+      </div>
+    </div>
+    <div class="flex justify-between items-center">
+      <span class="text-xs font-mono">DISK_IO</span>
+      <div class="flex gap-1">
+        <div class="w-1 h-3 bg-primary"></div>
+        <div class="w-1 h-3 bg-primary"></div>
+        <div class="w-1 h-3 bg-surface-container"></div>
+        <div class="w-1 h-3 bg-surface-container"></div>
+      </div>
+    </div>
+    <div class="flex justify-between items-center">
+      <span class="text-xs font-mono">DISK_TEMP</span>
+      <span class="text-xs font-mono text-primary">42°C</span>
+    </div>
+  </div>
+</div>
+<div class="pt-8 border-t border-outline-variant/20">
+  <span class="font-label text-[10px] uppercase tracking-widest text-secondary block mb-4">THROUGHPUT</span>
+  <div class="h-32 w-full bg-surface-container-highest relative overflow-hidden">
+    <svg class="absolute inset-0 w-full h-full" preserveAspectRatio="none" viewBox="0 0 100 40">
+      <path d="M0 40 L0 30 L10 32 L20 15 L30 25 L40 10 L50 18 L60 5 L70 20 L80 15 L90 25 L100 5 L100 40 Z" fill="#0052dd15" stroke="#0052dd" stroke-width="0.5"></path>
+    </svg>
+    <div class="absolute top-2 right-2 mono-text text-[10px] text-primary">4.8 tok/s</div>
+  </div>
+</div>
+<div class="mt-auto">
+  <div class="bg-inverse-surface text-white p-4 mono-text text-[10px]">
+    <div class="mb-2 opacity-50 uppercase">Active_Model</div>
+    <div class="text-sm font-bold mb-4">Qwen3.5-9B</div>
+    <div class="flex justify-between opacity-50">
+      <span>Backend:</span>
+      <span>disk_llm (CPU)</span>
+    </div>
+  </div>
+</div>
+</aside>
+</div>
+</body>
+</html>
