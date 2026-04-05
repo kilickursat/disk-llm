@@ -22,10 +22,12 @@ def generate_plots(results_dir: str | Path) -> dict[str, Path]:
     tokens_path = plots_dir / "tokens_per_second.png"
     latency_path = plots_dir / "first_token_latency.png"
     timeline_path = plots_dir / "rss_timeline.png"
+    logical_mapped_path = plots_dir / "logical_mapped.png"
     markdown_path = plots_dir / "comparison_summary.md"
 
     _plot_grouped_metric(summary_rows, metric_key="tokens_per_second_mean", error_key="tokens_per_second_stdev", ylabel="Generated tokens / second", title="Disk-LLM throughput vs. baseline", output_path=tokens_path, metadata=metadata)
     _plot_line_metric(summary_rows, metric_key="first_token_seconds_mean", ylabel="First-token latency (s)", title="First-token latency by prompt length", output_path=latency_path, metadata=metadata)
+    _plot_line_metric(summary_rows, metric_key="logical_bytes_mapped_mb_mean", ylabel="Logical Mapped (MB)", title="Total logical bytes mapped by prompt length", output_path=logical_mapped_path, metadata=metadata)
     _plot_timeline(timeline_rows, output_path=timeline_path, metadata=metadata)
     _write_markdown_summary(summary_rows, metadata, markdown_path)
 
@@ -33,6 +35,7 @@ def generate_plots(results_dir: str | Path) -> dict[str, Path]:
         "tokens_per_second": tokens_path,
         "first_token_latency": latency_path,
         "rss_timeline": timeline_path,
+        "logical_mapped_mb": logical_mapped_path,
         "comparison_summary": markdown_path,
     }
 

@@ -161,6 +161,28 @@ If you want to keep the Qwen snapshot off your local machine, use the remote run
 - `scripts/run_modal_qwen35_9b.sh`
 - `scripts/run_modal_qwen35_9b.ps1`
 
+## Qwen3.5-9B Modal Benchmark Results
+
+Below are the Qwen 3.5 9B generation metrics running natively off SSD maps in Modal's CPU instance.
+
+| Backend | Prompt Tokens | Max New Tokens | Mean Tokens/s | Mean First Token (s) | Mean Peak RSS (MB) | Mean Logical Mapped (MB) |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Disk-LLM | 8 | 2 | 0.204 | 7.906 | 11263.941 | 38800.078 |
+| Disk-LLM | 128 | 2 | 0.016 | 126.610 | 11264.902 | 504401.016 |
+
+<p align="center">
+  <img src="modal-results/plots/tokens_per_second.png" alt="Tokens per second">
+</p>
+<p align="center">
+  <img src="modal-results/plots/logical_mapped.png" alt="Logical memory mapped over time vs physical memory limit">
+</p>
+<p align="center">
+  <img src="modal-results/plots/rss_timeline.png" alt="RSS Physical Memory Peak">
+</p>
+<p align="center">
+  <img src="modal-results/plots/first_token_latency.png" alt="First Token Latency">
+</p>
+
 ## What gets packed
 
 The default v1 converter targets the text-only path:
