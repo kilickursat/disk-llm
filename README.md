@@ -171,16 +171,16 @@ Below are the Qwen 3.5 9B generation metrics running natively off SSD maps in Mo
 | Disk-LLM | 128 | 2 | 0.016 | 126.610 | 11264.902 | 504401.016 |
 
 <p align="center">
-  <img src="modal-results/plots/tokens_per_second.png" alt="Tokens per second">
+  <img src="docs/assets/tokens_per_second.png" alt="Tokens per second">
 </p>
 <p align="center">
-  <img src="modal-results/plots/logical_mapped.png" alt="Logical memory mapped over time vs physical memory limit">
+  <img src="docs/assets/logical_mapped.png" alt="Logical memory mapped over time vs physical memory limit">
 </p>
 <p align="center">
-  <img src="modal-results/plots/rss_timeline.png" alt="RSS Physical Memory Peak">
+  <img src="docs/assets/rss_timeline.png" alt="RSS Physical Memory Peak">
 </p>
 <p align="center">
-  <img src="modal-results/plots/first_token_latency.png" alt="First Token Latency">
+  <img src="docs/assets/first_token_latency.png" alt="First Token Latency">
 </p>
 
 ## What gets packed
