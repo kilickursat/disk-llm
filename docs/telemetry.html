@@ -105,36 +105,36 @@ body { font-family: 'IBM Plex Sans', sans-serif; }
         <span class="font-label text-[10px] uppercase tracking-widest text-secondary block mb-1">METRIC_STREAM_01</span>
         <h2 class="text-2xl font-semibold font-headline">LAYER LATENCY MAP</h2>
       </div>
-      <div class="mono-text text-xs text-primary bg-primary-container/30 px-2 py-1">AVG: 12.4ms</div>
+      <div class="mono-text text-xs text-primary bg-primary-container/30 px-2 py-1">AVG: 198.5ms</div>
     </div>
     <div class="space-y-3">
       <div class="group">
         <div class="flex justify-between text-[10px] mono-text mb-1 opacity-50">
-          <span>TRANSFORMER_L1</span><span>14.2ms</span>
+          <span>TRANSFORMER_L1</span><span>201.2ms</span>
         </div>
         <div class="h-4 w-full bg-surface-container"><div class="h-full bg-primary" style="width: 82%"></div></div>
       </div>
       <div class="group">
         <div class="flex justify-between text-[10px] mono-text mb-1 opacity-50">
-          <span>TRANSFORMER_L2</span><span>9.1ms</span>
+          <span>TRANSFORMER_L2</span><span>185.1ms</span>
         </div>
         <div class="h-4 w-full bg-surface-container"><div class="h-full bg-primary" style="width: 55%"></div></div>
       </div>
       <div class="group">
         <div class="flex justify-between text-[10px] mono-text mb-1 opacity-50">
-          <span>TRANSFORMER_L3</span><span>21.8ms</span>
+          <span>TRANSFORMER_L3</span><span>350.8ms</span>
         </div>
         <div class="h-4 w-full bg-surface-container"><div class="h-full bg-error" style="width: 95%"></div></div>
       </div>
       <div class="group">
         <div class="flex justify-between text-[10px] mono-text mb-1 opacity-50">
-          <span>TRANSFORMER_L4</span><span>11.4ms</span>
+          <span>TRANSFORMER_L4</span><span>190.4ms</span>
         </div>
         <div class="h-4 w-full bg-surface-container"><div class="h-full bg-primary" style="width: 68%"></div></div>
       </div>
       <div class="group">
         <div class="flex justify-between text-[10px] mono-text mb-1 opacity-50">
-          <span>TRANSFORMER_L5</span><span>8.2ms</span>
+          <span>TRANSFORMER_L5</span><span>205.2ms</span>
         </div>
         <div class="h-4 w-full bg-surface-container"><div class="h-full bg-primary" style="width: 48%"></div></div>
       </div>
@@ -147,20 +147,20 @@ body { font-family: 'IBM Plex Sans', sans-serif; }
     <h2 class="text-2xl font-semibold font-headline mb-8">MEMORY PRESSURE</h2>
     <div class="relative pt-12 pb-8 flex flex-col items-center">
       <div class="w-48 h-48 rounded-full border-[16px] border-surface-container flex items-center justify-center relative overflow-hidden">
-        <div class="absolute bottom-0 left-0 w-full bg-primary opacity-20" style="height: 74%"></div>
+        <div class="absolute bottom-0 left-0 w-full bg-primary opacity-20" style="height: 70%"></div>
         <div class="text-center z-10">
-          <div class="mono-text text-4xl font-bold">74.2%</div>
+          <div class="mono-text text-4xl font-bold">70.4%</div>
           <div class="mono-text text-[10px] opacity-60">RAM_OCCUPANCY</div>
         </div>
       </div>
       <div class="mt-8 grid grid-cols-2 gap-4 w-full">
         <div class="bg-surface-container-lowest p-3 border-l-2 border-primary">
           <div class="mono-text text-[10px] opacity-60">ALLOCATED</div>
-          <div class="mono-text text-sm font-semibold">48.2 GB</div>
+          <div class="mono-text text-sm font-semibold">504.4 GB</div>
         </div>
         <div class="bg-surface-container-lowest p-3 border-l-2 border-outline">
           <div class="mono-text text-[10px] opacity-60">RESERVED</div>
-          <div class="mono-text text-sm font-semibold">12.5 GB</div>
+          <div class="mono-text text-sm font-semibold">11.3 GB</div>
         </div>
       </div>
     </div>
@@ -209,13 +209,13 @@ body { font-family: 'IBM Plex Sans', sans-serif; }
       <div class="mb-1"><span class="text-primary">[INFO]</span> Initializing Disk-LLM runtime pipeline...</div>
       <div class="mb-1"><span class="text-primary">[INFO]</span> Loading manifest: ./packed-qwen35/manifest.json</div>
       <div class="mb-1"><span class="text-primary">[INFO]</span> Mapping tensors via numpy.memmap...</div>
-      <div class="mb-1"><span class="text-primary">[INFO]</span> Disk-swapping layer_012 weights (4.2GB)</div>
-      <div class="mb-1"><span class="text-error">[WARN]</span> High memory pressure detected — RSS approaching limit</div>
-      <div class="mb-1 opacity-40">Processing batch_size=1, prompt_tokens=64</div>
-      <div class="mb-1 opacity-40">First token latency: 1.24s</div>
-      <div class="mb-1"><span class="text-primary">[INFO]</span> Latency spike in L3 attributed to I/O wait.</div>
-      <div class="mb-1"><span class="text-primary">[INFO]</span> Throughput: 4.8 tokens/sec</div>
-      <div class="mb-1 opacity-40">Generation complete: 16 tokens produced</div>
+      <div class="mb-1"><span class="text-primary">[INFO]</span> Disk-swapping layer_012 weights (~430MB per layer block)</div>
+      <div class="mb-1"><span class="text-error">[WARN]</span> High memory pressure detected — RSS pinned at 11264 MB</div>
+      <div class="mb-1 opacity-40">Processing batch_size=1, prompt_tokens=128</div>
+      <div class="mb-1 opacity-40">First token latency: 126.61s</div>
+      <div class="mb-1"><span class="text-primary">[INFO]</span> Latency spike in L3 attributed to sequential I/O page faults.</div>
+      <div class="mb-1"><span class="text-primary">[INFO]</span> Throughput: 0.016 tokens/sec</div>
+      <div class="mb-1 opacity-40">Generation complete: 2 tokens produced</div>
       <div class="mb-1 text-primary animate-pulse">_</div>
     </div>
   </section>
@@ -257,7 +257,7 @@ body { font-family: 'IBM Plex Sans', sans-serif; }
     <svg class="absolute inset-0 w-full h-full" preserveAspectRatio="none" viewBox="0 0 100 40">
       <path d="M0 40 L0 30 L10 32 L20 15 L30 25 L40 10 L50 18 L60 5 L70 20 L80 15 L90 25 L100 5 L100 40 Z" fill="#0052dd15" stroke="#0052dd" stroke-width="0.5"></path>
     </svg>
-    <div class="absolute top-2 right-2 mono-text text-[10px] text-primary">4.8 tok/s</div>
+    <div class="absolute top-2 right-2 mono-text text-[10px] text-primary">0.204 tok/s</div>
   </div>
 </div>
 <div class="mt-auto">
