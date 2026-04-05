@@ -117,46 +117,40 @@ body {
 <section class="px-6 md:px-24 py-24 bg-surface border-y border-surface-container">
 <div class="max-w-5xl mx-auto">
   <span class="font-mono text-xs uppercase tracking-[0.3em] text-primary mb-4 block">Rationale</span>
-  <h2 class="font-sans-plex font-light text-4xl mb-16 tracking-tight">Why this project exists</h2>
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
-    <div class="space-y-12">
-      <div class="flex gap-6">
-        <span class="font-mono text-primary font-bold">01</span>
-        <div>
-          <h4 class="font-semibold mb-2">Layer-Packed Layout</h4>
-          <p class="text-on-surface-variant text-sm leading-relaxed">Optimized storage format that groups model layers for efficient sequential disk access during inference.</p>
-        </div>
+  <h2 class="font-sans-plex font-light text-4xl mb-6 tracking-tight">What makes Disk-LLM uniquely novel?</h2>
+  <p class="font-sans-plex text-xl text-on-surface-variant max-w-3xl mb-16 leading-relaxed">
+    Offloading weights to disk is not a new concept—production engines like <b>llama.cpp</b> heavily rely on mmap(), and <b>accelerate</b> has an explicit disk offloading feature. However, Disk-LLM stands out by functioning as a <b>"Glass-Box Research Engine"</b> rather than a "Black-Box Production Engine":
+  </p>
+  
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+    <div class="space-y-6">
+      <div class="flex items-center gap-4 border-b border-surface-container pb-4">
+        <span class="font-mono text-xl text-primary font-bold">01</span>
+        <h4 class="font-semibold text-lg">Engineered Layer-Sharding</h4>
       </div>
-      <div class="flex gap-6">
-        <span class="font-mono text-primary font-bold">02</span>
-        <div>
-          <h4 class="font-semibold mb-2">Deep Model Inspection</h4>
-          <p class="text-on-surface-variant text-sm leading-relaxed">Built-in tools to visualize and query tensor weights and activations directly from the memmap shards.</p>
-        </div>
-      </div>
-      <div class="flex gap-6">
-        <span class="font-mono text-primary font-bold">03</span>
-        <div>
-          <h4 class="font-semibold mb-2">Text-Only Subgraph Filtering</h4>
-          <p class="text-on-surface-variant text-sm leading-relaxed">Isolate and run specific model sub-components to test hypotheses without loading the full parameter set.</p>
-        </div>
-      </div>
+      <p class="text-on-surface-variant text-sm leading-relaxed">
+        Instead of mapping monolithic 15GB <code>safetensors</code> files and letting the Operating System randomly guess which pages to keep in memory, Disk-LLM proactively repacks weights into distinct architectural boundary files (Layer 0, Layer 1, etc.). This mathematically guarantees that the OS effortlessly handles highly predictable, sequential page-faults.
+      </p>
     </div>
-    <div class="space-y-12">
-      <div class="flex gap-6">
-        <span class="font-mono text-primary font-bold">04</span>
-        <div>
-          <h4 class="font-semibold mb-2">Runtime Telemetry</h4>
-          <p class="text-on-surface-variant text-sm leading-relaxed">Granular monitoring of disk I/O, memory pressure, and layer-by-layer latency in real-time.</p>
-        </div>
+
+    <div class="space-y-6">
+      <div class="flex items-center gap-4 border-b border-surface-container pb-4">
+        <span class="font-mono text-xl text-primary font-bold">02</span>
+        <h4 class="font-semibold text-lg">Naked Dependencies</h4>
       </div>
-      <div class="flex gap-6">
-        <span class="font-mono text-primary font-bold">05</span>
-        <div>
-          <h4 class="font-semibold mb-2">Compact Codebase</h4>
-          <p class="text-on-surface-variant text-sm leading-relaxed">A minimal, readable implementation that encourages researchers to fork and modify the core logic.</p>
-        </div>
+      <p class="text-on-surface-variant text-sm leading-relaxed">
+        Disk-LLM proves that you do not need complex C++, CUDA kernels, or massive framework bloat to understand fundamental compute limitations. By forcing the inference stack to rely entirely on standard Python, NumPy, and the OS's native file-system cache, researchers get an unadulterated view of pushing virtual memory mapped ceilings to their limits.
+      </p>
+    </div>
+
+    <div class="space-y-6">
+      <div class="flex items-center gap-4 border-b border-surface-container pb-4">
+        <span class="font-mono text-xl text-primary font-bold">03</span>
+        <h4 class="font-semibold text-lg">Telemetry as a First-Class Citizen</h4>
       </div>
+      <p class="text-on-surface-variant text-sm leading-relaxed">
+        Usually, disk-swapping happens entirely in the background, making it a nightmare for researchers to compute bottlenecks. Disk-LLM exposes exactly <i>when</i> the disk is mapped, <i>how much</i> virtual memory is shifting (e.g. 500+GB arrays for lengthy generation contexts), and the latency penalty of each specific layer individually.
+      </p>
     </div>
   </div>
 </div>

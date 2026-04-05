@@ -26,15 +26,15 @@ A branded project website is published at [kilickursat.github.io/disk-llm](https
 
 The converter and manifest flow are solid enough to start experimenting today. The NumPy runtime is intentionally marked experimental because Qwen 3.5 uses a newer hybrid architecture and exact tensor-name coverage should be validated against a real checkpoint snapshot.
 
-## Why this project exists
+## What makes Disk-LLM uniquely novel?
 
-The original project idea focused on `numpy.memmap`, but `safetensors` already gives you zero-copy and lazy-loading benefits. Disk-LLM becomes interesting when it adds something new:
+Offloading weights to disk is not a new concept—production engines like `llama.cpp` heavily rely on `mmap()`, and `accelerate` has a disk offloading feature. However, Disk-LLM stands out by acting as a **"Glass-Box Research Engine"** rather than a "Black-Box Production Engine":
 
-- layer-packed disk layout
-- model inspection before conversion
-- text-only subgraph filtering for multimodal checkpoints
-- runtime telemetry
-- a compact codebase that contributors can actually read
+1. **Engineered Layer-Sharding:** Instead of mapping monolithic 15GB `safetensors` files and letting the Operating System randomly guess which pages to keep in memory, Disk-LLM proactively repacks weights into distinct architectural boundary files (Layer 0, Layer 1, etc.). This mathematically guarantees that the OS effortlessly handles highly predictable, sequential page-faults.
+2. **Naked Dependencies:** Disk-LLM proves that you do not need complex C++, CUDA kernels, or massive framework bloat to understand fundamental compute limitations. By forcing the inference stack to rely entirely on standard Python, NumPy, and the OS's native file-system cache, we expose exactly how to push virtual memory sizes to their limits. 
+3. **Telemetry as a First-Class Citizen:** Usually, disk-swapping happens entirely in the background, making it a nightmare for researchers to compute bottlenecks. Disk-LLM exposes exactly *when* the disk is mapped, *how much* virtual memory is shifting (e.g. 500+GB for lengthy contexts), and the latency penalty of *each specific layer* independently.
+
+Ultimately, Disk-LLM allows you to run large parameter models smoothly on minimal physical RAM, bypassing Out-Of-Memory (OOM) capacity ceilings through calculated Page-Fault engineering.
 
 ## Project structure
 
