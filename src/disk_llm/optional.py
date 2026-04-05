@@ -9,9 +9,10 @@ def require_numpy():
     """Import NumPy only when a runtime path truly needs it."""
     try:
         import numpy as np
+        import ml_dtypes  # Registers bfloat16 and float8 datatypes with numpy
     except ImportError as exc:  # pragma: no cover - exercised through callers
         raise DependencyMissingError(
-            "NumPy is required for runtime commands. Install it with `pip install -e .`."
+            "NumPy and ml-dtypes are required for runtime commands. Install them with `pip install -e .`."
         ) from exc
     return np
 

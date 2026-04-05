@@ -5,7 +5,7 @@ from __future__ import annotations
 import re
 from typing import Any
 
-LAYER_PATTERN = re.compile(r"^model\.layers\.(\d+)\.")
+LAYER_PATTERN = re.compile(r"^(?:model\.language_model\.|model\.)layers\.(\d+)\.")
 
 
 def is_text_tensor(name: str) -> bool:
@@ -14,6 +14,9 @@ def is_text_tensor(name: str) -> bool:
         "model.embed_tokens.",
         "model.layers.",
         "model.norm.",
+        "model.language_model.embed_tokens.",
+        "model.language_model.layers.",
+        "model.language_model.norm.",
         "lm_head.",
     )
     return name.startswith(text_prefixes)
@@ -21,9 +24,9 @@ def is_text_tensor(name: str) -> bool:
 
 def classify_tensor_group(name: str) -> str:
     """Map a source tensor name to a packed shard path."""
-    if name.startswith("model.embed_tokens."):
+    if name.startswith("model.embed_tokens.") or name.startswith("model.language_model.embed_tokens."):
         return "embeddings/embeddings.bin"
-    if name.startswith("model.norm.") or name.startswith("lm_head."):
+    if name.startswith("model.norm.") or name.startswith("model.language_model.norm.") or name.startswith("lm_head."):
         return "final/final.bin"
     match = LAYER_PATTERN.match(name)
     if match:

@@ -137,7 +137,14 @@ class DiskLLMTextModel:
         telemetry: TelemetryRecorder,
     ):
         np = require_numpy()
-        hidden = np.asarray(self.store.get("model.embed_tokens.weight", telemetry)[int(token_id)])
+        embed_weight = self._get_tensor(
+            [
+                "model.embed_tokens.weight",
+                "model.language_model.embed_tokens.weight",
+            ],
+            telemetry=telemetry,
+        )
+        hidden = np.asarray(embed_weight[int(token_id)])
 
         for layer_idx in range(self.config.num_hidden_layers):
             layer_name = f"layer_{layer_idx:03d}"
@@ -147,6 +154,7 @@ class DiskLLMTextModel:
         norm_weight = self._get_tensor(
             [
                 "model.norm.weight",
+                "model.language_model.norm.weight",
                 "model.final_layernorm.weight",
             ],
             telemetry=telemetry,
@@ -156,7 +164,13 @@ class DiskLLMTextModel:
         if self.store.has("lm_head.weight"):
             lm_head = self.store.get("lm_head.weight", telemetry)
         else:
-            lm_head = self.store.get("model.embed_tokens.weight", telemetry)
+            lm_head = self._get_tensor(
+                [
+                    "model.embed_tokens.weight",
+                    "model.language_model.embed_tokens.weight",
+                ],
+                telemetry=telemetry,
+            )
         return np.dot(hidden, lm_head.T)
 
     def _forward_layer(
@@ -171,6 +185,7 @@ class DiskLLMTextModel:
         input_norm = self._get_tensor(
             [
                 f"model.layers.{layer_idx}.input_layernorm.weight",
+                f"model.language_model.layers.{layer_idx}.input_layernorm.weight",
                 f"model.layers.{layer_idx}.pre_attention_layernorm.weight",
                 f"model.layers.{layer_idx}.attention_norm.weight",
             ],
@@ -194,6 +209,7 @@ class DiskLLMTextModel:
         ffn_norm = self._get_tensor(
             [
                 f"model.layers.{layer_idx}.post_attention_layernorm.weight",
+                f"model.language_model.layers.{layer_idx}.post_attention_layernorm.weight",
                 f"model.layers.{layer_idx}.pre_ff_layernorm.weight",
                 f"model.layers.{layer_idx}.ffn_norm.weight",
             ],
@@ -208,6 +224,7 @@ class DiskLLMTextModel:
         q_proj = self._get_tensor(
             [
                 f"model.layers.{layer_idx}.self_attn.q_proj.weight",
+                f"model.language_model.layers.{layer_idx}.self_attn.q_proj.weight",
                 f"model.layers.{layer_idx}.attn.q_proj.weight",
                 f"model.layers.{layer_idx}.attention.q_proj.weight",
             ],
@@ -216,6 +233,7 @@ class DiskLLMTextModel:
         k_proj = self._get_tensor(
             [
                 f"model.layers.{layer_idx}.self_attn.k_proj.weight",
+                f"model.language_model.layers.{layer_idx}.self_attn.k_proj.weight",
                 f"model.layers.{layer_idx}.attn.k_proj.weight",
                 f"model.layers.{layer_idx}.attention.k_proj.weight",
             ],
@@ -224,6 +242,7 @@ class DiskLLMTextModel:
         v_proj = self._get_tensor(
             [
                 f"model.layers.{layer_idx}.self_attn.v_proj.weight",
+                f"model.language_model.layers.{layer_idx}.self_attn.v_proj.weight",
                 f"model.layers.{layer_idx}.attn.v_proj.weight",
                 f"model.layers.{layer_idx}.attention.v_proj.weight",
             ],
@@ -232,6 +251,7 @@ class DiskLLMTextModel:
         o_proj = self._get_tensor(
             [
                 f"model.layers.{layer_idx}.self_attn.o_proj.weight",
+                f"model.language_model.layers.{layer_idx}.self_attn.o_proj.weight",
                 f"model.layers.{layer_idx}.attn.o_proj.weight",
                 f"model.layers.{layer_idx}.attention.o_proj.weight",
             ],
@@ -339,6 +359,7 @@ class DiskLLMTextModel:
         gate = self._get_tensor(
             [
                 f"model.layers.{layer_idx}.mlp.gate_proj.weight",
+                f"model.language_model.layers.{layer_idx}.mlp.gate_proj.weight",
                 f"model.layers.{layer_idx}.feed_forward.gate_proj.weight",
             ],
             telemetry=telemetry,
@@ -346,6 +367,7 @@ class DiskLLMTextModel:
         up = self._get_tensor(
             [
                 f"model.layers.{layer_idx}.mlp.up_proj.weight",
+                f"model.language_model.layers.{layer_idx}.mlp.up_proj.weight",
                 f"model.layers.{layer_idx}.feed_forward.up_proj.weight",
             ],
             telemetry=telemetry,
@@ -353,6 +375,7 @@ class DiskLLMTextModel:
         down = self._get_tensor(
             [
                 f"model.layers.{layer_idx}.mlp.down_proj.weight",
+                f"model.language_model.layers.{layer_idx}.mlp.down_proj.weight",
                 f"model.layers.{layer_idx}.feed_forward.down_proj.weight",
             ],
             telemetry=telemetry,

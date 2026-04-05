@@ -23,6 +23,7 @@ classifiers = [
 ]
 dependencies = [
   "numpy>=2.0",
+  "ml-dtypes>=0.4.0",
 ]
 
 [project.optional-dependencies]

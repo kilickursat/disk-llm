@@ -2,9 +2,26 @@
 
 from __future__ import annotations
 
+# --- Windows console encoding fix ---
+# Rich's legacy Windows renderer writes Unicode symbols (✓) that the default
+# cp1252 code page cannot encode, causing UnicodeEncodeError.  Force UTF-8
+# for all console I/O before any other imports touch the console.
+import os
+import sys
+
+os.environ.setdefault("PYTHONIOENCODING", "utf-8")
+os.environ.setdefault("PYTHONUTF8", "1")
+if sys.platform == "win32":
+    for _stream in (sys.stdout, sys.stderr):
+        if hasattr(_stream, "reconfigure"):
+            try:
+                _stream.reconfigure(encoding="utf-8", errors="replace")
+            except Exception:
+                pass  # Already reconfigured or not a TextIOWrapper
+# --- end fix ---
+
 import argparse
 import json
-import os
 from pathlib import Path
 import shlex
 from typing import Any
@@ -43,8 +60,10 @@ def _parse_local_env(path: str | Path = ".env") -> dict[str, str]:
 
 
 def _hf_secret_from_env() -> Secret:
-    env_values = _parse_local_env(".env")
-    hf_token = env_values.get("HF_TOKEN")
+    hf_token = os.environ.get("HF_TOKEN")
+    if not hf_token:
+        env_values = _parse_local_env(".env")
+        hf_token = env_values.get("HF_TOKEN")
     if not hf_token:
         raise RuntimeError("HF_TOKEN was not found in .env. Add it locally before running the Modal workflow.")
     return Secret.from_dict({"HF_TOKEN": hf_token})
