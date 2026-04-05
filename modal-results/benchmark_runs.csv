@@ -1,0 +1,3 @@
+run_id,backend,backend_label,prompt_label,prompt_tokens,max_new_tokens,run_index,run_phase,seed,temperature,top_p,generated_tokens,elapsed_seconds,first_token_seconds,tokens_per_second,rss_mb_start,rss_mb_peak,rss_mb_end,rss_delta_mb,io_read_mb,io_write_mb,logical_bytes_mapped_mb,tensors_touched,layer_count,notes
+disk_llm|8|2|0,disk_llm,Disk-LLM,tokens_0008,8,2,0,initial,0,0.0,0.95,2,9.798606079999999,7.906062163000001,0.2041106646875226,3471.296875,11263.94140625,7382.78125,3911.484375,,,38800.078125,3,0,
+disk_llm|128|2|0,disk_llm,Disk-LLM,tokens_0128,128,2,0,initial,0,0.0,0.95,2,128.505942311,126.61042277600001,0.015563482622147984,7383.78125,11264.90234375,7384.8828125,1.1015625,,,504401.015625,3,0,

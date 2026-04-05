@@ -1,0 +1,16 @@
+{
+  "block_kinds": [],
+  "family": "qwen3.5",
+  "kind": "packed",
+  "layer_ids": [],
+  "layout_strategy": "layer_prefix_v1",
+  "manifest_path": "/__modal/volumes/vo-oHh6Gg8uG2RRqiwJljz00y/packed/Qwen--Qwen3.5-9B/qwen35-9b-modal-cpu/manifest.json",
+  "shard_count": 34,
+  "skipped_tensor_count": 348,
+  "tensor_count": 427,
+  "text_only": true,
+  "total_bytes": 17907614208,
+  "total_bytes_human": "16.68 GiB",
+  "validation_errors": [],
+  "variant": "9b"
+}
