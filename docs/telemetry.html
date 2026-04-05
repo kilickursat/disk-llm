@@ -39,7 +39,7 @@ body { font-family: 'IBM Plex Sans', sans-serif; }
 .mono-text { font-family: 'IBM Plex Mono', monospace; }
 </style>
 </head>
-<body class="bg-background text-on-background overflow-hidden h-screen flex flex-col">
+<body class="bg-background text-on-background overflow-hidden h-screen flex flex-col" style="scroll-behavior: smooth;">
 <!-- TopNavBar -->
 <header class="w-full h-12 border-b-0 bg-[#f0eded] flex justify-between items-center px-4 z-50">
 <div class="flex items-center gap-8">
@@ -62,16 +62,16 @@ body { font-family: 'IBM Plex Sans', sans-serif; }
   <div class="mono-text text-[10px] text-primary">v0.1.0</div>
 </div>
 <nav class="flex-1">
-  <a class="bg-white border-l-4 border-[#0052dd] text-[#0052dd] px-4 py-3 flex items-center gap-3 font-['IBM_Plex_Sans'] text-xs uppercase font-medium" href="#">
+  <a class="bg-white border-l-4 border-[#0052dd] text-[#0052dd] px-4 py-3 flex items-center gap-3 font-['IBM_Plex_Sans'] text-xs uppercase font-medium" href="#overview">
     <span class="material-symbols-outlined">analytics</span> Overview
   </a>
-  <a class="text-[#0e0e0e] px-4 py-3 flex items-center gap-3 opacity-70 hover:bg-[#f0eded] transition-all font-['IBM_Plex_Sans'] text-xs uppercase font-medium" href="#">
+  <a class="text-[#0e0e0e] px-4 py-3 flex items-center gap-3 opacity-70 hover:bg-[#f0eded] transition-all font-['IBM_Plex_Sans'] text-xs uppercase font-medium" href="#layer-latency">
     <span class="material-symbols-outlined">timer</span> Layer Latency
   </a>
-  <a class="text-[#0e0e0e] px-4 py-3 flex items-center gap-3 opacity-70 hover:bg-[#f0eded] transition-all font-['IBM_Plex_Sans'] text-xs uppercase font-medium" href="#">
+  <a class="text-[#0e0e0e] px-4 py-3 flex items-center gap-3 opacity-70 hover:bg-[#f0eded] transition-all font-['IBM_Plex_Sans'] text-xs uppercase font-medium" href="#tensor-map">
     <span class="material-symbols-outlined">grid_view</span> Tensor Mapping
   </a>
-  <a class="text-[#0e0e0e] px-4 py-3 flex items-center gap-3 opacity-70 hover:bg-[#f0eded] transition-all font-['IBM_Plex_Sans'] text-xs uppercase font-medium" href="#">
+  <a class="text-[#0e0e0e] px-4 py-3 flex items-center gap-3 opacity-70 hover:bg-[#f0eded] transition-all font-['IBM_Plex_Sans'] text-xs uppercase font-medium" href="#memory-pressure">
     <span class="material-symbols-outlined">memory</span> Memory Pressure
   </a>
 </nav>
@@ -86,9 +86,9 @@ body { font-family: 'IBM Plex Sans', sans-serif; }
 </aside>
 
 <!-- Main Canvas -->
-<main class="flex-1 overflow-y-auto bg-surface p-8">
+<main class="flex-1 overflow-y-auto overflow-x-hidden bg-surface p-8 scroll-smooth" id="overview">
 <!-- Header -->
-<div class="mb-12">
+<div class="mb-12 pt-4">
   <h1 class="text-5xl font-light tracking-tight text-inverse-surface mb-2 font-headline">SYSTEM_STATE: READY</h1>
   <div class="flex gap-4 items-center">
     <span class="mono-text text-sm text-primary">DISK-LLM RUNTIME</span>
@@ -99,7 +99,7 @@ body { font-family: 'IBM Plex Sans', sans-serif; }
 
 <div class="grid grid-cols-12 gap-px bg-outline-variant/10">
   <!-- Layer Latency Map -->
-  <section class="col-span-12 lg:col-span-8 bg-surface-container-lowest p-6">
+  <section id="layer-latency" class="col-span-12 lg:col-span-8 bg-surface-container-lowest p-6 scroll-mt-6">
     <div class="flex justify-between items-end mb-8">
       <div>
         <span class="font-label text-[10px] uppercase tracking-widest text-secondary block mb-1">METRIC_STREAM_01</span>
@@ -142,7 +142,7 @@ body { font-family: 'IBM Plex Sans', sans-serif; }
   </section>
 
   <!-- Memory Pressure -->
-  <section class="col-span-12 lg:col-span-4 bg-surface-container-low p-6">
+  <section id="memory-pressure" class="col-span-12 lg:col-span-4 bg-surface-container-low p-6 scroll-mt-6">
     <span class="font-label text-[10px] uppercase tracking-widest text-secondary block mb-1">CAPACITY_GAUGE</span>
     <h2 class="text-2xl font-semibold font-headline mb-8">MEMORY PRESSURE</h2>
     <div class="relative pt-12 pb-8 flex flex-col items-center">
@@ -167,7 +167,7 @@ body { font-family: 'IBM Plex Sans', sans-serif; }
   </section>
 
   <!-- Live Tensor Map -->
-  <section class="col-span-12 bg-surface-container-lowest p-6 mt-px">
+  <section id="tensor-map" class="col-span-12 bg-surface-container-lowest p-6 mt-px scroll-mt-6">
     <div class="flex justify-between items-center mb-6">
       <div>
         <span class="font-label text-[10px] uppercase tracking-widest text-secondary block mb-1">SPATIAL_ALLOCATION</span>
@@ -179,14 +179,15 @@ body { font-family: 'IBM Plex Sans', sans-serif; }
         <div class="flex items-center gap-2"><span class="w-2 h-2 bg-error"></span> FRAGMENTED</div>
       </div>
     </div>
-    <div class="grid grid-cols-16 md:grid-cols-24 gap-1" id="tensor-grid">
+    <div class="grid gap-1 w-full" style="grid-template-columns: repeat(auto-fill, minmax(20px, 1fr));" id="tensor-grid">
     </div>
     <script>
       const grid = document.getElementById('tensor-grid');
-      for (let i = 0; i < 120; i++) {
+      // Render 427 blocks representing Qwen 3.5 9B packed tensors on disk
+      for (let i = 0; i < 427; i++) {
         const div = document.createElement('div');
         const r = Math.random();
-        div.className = `h-4 w-full ${r > 0.3 ? 'bg-primary' : (r > 0.08 ? 'bg-surface-container-highest' : 'bg-error')}`;
+        div.className = `h-2 w-full ${r > 0.4 ? 'bg-[#0052dd]' : (r > 0.08 ? 'bg-[#e4e2e2]' : 'bg-[#9f403d]')}`;
         grid.appendChild(div);
       }
     </script>
@@ -272,5 +273,36 @@ body { font-family: 'IBM Plex Sans', sans-serif; }
 </div>
 </aside>
 </div>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const navLinks = document.querySelectorAll('nav.flex-1 a[href^="#"]');
+    const mainCanvas = document.querySelector('main');
+    
+    navLinks.forEach(link => {
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        // Reset all to inactive classes
+        navLinks.forEach(l => {
+          l.className = "text-[#0e0e0e] px-4 py-3 flex items-center gap-3 opacity-70 hover:bg-[#f0eded] transition-all font-['IBM_Plex_Sans'] text-xs uppercase font-medium";
+        });
+        
+        // Set this to active classes
+        this.className = "bg-white border-l-4 border-[#0052dd] text-[#0052dd] px-4 py-3 flex items-center gap-3 font-['IBM_Plex_Sans'] text-xs uppercase font-medium";
+        
+        // Scroll to target manually inside the overflow container
+        const targetId = this.getAttribute('href').substring(1);
+        const targetEl = document.getElementById(targetId);
+        
+        if (targetEl && mainCanvas) {
+          mainCanvas.scrollTo({
+            top: targetEl.offsetTop - mainCanvas.offsetTop - 20,
+            behavior: 'smooth'
+          });
+        }
+      });
+    });
+  });
+</script>
 </body>
 </html>
