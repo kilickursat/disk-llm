@@ -163,12 +163,14 @@ If you want to keep the Qwen snapshot off your local machine, use the remote run
 
 ## Qwen3.5-9B Modal Benchmark Results
 
-Below are the Qwen 3.5 9B generation metrics running natively off SSD maps in Modal's CPU instance.
+Below are the Qwen 3.5 9B generation metrics running natively off SSD maps in Modal's CPU instance, compared to the Hugging Face (HF) CPU baseline in `float32`.
 
 | Backend | Prompt Tokens | Max New Tokens | Mean Tokens/s | Mean First Token (s) | Mean Peak RSS (MB) | Mean Logical Mapped (MB) |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| Disk-LLM | 8 | 2 | 0.204 | 7.906 | 11263.941 | 38800.078 |
-| Disk-LLM | 128 | 2 | 0.016 | 126.610 | 11264.902 | 504401.016 |
+| Disk-LLM | 8 | 2 | 0.090 | 17.732 | 11267.234 | 38800.078 |
+| HF CPU | 8 | 2 | 0.139 | 5.614 | 21946.625 | n/a |
+| Disk-LLM | 128 | 2 | 0.008 | 244.750 | 11269.367 | 504401.016 |
+| HF CPU | 128 | 2 | 0.075 | 17.605 | 21946.625 | n/a |
 
 <p align="center">
   <img src="docs/assets/tokens_per_second.png" alt="Tokens per second">

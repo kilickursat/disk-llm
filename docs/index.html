@@ -287,7 +287,7 @@ body {
       <div class="space-y-8">
         <h3 class="text-xl font-medium tracking-tight">Logical Bytes Mapped vs Prompt Length</h3>
         <p class="text-on-surface-variant text-sm leading-relaxed">
-          Notice how the physical RSS limits remain flat at ~11GB while the OS seamlessly scales the memory mappings upward in response to prompt length.
+          Notice how the physical RSS limits remain flat at ~11GB for Disk-LLM while the OS seamlessly scales the memory mappings upward in response to prompt length. By contrast, the Hugging Face CPU baseline demands ~21.9 GB of pure physical RAM.
         </p>
         <img src="assets/logical_mapped.png" class="w-full border border-surface-container" alt="Logical Memory Mapped">
         
@@ -302,13 +302,13 @@ body {
         <img src="assets/first_token_latency.png" class="w-full border border-surface-container" alt="First Token Latency">
 
         <div class="grid grid-cols-2 gap-4 mt-8">
-          <div class="p-4 bg-white border border-surface-container shadow-sm">
-            <p class="font-mono text-2xl text-primary">~11 GB</p>
-            <p class="font-mono text-[10px] uppercase text-outline">Max Physical RSS</p>
+          <div class="p-4 bg-white border border-primary shadow-sm">
+            <p class="font-mono text-2xl text-primary">~11.2 GB</p>
+            <p class="font-mono text-[10px] uppercase text-primary">Disk-LLM Peak RSS</p>
           </div>
           <div class="p-4 bg-white border border-surface-container shadow-sm">
-            <p class="font-mono text-2xl text-primary">504 GB</p>
-            <p class="font-mono text-[10px] uppercase text-outline">Virtual Memory Mapped</p>
+            <p class="font-mono text-2xl text-outline-variant">~21.9 GB</p>
+            <p class="font-mono text-[10px] uppercase text-outline">Baseline HF Peak RSS</p>
           </div>
         </div>
       </div>

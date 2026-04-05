@@ -178,35 +178,14 @@ body { font-family: 'IBM Plex Sans', sans-serif; }
           <span class="font-mono text-[10px] text-white/40 ml-4">CONVERSION_CONSOLE</span>
         </div>
       </div>
-      <div class="flex-1 p-6 font-mono text-xs text-white/80 space-y-2 overflow-y-auto max-h-[600px]">
-        <div class="text-primary">[INFO] INITIALIZING DISK-LLM CONVERTER...</div>
-        <div class="text-white/40">[INFO] disk-llm convert /path/to/Qwen3.5-9B ./packed-qwen35</div>
-        <div class="text-white/40">[INFO] MAPPING SOURCE DIRECTORY...</div>
-        <div class="text-white/40">[INFO] DETECTED: safetensors format</div>
-        <div class="text-white/40">[INFO] SCANNING TENSOR NAMES...</div>
-        <div class="text-white/40">[INFO] TEXT-PATH TENSORS: model.embed_tokens, model.layers.*, model.norm, lm_head</div>
-        <div class="text-white/40">[INFO] SKIPPING MULTIMODAL: visual.* (recorded in manifest)</div>
-        <div class="pt-4">
-          <div class="flex justify-between mb-1">
-            <span>PACKING WEIGHTS: layers/layer_024.bin</span>
-            <span>42%</span>
-          </div>
-          <div class="w-full bg-white/10 h-1 overflow-hidden">
-            <div class="bg-primary h-full w-[42%]"></div>
-          </div>
-        </div>
-        <div class="text-white/40">[INFO] WRITING: embeddings/embeddings.bin... OK</div>
-        <div class="text-white/40">[INFO] WRITING: layers/layer_000.bin... OK</div>
-        <div class="text-white/40">[INFO] WRITING: layers/layer_001.bin... OK</div>
-        <div class="text-white/40">[INFO] WRITING: manifest.json... OK</div>
-        <div class="text-primary/60">[INFO] CHECKSUM VERIFICATION: PASS</div>
-        <div class="animate-pulse inline-block w-2 h-4 bg-primary align-middle ml-1"></div>
+      <div id="console-out" class="flex-1 p-6 font-mono text-xs text-white/80 space-y-2 overflow-y-auto max-h-[600px]">
+        <div class="text-white/40">Ready to convert weights...</div>
       </div>
       <div class="p-6 bg-[#0a0a0a] border-t border-white/5 flex gap-4">
-        <button class="flex-1 py-3 bg-primary text-white font-bold text-xs uppercase tracking-widest hover:brightness-110">
+        <button id="start-btn" class="flex-1 py-3 bg-primary text-white font-bold text-xs uppercase tracking-widest hover:brightness-110">
           START CONVERSION
         </button>
-        <button class="px-6 py-3 border border-white/20 text-white/60 font-bold text-xs uppercase tracking-widest hover:bg-white/5">
+        <button id="abort-btn" class="px-6 py-3 border border-white/20 text-white/60 font-bold text-xs uppercase tracking-widest hover:bg-white/5">
           ABORT
         </button>
       </div>
@@ -234,5 +213,60 @@ body { font-family: 'IBM Plex Sans', sans-serif; }
   </div>
 </footer>
 </main>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const startBtn = document.getElementById('start-btn');
+    const abortBtn = document.getElementById('abort-btn');
+    const consoleOut = document.getElementById('console-out');
+    
+    // Clear initial mockup content
+    consoleOut.innerHTML = '';
+    let intervalId = null;
+    
+    startBtn.addEventListener('click', () => {
+      consoleOut.innerHTML = '';
+      startBtn.disabled = true;
+      startBtn.classList.add('opacity-50');
+      
+      const lines = [
+        '<div class="text-primary">[INFO] INITIALIZING DISK-LLM CONVERTER...</div>',
+        '<div class="text-white/40">[INFO] disk-llm convert /path/to/Qwen3.5-9B ./packed-qwen35</div>',
+        '<div class="text-white/40">[INFO] MAPPING SOURCE DIRECTORY...</div>',
+        '<div class="text-white/40">[INFO] DETECTED: safetensors format</div>',
+        '<div class="text-white/40">[INFO] SCANNING TENSOR NAMES...</div>',
+        '<div class="text-white/40">[INFO] TEXT-PATH TENSORS: model.embed_tokens, model.layers.*, model.norm, lm_head</div>',
+        '<div class="text-white/40">[INFO] SKIPPING MULTIMODAL: visual.* (recorded in manifest)</div>',
+        '<div class="pt-4"><div class="flex justify-between mb-1"><span>PACKING WEIGHTS: layers/layer_024.bin</span><span>42%</span></div><div class="w-full bg-white/10 h-1 overflow-hidden"><div class="bg-primary h-full w-[42%]"></div></div></div>',
+        '<div class="text-white/40">[INFO] WRITING: embeddings/embeddings.bin... OK</div>',
+        '<div class="text-white/40">[INFO] WRITING: layers/layer_000.bin... OK</div>',
+        '<div class="text-white/40">[INFO] WRITING: layers/layer_001.bin... OK</div>',
+        '<div class="text-white/40">[INFO] WRITING: manifest.json... OK</div>',
+        '<div class="text-primary/60">[INFO] CHECKSUM VERIFICATION: PASS</div>',
+        '<div class="animate-pulse inline-block w-2 h-4 bg-primary align-middle ml-1"></div>'
+      ];
+      
+      let index = 0;
+      intervalId = setInterval(() => {
+        if (index < lines.length) {
+          consoleOut.innerHTML += lines[index];
+          consoleOut.scrollTop = consoleOut.scrollHeight;
+          index++;
+        } else {
+          clearInterval(intervalId);
+          startBtn.disabled = false;
+          startBtn.classList.remove('opacity-50');
+        }
+      }, 400);
+    });
+    
+    abortBtn.addEventListener('click', () => {
+      clearInterval(intervalId);
+      consoleOut.innerHTML += '<div class="text-error">[WARN] ABORTED BY USER</div>';
+      consoleOut.scrollTop = consoleOut.scrollHeight;
+      startBtn.disabled = false;
+      startBtn.classList.remove('opacity-50');
+    });
+  });
+</script>
 </body>
 </html>

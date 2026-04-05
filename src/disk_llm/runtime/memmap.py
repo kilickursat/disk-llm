@@ -18,6 +18,10 @@ class MemmapTensorStore:
         self.manifest = manifest
         self.base_dir = Path(base_dir)
         self._cache: dict[str, Any] = {}
+        # Eagerly map all tensors into virtual memory. This takes <0.1s and
+        # ensures thread-safe reads for background async I/O prefetching.
+        for tensor_name in self.manifest.tensors:
+            self.get(tensor_name)
 
     def has(self, tensor_name: str) -> bool:
         return tensor_name in self.manifest.tensors

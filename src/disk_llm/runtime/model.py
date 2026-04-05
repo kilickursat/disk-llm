@@ -146,8 +146,14 @@ class DiskLLMTextModel:
         )
         hidden = np.asarray(embed_weight[int(token_id)])
 
+        import threading
         for layer_idx in range(self.config.num_hidden_layers):
             layer_name = f"layer_{layer_idx:03d}"
+            
+            # Spawn OS page fault scout for the next layer in the background
+            if layer_idx + 1 < self.config.num_hidden_layers:
+                threading.Thread(target=self._prefetch_layer, args=(layer_idx + 1,), daemon=True).start()
+                
             with telemetry.time_layer(layer_name):
                 hidden = self._forward_layer(layer_idx, hidden, position=position, cache=cache[layer_idx], telemetry=telemetry)
 
@@ -389,3 +395,20 @@ class DiskLLMTextModel:
         raise RuntimeShapeError(
             "Could not resolve any tensor name from candidates: " + ", ".join(candidates)
         )
+
+    def _prefetch_layer(self, layer_idx: int):
+        """
+        Runs in a background thread. Touches every 4KB page of the target 
+        layer's memmap arrays natively in C-space to trick the OS into 
+        fetching it directly from the NVMe SSD into system cache before 
+        the main thread actually needs it.
+        """
+        prefix1 = f"model.layers.{layer_idx}."
+        prefix2 = f"model.language_model.layers.{layer_idx}."
+        
+        for name, mmap_tensor in self.store._cache.items():
+            if name.startswith(prefix1) or name.startswith(prefix2):
+                # .view("uint8") provides byte-level math
+                # [::4096] skips exactly 1 OS page per iter
+                # .sum() runs entirely in numpy C-backend, releasing the Python GIL
+                _ = mmap_tensor.view("uint8")[::4096].sum()
