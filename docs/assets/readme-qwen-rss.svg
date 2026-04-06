@@ -1,0 +1,46 @@
+<svg width="1200" height="760" viewBox="0 0 1200 760" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="760" rx="28" fill="#0F141B"/>
+  <rect x="28" y="28" width="1144" height="704" rx="24" fill="#121922" stroke="#283244"/>
+  <text x="72" y="88" fill="#AAB7C8" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="700" letter-spacing="0.14em">README AUDIT / RSS PROFILE</text>
+  <text x="72" y="146" fill="#F5F1E8" font-family="Arial, Helvetica, sans-serif" font-size="38" font-weight="700">RSS profile across the archived run phases</text>
+  <text x="72" y="190" fill="#AAB7C8" font-family="Arial, Helvetica, sans-serif" font-size="20">Start, peak, and settled end values come directly from memory_timeline.csv.</text>
+  <rect x="936" y="62" width="196" height="34" rx="17" fill="#1A2331"/>
+  <text x="1034" y="84" text-anchor="middle" fill="#AAB7C8" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700">README / archived run</text>
+
+  <rect x="60" y="228" width="1080" height="420" rx="22" fill="#121922" stroke="#283244"/>
+  <path d="M180 608.0H1100" stroke="#2A3443" stroke-dasharray="4 10"/>
+  <text x="162" y="613.0" text-anchor="end" fill="#AAB7C8" font-family="Arial, Helvetica, sans-serif" font-size="13">0</text>
+  <path d="M180 548.0H1100" stroke="#2A3443" stroke-dasharray="4 10"/>
+  <text x="162" y="553.0" text-anchor="end" fill="#AAB7C8" font-family="Arial, Helvetica, sans-serif" font-size="13">2</text>
+  <path d="M180 488.0H1100" stroke="#2A3443" stroke-dasharray="4 10"/>
+  <text x="162" y="493.0" text-anchor="end" fill="#AAB7C8" font-family="Arial, Helvetica, sans-serif" font-size="13">4</text>
+  <path d="M180 428.0H1100" stroke="#2A3443" stroke-dasharray="4 10"/>
+  <text x="162" y="433.0" text-anchor="end" fill="#AAB7C8" font-family="Arial, Helvetica, sans-serif" font-size="13">6</text>
+  <path d="M180 368.0H1100" stroke="#2A3443" stroke-dasharray="4 10"/>
+  <text x="162" y="373.0" text-anchor="end" fill="#AAB7C8" font-family="Arial, Helvetica, sans-serif" font-size="13">8</text>
+  <path d="M180 308.0H1100" stroke="#2A3443" stroke-dasharray="4 10"/>
+  <text x="162" y="313.0" text-anchor="end" fill="#AAB7C8" font-family="Arial, Helvetica, sans-serif" font-size="13">10</text>
+  <path d="M180 248.0H1100" stroke="#2A3443" stroke-dasharray="4 10"/>
+  <text x="162" y="253.0" text-anchor="end" fill="#AAB7C8" font-family="Arial, Helvetica, sans-serif" font-size="13">12</text>
+  <text x="334" y="620" text-anchor="middle" fill="#AAB7C8" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700">Start</text>
+  <rect x="280" y="506.3" width="44" height="101.7" rx="14" fill="#4A86D8"/>
+  <text x="302.0" y="496.3" text-anchor="middle" fill="#F5F1E8" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700">3.39</text>
+  <rect x="346" y="391.7" width="44" height="216.3" rx="14" fill="#EAB97A"/>
+  <text x="368.0" y="381.7" text-anchor="middle" fill="#F5F1E8" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700">7.21</text>
+  <text x="584" y="620" text-anchor="middle" fill="#AAB7C8" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700">Peak</text>
+  <rect x="530" y="278.0" width="44" height="330.0" rx="14" fill="#4A86D8"/>
+  <text x="552.0" y="268.0" text-anchor="middle" fill="#F5F1E8" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700">11.00</text>
+  <rect x="596" y="278.0" width="44" height="330.0" rx="14" fill="#EAB97A"/>
+  <text x="618.0" y="268.0" text-anchor="middle" fill="#F5F1E8" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700">11.00</text>
+  <text x="834" y="620" text-anchor="middle" fill="#AAB7C8" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700">End</text>
+  <rect x="780" y="391.7" width="44" height="216.3" rx="14" fill="#4A86D8"/>
+  <text x="802.0" y="381.7" text-anchor="middle" fill="#F5F1E8" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700">7.21</text>
+  <rect x="846" y="391.6" width="44" height="216.4" rx="14" fill="#EAB97A"/>
+  <text x="868.0" y="381.6" text-anchor="middle" fill="#F5F1E8" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700">7.21</text>
+  <rect x="784" y="84" width="126" height="34" rx="17" fill="#182334"/>
+  <circle cx="806" cy="101" r="6" fill="#4A86D8"/><text x="820" y="106" fill="#AAB7C8" font-family="Arial, Helvetica, sans-serif" font-size="13">Prompt 8</text>
+  <rect x="924" y="84" width="142" height="34" rx="17" fill="#182334"/>
+  <circle cx="946" cy="101" r="6" fill="#EAB97A"/><text x="960" y="106" fill="#AAB7C8" font-family="Arial, Helvetica, sans-serif" font-size="13">Prompt 128</text>
+  <rect x="60" y="664" width="1080" height="50" rx="18" fill="#151D29" stroke="#283244"/>
+  <text x="84" y="695" fill="#AAB7C8" font-family="Arial, Helvetica, sans-serif" font-size="17">Both archived cases peak near 11 GiB, even though latency and throughput diverge sharply.</text>
+</svg>

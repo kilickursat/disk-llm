@@ -1,0 +1,34 @@
+<svg width="1200" height="760" viewBox="0 0 1200 760" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="760" rx="28" fill="#F6F1E8"/>
+  <rect x="28" y="28" width="1144" height="704" rx="24" fill="#FFFFFF" stroke="#D7CCBA"/>
+  <text x="72" y="88" fill="#1F5AA6" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="700" letter-spacing="0.14em">README AUDIT / THROUGHPUT</text>
+  <text x="72" y="146" fill="#101214" font-family="Arial, Helvetica, sans-serif" font-size="38" font-weight="700">Disk-LLM throughput by prompt length</text>
+  <text x="72" y="190" fill="#566171" font-family="Arial, Helvetica, sans-serif" font-size="20">Archived Qwen 3.5 Modal rows only. No HF baseline was captured in this bundle.</text>
+  <rect x="936" y="62" width="196" height="34" rx="17" fill="#EEF4FC"/>
+  <text x="1034" y="84" text-anchor="middle" fill="#1F5AA6" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700">README / archived run</text>
+
+  <rect x="60" y="228" width="1080" height="420" rx="22" fill="#FFFFFF" stroke="#D7CCBA"/>
+  <path d="M310.0 248V602" stroke="#EAE1D4" stroke-dasharray="4 10"/>
+  <text x="310.0" y="626" text-anchor="middle" fill="#8A93A1" font-family="Arial, Helvetica, sans-serif" font-size="13">0.00</text>
+  <path d="M466.0 248V602" stroke="#EAE1D4" stroke-dasharray="4 10"/>
+  <text x="466.0" y="626" text-anchor="middle" fill="#8A93A1" font-family="Arial, Helvetica, sans-serif" font-size="13">0.04</text>
+  <path d="M622.0 248V602" stroke="#EAE1D4" stroke-dasharray="4 10"/>
+  <text x="622.0" y="626" text-anchor="middle" fill="#8A93A1" font-family="Arial, Helvetica, sans-serif" font-size="13">0.09</text>
+  <path d="M778.0 248V602" stroke="#EAE1D4" stroke-dasharray="4 10"/>
+  <text x="778.0" y="626" text-anchor="middle" fill="#8A93A1" font-family="Arial, Helvetica, sans-serif" font-size="13">0.13</text>
+  <path d="M934.0 248V602" stroke="#EAE1D4" stroke-dasharray="4 10"/>
+  <text x="934.0" y="626" text-anchor="middle" fill="#8A93A1" font-family="Arial, Helvetica, sans-serif" font-size="13">0.18</text>
+  <path d="M1090.0 248V602" stroke="#EAE1D4" stroke-dasharray="4 10"/>
+  <text x="1090.0" y="626" text-anchor="middle" fill="#8A93A1" font-family="Arial, Helvetica, sans-serif" font-size="13">0.22</text>
+  <path d="M310 602H1090" stroke="#8A93A1"/>
+  <text x="92" y="272" fill="#101214" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700">Prompt 8</text>
+  <text x="92" y="300" fill="#566171" font-family="Arial, Helvetica, sans-serif" font-size="16">Generated tokens per second</text>
+  <rect x="310" y="258" width="723.7" height="52" rx="18" fill="#1F5AA6"/>
+  <text x="1049.7" y="292" fill="#101214" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700">0.204 tok/s</text>
+  <text x="92" y="380" fill="#101214" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700">Prompt 128</text>
+  <text x="92" y="408" fill="#566171" font-family="Arial, Helvetica, sans-serif" font-size="16">Generated tokens per second</text>
+  <rect x="310" y="366" width="55.2" height="52" rx="18" fill="#D4872F"/>
+  <text x="381.2" y="400" fill="#101214" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700">0.016 tok/s</text>
+  <rect x="60" y="664" width="1080" height="50" rx="18" fill="#FBF7F0" stroke="#D7CCBA"/>
+  <text x="84" y="695" fill="#566171" font-family="Arial, Helvetica, sans-serif" font-size="17">Prompt 128 is 13.1x slower than prompt 8 in the archived pre-fix run.</text>
+</svg>

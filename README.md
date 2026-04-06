@@ -83,16 +83,16 @@ What the audit uncovered:
 - the original benchmark artifact was generated before the runtime correctly enforced full layer execution
 - the NumPy runtime still needs a native `linear_attention` adapter before Qwen 3.5 benchmark claims should be treated as final
 
-So the archived audit figures below should be read as **pipeline evidence**, not as the final benchmark headline.
+So the archived audit figures below should be read as **pipeline evidence**, not as the final benchmark headline. For GitHub readability, the README uses a separate set of static charts derived directly from the archived Modal rows.
 
 <table>
   <tr>
-    <td><img src="docs/assets/audit-throughput.svg" alt="Archived throughput audit figure"></td>
-    <td><img src="docs/assets/audit-latency.svg" alt="Archived first-token latency audit figure"></td>
+    <td><img src="docs/assets/readme-qwen-throughput.svg" alt="README throughput chart from archived Qwen Modal rows"></td>
+    <td><img src="docs/assets/readme-qwen-latency.svg" alt="README first-token latency chart from archived Qwen Modal rows"></td>
   </tr>
   <tr>
-    <td><img src="docs/assets/audit-logical-mapped.svg" alt="Archived logical mapped bytes audit figure"></td>
-    <td><img src="docs/assets/audit-rss-profile.svg" alt="Archived RSS profile audit figure"></td>
+    <td><img src="docs/assets/readme-qwen-logical-mapped.svg" alt="README logical mapped bytes chart from archived Qwen Modal rows"></td>
+    <td><img src="docs/assets/readme-qwen-rss.svg" alt="README RSS profile chart from archived Qwen Modal rows"></td>
   </tr>
 </table>
 
