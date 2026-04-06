@@ -1,0 +1,62 @@
+<svg width="1200" height="760" viewBox="0 0 1200 760" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="760" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0F141C"/>
+      <stop offset="1" stop-color="#1B2330"/>
+    </linearGradient>
+    <linearGradient id="barAmber" x1="0" y1="0" x2="1" y2="0">
+      <stop stop-color="#D4872F"/>
+      <stop offset="1" stop-color="#EAB97A"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="760" rx="28" fill="url(#bg)"/>
+  <rect x="28" y="28" width="1144" height="704" rx="24" fill="#0E1116" stroke="#283244"/>
+  <text x="72" y="92" fill="#EAB97A" font-family="'Courier New', monospace" font-size="15" letter-spacing="0.08em" textLength="300" lengthAdjust="spacingAndGlyphs">ARCHIVED MODAL AUDIT / FIRST TOKEN</text>
+  <text x="72" y="156" fill="#F5F1E8" font-family="Arial, Helvetica, sans-serif" font-size="44" font-weight="700">
+    <tspan x="72" dy="0" textLength="584" lengthAdjust="spacingAndGlyphs">First-token latency rose with context.</tspan>
+  </text>
+  <text x="72" y="210" fill="#AAB7C8" font-family="Arial, Helvetica, sans-serif" font-size="22">
+    <tspan x="72" dy="0" textLength="626" lengthAdjust="spacingAndGlyphs">This is the clearest signal in the archived run:</tspan>
+    <tspan x="72" dy="30" textLength="586" lengthAdjust="spacingAndGlyphs">longer prompts made the first-token wait explode.</tspan>
+  </text>
+  <rect x="60" y="274" width="316" height="384" rx="24" fill="#151D29" stroke="#2A3D56"/>
+  <text x="88" y="320" fill="#AAB7C8" font-family="'Courier New', monospace" font-size="13" letter-spacing="0.05em" textLength="138" lengthAdjust="spacingAndGlyphs">LATENCY JUMP</text>
+  <text x="88" y="404" fill="#F5F1E8" font-family="Arial, Helvetica, sans-serif" font-size="86" font-weight="700" textLength="188" lengthAdjust="spacingAndGlyphs">16.0x</text>
+  <text x="88" y="444" fill="#F5F1E8" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" textLength="188" lengthAdjust="spacingAndGlyphs">slower start</text>
+  <text x="88" y="512" fill="#AAB7C8" font-family="Arial, Helvetica, sans-serif" font-size="20">
+    <tspan x="88" dy="0" textLength="208" lengthAdjust="spacingAndGlyphs">Prompt 8: 7.9 s</tspan>
+    <tspan x="88" dy="28" textLength="236" lengthAdjust="spacingAndGlyphs">Prompt 128: 126.6 s</tspan>
+  </text>
+  <text x="88" y="616" fill="#EAB97A" font-family="Arial, Helvetica, sans-serif" font-size="18">
+    <tspan x="88" dy="0" textLength="250" lengthAdjust="spacingAndGlyphs">The delta is 118.7 seconds</tspan>
+    <tspan x="88" dy="24" textLength="244" lengthAdjust="spacingAndGlyphs">before the first new token.</tspan>
+  </text>
+  <rect x="418" y="274" width="720" height="384" rx="24" fill="#121922" stroke="#2A3D56"/>
+  <g opacity="0.4">
+    <path d="M540 348V618" stroke="#2E3B4D"/>
+    <path d="M540 348H1082" stroke="#243142"/>
+    <path d="M540 438H1082" stroke="#243142"/>
+    <path d="M540 528H1082" stroke="#243142"/>
+    <path d="M540 618H1082" stroke="#243142"/>
+    <path d="M645 348V618" stroke="#243142" stroke-dasharray="4 10"/>
+    <path d="M750 348V618" stroke="#243142" stroke-dasharray="4 10"/>
+    <path d="M855 348V618" stroke="#243142" stroke-dasharray="4 10"/>
+    <path d="M960 348V618" stroke="#243142" stroke-dasharray="4 10"/>
+    <path d="M1065 348V618" stroke="#243142" stroke-dasharray="4 10"/>
+  </g>
+  <text x="540" y="648" fill="#AAB7C8" font-family="'Courier New', monospace" font-size="13">0 s</text>
+  <text x="638" y="648" fill="#AAB7C8" font-family="'Courier New', monospace" font-size="13">25</text>
+  <text x="744" y="648" fill="#AAB7C8" font-family="'Courier New', monospace" font-size="13">50</text>
+  <text x="849" y="648" fill="#AAB7C8" font-family="'Courier New', monospace" font-size="13">75</text>
+  <text x="949" y="648" fill="#AAB7C8" font-family="'Courier New', monospace" font-size="13">100</text>
+  <text x="1048" y="648" fill="#AAB7C8" font-family="'Courier New', monospace" font-size="13">125 s</text>
+  <text x="452" y="424" fill="#F5F1E8" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" textLength="114" lengthAdjust="spacingAndGlyphs">Prompt 8</text>
+  <rect x="540" y="390" width="34" height="44" rx="22" fill="#4A86D8"/>
+  <text x="594" y="419" fill="#F5F1E8" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" textLength="44" lengthAdjust="spacingAndGlyphs">7.9</text>
+  <text x="438" y="534" fill="#F5F1E8" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" textLength="128" lengthAdjust="spacingAndGlyphs">Prompt 128</text>
+  <rect x="540" y="500" width="532" height="44" rx="22" fill="url(#barAmber)"/>
+  <text x="1090" y="529" fill="#F5F1E8" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" textLength="68" lengthAdjust="spacingAndGlyphs">126.6</text>
+  <text x="72" y="704" fill="#AAB7C8" font-family="Arial, Helvetica, sans-serif" font-size="17">
+    <tspan x="72" dy="0" textLength="862" lengthAdjust="spacingAndGlyphs">Interpretation: this archived figure is useful because it shows prompt sensitivity clearly, but it still predates the stricter runtime guardrails now in main.</tspan>
+  </text>
+</svg>

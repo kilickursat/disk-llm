@@ -1,0 +1,56 @@
+<svg width="1200" height="760" viewBox="0 0 1200 760" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="760" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#121721"/>
+      <stop offset="1" stop-color="#1A2331"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="760" rx="28" fill="url(#bg)"/>
+  <rect x="28" y="28" width="1144" height="704" rx="24" fill="#0E1116" stroke="#283244"/>
+  <text x="72" y="92" fill="#8EA8D6" font-family="'Courier New', monospace" font-size="15" letter-spacing="0.08em" textLength="278" lengthAdjust="spacingAndGlyphs">ARCHIVED MODAL AUDIT / RSS PROFILE</text>
+  <text x="72" y="156" fill="#F5F1E8" font-family="Arial, Helvetica, sans-serif" font-size="44" font-weight="700">
+    <tspan x="72" dy="0" textLength="642" lengthAdjust="spacingAndGlyphs">Resident memory peaked near 11 GiB in both cases.</tspan>
+  </text>
+  <text x="72" y="210" fill="#AAB7C8" font-family="Arial, Helvetica, sans-serif" font-size="22">
+    <tspan x="72" dy="0" textLength="656" lengthAdjust="spacingAndGlyphs">The archived runs reached similar RSS ceilings even though</tspan>
+    <tspan x="72" dy="30" textLength="648" lengthAdjust="spacingAndGlyphs">their throughput and first-token latency diverged dramatically.</tspan>
+  </text>
+  <rect x="60" y="274" width="316" height="384" rx="24" fill="#151D29" stroke="#2A3D56"/>
+  <text x="88" y="320" fill="#AAB7C8" font-family="'Courier New', monospace" font-size="13" letter-spacing="0.05em" textLength="132" lengthAdjust="spacingAndGlyphs">PEAK MEMORY</text>
+  <text x="88" y="404" fill="#F5F1E8" font-family="Arial, Helvetica, sans-serif" font-size="78" font-weight="700" textLength="190" lengthAdjust="spacingAndGlyphs">11.00</text>
+  <text x="88" y="444" fill="#F5F1E8" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" textLength="84" lengthAdjust="spacingAndGlyphs">GiB</text>
+  <text x="88" y="512" fill="#AAB7C8" font-family="Arial, Helvetica, sans-serif" font-size="20">
+    <tspan x="88" dy="0" textLength="250" lengthAdjust="spacingAndGlyphs">Prompt 8: 3.39 -&gt; 11.00 -&gt; 7.21</tspan>
+    <tspan x="88" dy="28" textLength="264" lengthAdjust="spacingAndGlyphs">Prompt 128: 7.21 -&gt; 11.00 -&gt; 7.21</tspan>
+  </text>
+  <text x="88" y="616" fill="#8EA8D6" font-family="Arial, Helvetica, sans-serif" font-size="18">
+    <tspan x="88" dy="0" textLength="252" lengthAdjust="spacingAndGlyphs">Start, peak, and end values are</tspan>
+    <tspan x="88" dy="24" textLength="254" lengthAdjust="spacingAndGlyphs">taken from the archived timeline.</tspan>
+  </text>
+  <rect x="418" y="274" width="720" height="384" rx="24" fill="#121922" stroke="#2A3D56"/>
+  <text x="620" y="334" text-anchor="middle" fill="#AAB7C8" font-family="'Courier New', monospace" font-size="13" textLength="42" lengthAdjust="spacingAndGlyphs">START</text>
+  <text x="800" y="334" text-anchor="middle" fill="#AAB7C8" font-family="'Courier New', monospace" font-size="13" textLength="34" lengthAdjust="spacingAndGlyphs">PEAK</text>
+  <text x="980" y="334" text-anchor="middle" fill="#AAB7C8" font-family="'Courier New', monospace" font-size="13" textLength="28" lengthAdjust="spacingAndGlyphs">END</text>
+  <text x="462" y="434" fill="#F5F1E8" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" textLength="114" lengthAdjust="spacingAndGlyphs">Prompt 8</text>
+  <path d="M620 420H800H980" stroke="#4A86D8" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="620" cy="420" r="18" fill="#4A86D8"/>
+  <circle cx="800" cy="420" r="32" fill="#4A86D8"/>
+  <circle cx="980" cy="420" r="24" fill="#4A86D8"/>
+  <text x="620" y="425" text-anchor="middle" fill="#0E1116" font-family="'Courier New', monospace" font-size="12">3.39</text>
+  <text x="800" y="425" text-anchor="middle" fill="#0E1116" font-family="'Courier New', monospace" font-size="12">11.0</text>
+  <text x="980" y="425" text-anchor="middle" fill="#0E1116" font-family="'Courier New', monospace" font-size="12">7.21</text>
+  <text x="438" y="564" fill="#F5F1E8" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" textLength="138" lengthAdjust="spacingAndGlyphs">Prompt 128</text>
+  <path d="M620 550H800H980" stroke="#EAB97A" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="620" cy="550" r="24" fill="#EAB97A"/>
+  <circle cx="800" cy="550" r="32" fill="#EAB97A"/>
+  <circle cx="980" cy="550" r="24" fill="#EAB97A"/>
+  <text x="620" y="555" text-anchor="middle" fill="#0E1116" font-family="'Courier New', monospace" font-size="12">7.21</text>
+  <text x="800" y="555" text-anchor="middle" fill="#0E1116" font-family="'Courier New', monospace" font-size="12">11.0</text>
+  <text x="980" y="555" text-anchor="middle" fill="#0E1116" font-family="'Courier New', monospace" font-size="12">7.21</text>
+  <text x="620" y="618" text-anchor="middle" fill="#AAB7C8" font-family="Arial, Helvetica, sans-serif" font-size="18" textLength="90" lengthAdjust="spacingAndGlyphs">cold start</text>
+  <text x="800" y="618" text-anchor="middle" fill="#AAB7C8" font-family="Arial, Helvetica, sans-serif" font-size="18" textLength="116" lengthAdjust="spacingAndGlyphs">transient peak</text>
+  <text x="980" y="618" text-anchor="middle" fill="#AAB7C8" font-family="Arial, Helvetica, sans-serif" font-size="18" textLength="82" lengthAdjust="spacingAndGlyphs">settled end</text>
+  <text x="72" y="704" fill="#AAB7C8" font-family="Arial, Helvetica, sans-serif" font-size="17">
+    <tspan x="72" dy="0" textLength="836" lengthAdjust="spacingAndGlyphs">Interpretation: the archived Qwen run already shows a stable RSS ceiling. The missing piece is not another memory chart, but a corrected rerun after the native linear_attention adapter lands.</tspan>
+  </text>
+</svg>

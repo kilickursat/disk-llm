@@ -1,0 +1,62 @@
+<svg width="1200" height="760" viewBox="0 0 1200 760" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="760" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F5F0E7"/>
+      <stop offset="1" stop-color="#ECE4D6"/>
+    </linearGradient>
+    <linearGradient id="bar" x1="0" y1="0" x2="1" y2="0">
+      <stop stop-color="#163E73"/>
+      <stop offset="1" stop-color="#2A6CD4"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="760" rx="28" fill="url(#bg)"/>
+  <rect x="28" y="28" width="1144" height="704" rx="24" fill="#FBF8F2" stroke="#D6CAB6"/>
+  <text x="72" y="92" fill="#1F5AA6" font-family="'Courier New', monospace" font-size="15" letter-spacing="0.08em" textLength="334" lengthAdjust="spacingAndGlyphs">ARCHIVED MODAL AUDIT / LOGICAL MAPPED</text>
+  <text x="72" y="156" fill="#101214" font-family="Arial, Helvetica, sans-serif" font-size="44" font-weight="700">
+    <tspan x="72" dy="0" textLength="694" lengthAdjust="spacingAndGlyphs">Logical mapped bytes scaled into the hundreds of GiB.</tspan>
+  </text>
+  <text x="72" y="210" fill="#4B5663" font-family="Arial, Helvetica, sans-serif" font-size="22">
+    <tspan x="72" dy="0" textLength="672" lengthAdjust="spacingAndGlyphs">This is one of the most distinctive Disk-LLM telemetry surfaces:</tspan>
+    <tspan x="72" dy="30" textLength="640" lengthAdjust="spacingAndGlyphs">it measures what the runtime mapped logically, not what stayed resident in RAM.</tspan>
+  </text>
+  <rect x="60" y="274" width="316" height="384" rx="24" fill="#FFFFFF" stroke="#D6CAB6"/>
+  <text x="88" y="320" fill="#4B5663" font-family="'Courier New', monospace" font-size="13" letter-spacing="0.05em" textLength="150" lengthAdjust="spacingAndGlyphs">TELEMETRY SIGNAL</text>
+  <text x="88" y="404" fill="#101214" font-family="Arial, Helvetica, sans-serif" font-size="76" font-weight="700" textLength="204" lengthAdjust="spacingAndGlyphs">492.6</text>
+  <text x="88" y="444" fill="#101214" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" textLength="80" lengthAdjust="spacingAndGlyphs">GiB</text>
+  <text x="88" y="512" fill="#4B5663" font-family="Arial, Helvetica, sans-serif" font-size="20">
+    <tspan x="88" dy="0" textLength="278" lengthAdjust="spacingAndGlyphs">Prompt 8: 37.9 GiB mapped</tspan>
+    <tspan x="88" dy="28" textLength="298" lengthAdjust="spacingAndGlyphs">Prompt 128: 492.6 GiB mapped</tspan>
+  </text>
+  <text x="88" y="616" fill="#1F5AA6" font-family="Arial, Helvetica, sans-serif" font-size="18">
+    <tspan x="88" dy="0" textLength="216" lengthAdjust="spacingAndGlyphs">This is a 13.0x increase</tspan>
+    <tspan x="88" dy="24" textLength="234" lengthAdjust="spacingAndGlyphs">across the archived cases.</tspan>
+  </text>
+  <rect x="418" y="274" width="720" height="384" rx="24" fill="#FFFFFF" stroke="#D6CAB6"/>
+  <g opacity="0.45">
+    <path d="M540 348V618" stroke="#D6CAB6"/>
+    <path d="M540 348H1082" stroke="#E8DED0"/>
+    <path d="M540 438H1082" stroke="#E8DED0"/>
+    <path d="M540 528H1082" stroke="#E8DED0"/>
+    <path d="M540 618H1082" stroke="#E8DED0"/>
+    <path d="M644 348V618" stroke="#EFE5D8" stroke-dasharray="4 10"/>
+    <path d="M748 348V618" stroke="#EFE5D8" stroke-dasharray="4 10"/>
+    <path d="M852 348V618" stroke="#EFE5D8" stroke-dasharray="4 10"/>
+    <path d="M956 348V618" stroke="#EFE5D8" stroke-dasharray="4 10"/>
+    <path d="M1060 348V618" stroke="#EFE5D8" stroke-dasharray="4 10"/>
+  </g>
+  <text x="540" y="648" fill="#4B5663" font-family="'Courier New', monospace" font-size="13">0</text>
+  <text x="630" y="648" fill="#4B5663" font-family="'Courier New', monospace" font-size="13">100</text>
+  <text x="734" y="648" fill="#4B5663" font-family="'Courier New', monospace" font-size="13">200</text>
+  <text x="838" y="648" fill="#4B5663" font-family="'Courier New', monospace" font-size="13">300</text>
+  <text x="942" y="648" fill="#4B5663" font-family="'Courier New', monospace" font-size="13">400</text>
+  <text x="1038" y="648" fill="#4B5663" font-family="'Courier New', monospace" font-size="13">500 GiB</text>
+  <text x="452" y="424" fill="#101214" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" textLength="114" lengthAdjust="spacingAndGlyphs">Prompt 8</text>
+  <rect x="540" y="390" width="42" height="44" rx="22" fill="#EAB97A"/>
+  <text x="602" y="419" fill="#101214" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" textLength="52" lengthAdjust="spacingAndGlyphs">37.9</text>
+  <text x="438" y="534" fill="#101214" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" textLength="128" lengthAdjust="spacingAndGlyphs">Prompt 128</text>
+  <rect x="540" y="500" width="522" height="44" rx="22" fill="url(#bar)"/>
+  <text x="1080" y="529" fill="#101214" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" textLength="68" lengthAdjust="spacingAndGlyphs">492.6</text>
+  <text x="72" y="704" fill="#4B5663" font-family="Arial, Helvetica, sans-serif" font-size="17">
+    <tspan x="72" dy="0" textLength="834" lengthAdjust="spacingAndGlyphs">Interpretation: Disk-LLM's audit story is not just speed and RSS. Logical mapped bytes expose the storage-facing behavior that most standard runtime dashboards hide.</tspan>
+  </text>
+</svg>

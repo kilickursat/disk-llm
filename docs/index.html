@@ -247,6 +247,8 @@
     }
 
     .artifact-grid figure {
+      display: flex;
+      flex-direction: column;
       margin: 0;
       overflow: hidden;
       background: var(--panel);
@@ -257,8 +259,8 @@
 
     .artifact-grid img {
       width: 100%;
-      height: 100%;
-      object-fit: cover;
+      height: auto;
+      background: #f6f1e8;
     }
 
     .artifact-grid figcaption {
@@ -294,6 +296,39 @@
       line-height: 1.65;
     }
 
+    .novelty-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      margin-top: 24px;
+    }
+
+    .novelty-card {
+      padding: 22px 24px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .novelty-card::before {
+      content: "";
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 6px;
+      background: linear-gradient(180deg, var(--blue), var(--amber));
+    }
+
+    .novelty-card strong {
+      display: block;
+      margin-bottom: 10px;
+      font-size: 1.08rem;
+    }
+
+    .novelty-card p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
     .footer {
       padding: 48px 0 72px;
       color: var(--muted);
@@ -313,7 +348,8 @@
       .section-head,
       .metrics,
       .artifact-grid,
-      .status-grid {
+      .status-grid,
+      .novelty-grid {
         grid-template-columns: 1fr;
       }
 
@@ -410,13 +446,44 @@
           <span class="eyebrow">Workflow</span>
           <h2>The project is strongest when the pipeline is visible.</h2>
           <p>
-            Disk-LLM is not just a runtime. It is an inspect → convert → generate → benchmark → audit loop. The latest fixes reinforce that philosophy by preventing benchmark export when telemetry does not show real layer execution.
+            Disk-LLM is not just a runtime. It is an inspect / convert / generate / benchmark / audit loop. The latest fixes reinforce that philosophy by preventing benchmark export when telemetry does not show real layer execution.
           </p>
         </div>
         <span class="meta-tag">Inspect / Convert / Generate / Benchmark / Audit</span>
       </div>
       <div class="panel">
         <img src="assets/pipeline-map.svg" alt="Disk-LLM pipeline map">
+      </div>
+    </section>
+
+    <section class="section" id="novelties">
+      <div class="section-head">
+        <div>
+          <span class="eyebrow">Novelties</span>
+          <h2>What is genuinely distinctive about Disk-LLM.</h2>
+          <p>
+            The project becomes compelling when it is judged as a research system rather than a generic inference stack. These are the parts that make Disk-LLM novel inside that framing.
+          </p>
+        </div>
+        <span class="meta-tag">Storage path made explicit</span>
+      </div>
+      <div class="novelty-grid">
+        <div class="panel novelty-card">
+          <strong>Layout-first conversion</strong>
+          <p>Disk-LLM repacks checkpoints into layer-oriented shard files so the runtime layout is deliberate, page-friendly, and easy to inspect.</p>
+        </div>
+        <div class="panel novelty-card">
+          <strong>Memmap-native CPU execution</strong>
+          <p>The NumPy runtime works directly from memmap-backed shards, which keeps the storage path visible instead of hiding it in a heavyweight serving engine.</p>
+        </div>
+        <div class="panel novelty-card">
+          <strong>Storage-facing telemetry</strong>
+          <p>Logical bytes mapped, tensors touched, first-token latency, and per-layer timing data turn benchmark runs into auditable artifacts.</p>
+        </div>
+        <div class="panel novelty-card">
+          <strong>Benchmark honesty guardrails</strong>
+          <p>The repo now rejects zero-layer benchmark exports, which means a broken execution path is less likely to become a polished but misleading headline.</p>
+        </div>
       </div>
     </section>
 
@@ -440,9 +507,9 @@
       <div class="section-head">
         <div>
           <span class="eyebrow">Archived Artifact</span>
-          <h2>Plots retained as workflow evidence, not the final headline.</h2>
+          <h2>Audit figures retained as workflow evidence, not the final headline.</h2>
           <p>
-            The current plot bundle is still useful because it proves the repo can export CSVs, Markdown summaries, and figures from a real Modal run. It should be read as an archived pre-fix artifact until the Qwen <code>linear_attention</code> runtime path is implemented and the Disk-LLM vs HF comparison is rerun under the new guardrails.
+            The archived Modal result bundle is still useful because it proves the repo can export CSVs, Markdown summaries, and figures from a real remote run. These redesigned figures are based on the actual archived numbers, but they should still be read as pre-fix audit evidence until the Qwen <code>linear_attention</code> runtime path is implemented and the corrected Disk-LLM versus HF comparison is rerun.
           </p>
         </div>
         <span class="meta-tag">Read the charts as archived evidence</span>
@@ -450,20 +517,20 @@
 
       <div class="artifact-grid">
         <figure>
-          <img src="assets/tokens_per_second.png" alt="Archived tokens per second plot">
-          <figcaption>Throughput plot from the archived Modal bundle. Useful as pipeline evidence, but not the final benchmark claim.</figcaption>
+          <img src="assets/audit-throughput.svg" alt="Archived throughput audit figure">
+          <figcaption>Throughput audit based on the archived Modal bundle. The prompt-length slowdown is real, but the bundle still lacks the corrected HF comparison.</figcaption>
         </figure>
         <figure>
-          <img src="assets/first_token_latency.png" alt="Archived first token latency plot">
-          <figcaption>Latency sweep preserved for comparison later, once the corrected runtime path is rerun.</figcaption>
+          <img src="assets/audit-latency.svg" alt="Archived first-token latency audit figure">
+          <figcaption>First-token latency is the clearest prompt-sensitivity signal in the archived run and one of the strongest arguments for a corrected rerun.</figcaption>
         </figure>
         <figure>
-          <img src="assets/logical_mapped.png" alt="Archived logical mapped plot">
-          <figcaption>Logical mapped bytes remain one of the most distinctive Disk-LLM telemetry surfaces in the project.</figcaption>
+          <img src="assets/audit-logical-mapped.svg" alt="Archived logical mapped bytes audit figure">
+          <figcaption>Logical mapped bytes remain one of Disk-LLM's most distinctive telemetry surfaces because they expose storage-facing behavior, not just resident memory.</figcaption>
         </figure>
         <figure>
-          <img src="assets/rss_timeline.png" alt="Archived RSS timeline plot">
-          <figcaption>RSS plotting is already part of the benchmark pipeline and can be regenerated on the next real rerun.</figcaption>
+          <img src="assets/audit-rss-profile.svg" alt="Archived RSS profile audit figure">
+          <figcaption>The archived run already shows a stable RSS ceiling; the missing milestone is now correctness of the Qwen execution path, not prettier memory plotting.</figcaption>
         </figure>
       </div>
     </section>
@@ -474,7 +541,7 @@
           <span class="eyebrow">Implementation Matrix</span>
           <h2>Where the project stands right now.</h2>
           <p>
-            The repo already works as a converter, inspector, benchmark harness, and Modal-ready research workflow. The next real milestone is not “more polish,” but a correct native adapter for Qwen 3.5 linear attention followed by a new benchmark publication pass.
+            The repo already works as a converter, inspector, benchmark harness, and Modal-ready research workflow. The next real milestone is not "more polish," but a correct native adapter for Qwen 3.5 linear attention followed by a new benchmark publication pass.
           </p>
         </div>
         <span class="meta-tag">Updated April 2026</span>

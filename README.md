@@ -29,6 +29,16 @@ Disk offload is not new. What is different here is the emphasis on inspectabilit
 - **Glass-box telemetry:** the runtime reports logical bytes mapped, tensors touched, first-token latency, generated token counts, and per-layer timings.
 - **Research-first workflow:** inspect, convert, benchmark, plot, and audit are all first-class parts of the repo.
 
+## Disk-LLM Novelties
+
+Disk-LLM is most compelling where it makes the storage path explicit instead of treating it as an invisible backend detail.
+
+- **Layout-first conversion:** checkpoints are repacked into layer-oriented shard files so the runtime layout is designed for paging and inspection, not inherited blindly from the source snapshot.
+- **Memmap-native CPU path:** the project runs a native NumPy memmap inference path that keeps disk-backed behavior visible instead of hiding it inside a larger serving engine.
+- **Storage-facing telemetry:** Disk-LLM reports logical bytes mapped, tensors touched, first-token latency, and per-layer timings so benchmark outputs carry runtime evidence, not just speed numbers.
+- **Benchmark honesty guards:** the current branch refuses to save zero-layer benchmark rows, which is a meaningful research safeguard revealed by the real Qwen Modal audit.
+- **Remote reproducibility:** the Modal workflow lets the project inspect, pack, benchmark, and archive large-model artifacts without forcing a local workstation download.
+
 <p align="center">
   <img src="docs/assets/pipeline-map.svg" alt="Disk-LLM pipeline map">
 </p>
@@ -73,16 +83,16 @@ What the audit uncovered:
 - the original benchmark artifact was generated before the runtime correctly enforced full layer execution
 - the NumPy runtime still needs a native `linear_attention` adapter before Qwen 3.5 benchmark claims should be treated as final
 
-So the archived Modal plots below should be read as **pipeline evidence**, not as the final benchmark headline.
+So the archived audit figures below should be read as **pipeline evidence**, not as the final benchmark headline.
 
 <table>
   <tr>
-    <td><img src="docs/assets/tokens_per_second.png" alt="Archived tokens per second plot"></td>
-    <td><img src="docs/assets/first_token_latency.png" alt="Archived first token latency plot"></td>
+    <td><img src="docs/assets/audit-throughput.svg" alt="Archived throughput audit figure"></td>
+    <td><img src="docs/assets/audit-latency.svg" alt="Archived first-token latency audit figure"></td>
   </tr>
   <tr>
-    <td><img src="docs/assets/logical_mapped.png" alt="Archived logical mapped plot"></td>
-    <td><img src="docs/assets/rss_timeline.png" alt="Archived RSS timeline plot"></td>
+    <td><img src="docs/assets/audit-logical-mapped.svg" alt="Archived logical mapped bytes audit figure"></td>
+    <td><img src="docs/assets/audit-rss-profile.svg" alt="Archived RSS profile audit figure"></td>
   </tr>
 </table>
 
