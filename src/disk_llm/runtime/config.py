@@ -7,6 +7,7 @@ from typing import Any
 
 from ..layout import derive_block_kinds
 from ..manifest import PackedModelManifest
+from ..model_config import normalized_text_config
 
 
 @dataclass(frozen=True)
@@ -45,26 +46,28 @@ class TextModelConfig:
         family: str = "qwen3.5",
         variant: str = "9b",
     ) -> "TextModelConfig":
+        text_config = normalized_text_config(data)
         block_kinds = tuple(derive_block_kinds(data))
+        rope_parameters = text_config.get("rope_parameters", {})
         return cls(
             family=family,
             variant=variant,
-            vocab_size=int(data.get("vocab_size", 0)),
-            hidden_size=int(data.get("hidden_size", 0)),
-            intermediate_size=int(data.get("intermediate_size", data.get("ffn_hidden_size", 0))),
-            num_hidden_layers=int(data.get("num_hidden_layers", 0)),
-            num_attention_heads=int(data.get("num_attention_heads", 1)),
-            num_key_value_heads=int(data.get("num_key_value_heads", data.get("num_kv_heads", 1))),
-            rms_norm_eps=float(data.get("rms_norm_eps", data.get("layer_norm_epsilon", 1e-6))),
-            rope_theta=float(data.get("rope_theta", 1_000_000.0)),
-            max_position_embeddings=int(data.get("max_position_embeddings", 0)),
-            bos_token_id=_maybe_int(data.get("bos_token_id")),
-            eos_token_id=_maybe_int(data.get("eos_token_id")),
-            pad_token_id=_maybe_int(data.get("pad_token_id")),
+            vocab_size=int(text_config.get("vocab_size", 0)),
+            hidden_size=int(text_config.get("hidden_size", 0)),
+            intermediate_size=int(text_config.get("intermediate_size", text_config.get("ffn_hidden_size", 0))),
+            num_hidden_layers=int(text_config.get("num_hidden_layers", 0)),
+            num_attention_heads=int(text_config.get("num_attention_heads", 1)),
+            num_key_value_heads=int(text_config.get("num_key_value_heads", text_config.get("num_kv_heads", 1))),
+            rms_norm_eps=float(text_config.get("rms_norm_eps", text_config.get("layer_norm_epsilon", 1e-6))),
+            rope_theta=float(text_config.get("rope_theta", rope_parameters.get("rope_theta", 1_000_000.0))),
+            max_position_embeddings=int(text_config.get("max_position_embeddings", 0)),
+            bos_token_id=_maybe_int(text_config.get("bos_token_id")),
+            eos_token_id=_maybe_int(text_config.get("eos_token_id")),
+            pad_token_id=_maybe_int(text_config.get("pad_token_id")),
             block_kinds=block_kinds,
-            delta_num_heads=_maybe_int(data.get("delta_num_heads")),
-            delta_head_dim=_maybe_int(data.get("delta_head_dim")),
-            attention_head_dim=_maybe_int(data.get("attention_head_dim")),
+            delta_num_heads=_maybe_int(text_config.get("delta_num_heads")),
+            delta_head_dim=_maybe_int(text_config.get("delta_head_dim")),
+            attention_head_dim=_maybe_int(text_config.get("attention_head_dim")),
         )
 
     @classmethod

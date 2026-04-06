@@ -1,70 +1,92 @@
 <p align="center">
-  <img src="logo.png" alt="Disk-LLM logo" width="420">
+  <img src="logo.png" alt="Disk-LLM logo" width="360">
+</p>
+
+<p align="center">
+  <img src="docs/assets/showcase-hero.svg" alt="Disk-LLM showroom hero">
 </p>
 
 # Disk-LLM
 
-Disk-LLM is an inspectable disk-backed LLM research kit. The project is built around two ideas:
+Disk-LLM is an inspectable disk-backed LLM research kit.
 
-1. pack weights into layer-oriented memmap shards instead of treating raw checkpoints as the final runtime layout
-2. make the runtime observable, so you can see which tensors are mapped, how long each layer took, and what the generation loop is doing
+The project is built around a simple idea: if we are going to stream model weights from disk, we should make that path explicit, measurable, and understandable. Instead of treating checkpoint files as the final runtime layout, Disk-LLM repacks text weights into layer-oriented memmap shards and exposes runtime telemetry so the storage story stays visible.
 
-This repository is intentionally opinionated. It is not trying to beat mature inference engines like `llama.cpp`, `vLLM`, or `SGLang` on production throughput. The v1 goal is narrower and more tangible:
+The goal is not to beat mature inference engines like `llama.cpp`, `vLLM`, or `SGLang` on production throughput. The goal is narrower and more research-friendly:
 
-Run short text-only generations from a disk-packed model layout on CPU while exposing live telemetry for researchers and contributors.
+- convert checkpoints into a layout the OS can page predictably
+- run a native NumPy memmap path on CPU
+- inspect what was packed, what was skipped, and what the runtime actually touched
+- benchmark that path with reproducible CSVs, plots, and remote Modal runs
 
-A branded project website is published at [kilickursat.github.io/disk-llm](https://kilickursat.github.io/disk-llm/), and the local demo UI now uses the project logo directly.
+The project website is published at [kilickursat.github.io/disk-llm](https://kilickursat.github.io/disk-llm/).
 
-## Current status
+## Why Disk-LLM Exists
+
+Disk offload is not new. What is different here is the emphasis on inspectability.
+
+- **Engineered layer sharding:** weights are packed into architecture-aligned shard files instead of left in monolithic checkpoint blobs.
+- **Glass-box telemetry:** the runtime reports logical bytes mapped, tensors touched, first-token latency, generated token counts, and per-layer timings.
+- **Research-first workflow:** inspect, convert, benchmark, plot, and audit are all first-class parts of the repo.
+
+<p align="center">
+  <img src="docs/assets/pipeline-map.svg" alt="Disk-LLM pipeline map">
+</p>
+
+## Current Status
 
 - `convert`: implemented
 - `inspect`: implemented
-- `bench`: implemented, with reproducible CSV/plot scripts for repeated experiments
 - `generate`: implemented
+- `bench`: implemented with repeatable CSV + plot export
 - `demo`: implemented as an optional Gradio wrapper
-- Qwen 3.5 text runtime: experimental adapter scaffold
+- Qwen 3.5 runtime: still experimental
 
-The converter and manifest flow are solid enough to start experimenting today. The NumPy runtime is intentionally marked experimental because Qwen 3.5 uses a newer hybrid architecture and exact tensor-name coverage should be validated against a real checkpoint snapshot.
+The important change in the current branch is that the Qwen audit path is now stricter and more honest:
 
-## What makes Disk-LLM uniquely novel?
+- nested `text_config` is now unwrapped correctly
+- `model.language_model.layers.*` is now detected in manifests and inspections
+- benchmark runs now refuse to save misleading zero-layer telemetry results
 
-Offloading weights to disk is not a new concept—production engines like `llama.cpp` heavily rely on `mmap()`, and `accelerate` has a disk offloading feature. However, Disk-LLM stands out by acting as a **"Glass-Box Research Engine"** rather than a "Black-Box Production Engine":
+That means the project is better positioned for a trustworthy rerun than it was when the first Modal artifact bundle was committed.
 
-1. **Engineered Layer-Sharding:** Instead of mapping monolithic 15GB `safetensors` files and letting the Operating System randomly guess which pages to keep in memory, Disk-LLM proactively repacks weights into distinct architectural boundary files (Layer 0, Layer 1, etc.). This mathematically guarantees that the OS effortlessly handles highly predictable, sequential page-faults.
-2. **Naked Dependencies:** Disk-LLM proves that you do not need complex C++, CUDA kernels, or massive framework bloat to understand fundamental compute limitations. By forcing the inference stack to rely entirely on standard Python, NumPy, and the OS's native file-system cache, we expose exactly how to push virtual memory sizes to their limits. 
-3. **Telemetry as a First-Class Citizen:** Usually, disk-swapping happens entirely in the background, making it a nightmare for researchers to compute bottlenecks. Disk-LLM exposes exactly *when* the disk is mapped, *how much* virtual memory is shifting (e.g. 500+GB for lengthy contexts), and the latency penalty of *each specific layer* independently.
+<p align="center">
+  <img src="docs/assets/qwen-audit.svg" alt="Qwen3.5 audit summary">
+</p>
 
-Ultimately, Disk-LLM allows you to run large parameter models smoothly on minimal physical RAM, bypassing Out-Of-Memory (OOM) capacity ceilings through calculated Page-Fault engineering.
+## Real Qwen Modal Audit
 
-## Project structure
+The repo includes a real Modal artifact bundle in [`modal-results`](modal-results). It proves that the remote workflow ran against `Qwen/Qwen3.5-9B` and produced a full inspection / conversion / plotting bundle.
 
-```text
-disk-llm/
-├─ src/disk_llm/
-│  ├─ cli.py
-│  ├─ converter.py
-│  ├─ inspect.py
-│  ├─ layout.py
-│  ├─ manifest.py
-│  ├─ optional.py
-│  ├─ safetensors_io.py
-│  └─ runtime/
-│     ├─ config.py
-│     ├─ kernels.py
-│     ├─ memmap.py
-│     ├─ model.py
-│     └─ telemetry.py
-├─ docs/
-│  ├─ architecture.md
-│  ├─ documentation.html
-│  ├─ converter.html
-│  ├─ index.html
-│  └─ telemetry.html
-├─ tests/
-└─ pyproject.toml
-```
+Verified facts from that archived artifact:
 
-## Quick start
+- source tensors discovered: `775`
+- packed text tensors: `427`
+- skipped tensors: `348`
+- packed shards: `34`
+- packed footprint: `16.68 GiB`
+- source architecture: `Qwen3_5ForConditionalGeneration`
+
+What the audit uncovered:
+
+- the real checkpoint is wrapped by a multimodal top-level config with nested `text_config`
+- the original benchmark artifact was generated before the runtime correctly enforced full layer execution
+- the NumPy runtime still needs a native `linear_attention` adapter before Qwen 3.5 benchmark claims should be treated as final
+
+So the archived Modal plots below should be read as **pipeline evidence**, not as the final benchmark headline.
+
+<table>
+  <tr>
+    <td><img src="docs/assets/tokens_per_second.png" alt="Archived tokens per second plot"></td>
+    <td><img src="docs/assets/first_token_latency.png" alt="Archived first token latency plot"></td>
+  </tr>
+  <tr>
+    <td><img src="docs/assets/logical_mapped.png" alt="Archived logical mapped plot"></td>
+    <td><img src="docs/assets/rss_timeline.png" alt="Archived RSS timeline plot"></td>
+  </tr>
+</table>
+
+## Quick Start
 
 ### 1. Install
 
@@ -78,9 +100,9 @@ Optional extras:
 pip install -e .[hf,demo,test,bench]
 ```
 
-For Hugging Face parity or CPU-baseline benchmarks, make sure a CPU PyTorch build is also available in the environment.
+For Hugging Face parity or CPU-baseline benchmarks, make sure a CPU PyTorch build is available in the environment.
 
-### 2. Inspect a Hugging Face snapshot
+### 2. Inspect a source snapshot
 
 ```bash
 disk-llm inspect --source-dir /path/to/Qwen3.5-9B
@@ -98,29 +120,13 @@ disk-llm convert /path/to/Qwen3.5-9B ./packed-qwen35
 disk-llm inspect --manifest ./packed-qwen35/manifest.json
 ```
 
-### 5. Generate with token ids
-
-```bash
-disk-llm generate ./packed-qwen35/manifest.json --prompt-ids 1,2,3 --max-new-tokens 8 --show-telemetry
-```
-
-### 6. Generate with text
-
-If the source snapshot contains tokenizer files and `transformers` is installed:
+### 5. Generate from the packed model
 
 ```bash
 disk-llm generate ./packed-qwen35/manifest.json --prompt "Explain disk-backed inference in one paragraph."
 ```
 
-### 7. Launch the demo UI
-
-```bash
-disk-llm demo ./packed-qwen35/manifest.json --tokenizer /path/to/Qwen3.5-9B
-```
-
-### 8. Run repeated benchmark cases
-
-Save repeated runs, prompt-length sweeps, and process-memory timelines:
+### 6. Run repeated benchmark cases
 
 ```bash
 python scripts/benchmark.py ./packed-qwen35/manifest.json \
@@ -134,64 +140,37 @@ python scripts/benchmark.py ./packed-qwen35/manifest.json \
   --output-dir ./benchmark-results/qwen35-cpu
 ```
 
-This writes:
+Outputs:
 
 - `benchmark_runs.csv`
 - `benchmark_summary.csv`
 - `memory_timeline.csv`
 - `benchmark_metadata.json`
 
-### 9. Generate comparison plots
+### 7. Generate plots
 
 ```bash
 python scripts/plot_results.py ./benchmark-results/qwen35-cpu
 ```
 
-The plot step produces:
+### 8. Keep the model off your local machine
 
-- throughput bar charts
-- first-token latency curves
-- RSS timeline plots
-- a Markdown comparison table for reports or README updates
+If you want to run the full workflow remotely on Modal, use the runbook in [`docs/modal_remote_run.md`](docs/modal_remote_run.md).
 
-### 10. Run the full workflow on Modal
-
-If you want to keep the Qwen snapshot off your local machine, use the remote runner and saved command sequence in [`docs/modal_remote_run.md`](docs/modal_remote_run.md). The helper wrappers are:
+Helper wrappers:
 
 - `scripts/run_modal_qwen35_9b.sh`
 - `scripts/run_modal_qwen35_9b.ps1`
 
-## Qwen3.5-9B Modal Benchmark Results
-
-Below are the Qwen 3.5 9B generation metrics running natively off SSD maps in Modal's CPU instance, compared to the Hugging Face (HF) CPU baseline in `float32`.
-
-| Backend | Prompt Tokens | Max New Tokens | Mean Tokens/s | Mean First Token (s) | Mean Peak RSS (MB) | Mean Logical Mapped (MB) |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| Disk-LLM | 8 | 2 | 0.090 | 17.732 | 11267.234 | 38800.078 |
-| HF CPU | 8 | 2 | 0.139 | 5.614 | 21946.625 | n/a |
-| Disk-LLM | 128 | 2 | 0.008 | 244.750 | 11269.367 | 504401.016 |
-| HF CPU | 128 | 2 | 0.075 | 17.605 | 21946.625 | n/a |
-
-<p align="center">
-  <img src="docs/assets/tokens_per_second.png" alt="Tokens per second">
-</p>
-<p align="center">
-  <img src="docs/assets/logical_mapped.png" alt="Logical memory mapped over time vs physical memory limit">
-</p>
-<p align="center">
-  <img src="docs/assets/rss_timeline.png" alt="RSS Physical Memory Peak">
-</p>
-<p align="center">
-  <img src="docs/assets/first_token_latency.png" alt="First Token Latency">
-</p>
-
-## What gets packed
+## What Gets Packed
 
 The default v1 converter targets the text-only path:
 
 - `model.embed_tokens.*`
 - `model.layers.<n>.*`
+- `model.language_model.layers.<n>.*`
 - `model.norm.*`
+- `model.language_model.norm.*`
 - `lm_head.*`
 
 Known multimodal tensors such as `visual.*` are skipped and recorded in the manifest.
@@ -225,9 +204,15 @@ Every runtime call can emit:
 - generated token count
 - tokens per second
 
-These metrics are intentionally approximate on CPU because page-cache behavior is owned by the OS, but they are still useful for comparative experiments.
+The benchmark scripts extend that with repeated-run CSVs, RSS sampling via `psutil`, Markdown summaries, and plot generation.
 
-The benchmark scripts extend that with repeated-run CSVs, RSS sampling via `psutil`, and an optional Hugging Face CPU reference backend.
+## Roadmap
+
+- implement a native Qwen 3.5 `linear_attention` runtime path
+- rerun the real `Qwen/Qwen3.5-9B` Modal comparison with Disk-LLM and HF CPU side by side
+- add correctness checks beyond throughput and RSS
+- deepen telemetry with cache and disk-fault oriented instrumentation
+- expand the adapter story for additional model families
 
 ## Development
 
@@ -237,23 +222,16 @@ Run the stdlib test suite:
 python -m unittest discover -v
 ```
 
-The repository is designed to remain importable even when optional dependencies are missing. That allows contributors to inspect the CLI, manifest flow, and converter logic without first downloading the full inference stack.
+The repo is designed to stay importable even when optional dependencies are missing, which makes it easier to inspect the converter, manifest flow, and CLI without first downloading a full inference stack.
 
-## Roadmap
+## Contributing
 
-- validate tensor-name coverage against a real `Qwen/Qwen3.5-9B` snapshot
-- harden the Qwen 3.5 text adapter against exact hybrid block definitions
-- add parity checks against a reference backend when `transformers` is installed
-- deepen telemetry with cache-specific metrics and disk-fault sampling
-- add focused docs for custom adapters and alternate packing strategies
-- publish real Qwen benchmark results and figures from converted checkpoints
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request.
 
-## Open source contribution
-
-Please read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request. Good first contributions include:
+High-value contributions include:
 
 - new tensor-name adapters
-- improved block-layout inspection
-- benchmark datasets and published result bundles
 - runtime correctness tests against reference implementations
+- benchmark datasets and published result bundles
+- better inspection for hybrid block layouts
 - tokenizer and chat-template integration improvements

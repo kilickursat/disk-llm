@@ -220,14 +220,27 @@ class DiskLLMBenchmarkBackend:
             self.load()
         telemetry = TelemetryRecorder(prompt_tokens=len(prompt_ids))
         generated_ids, telemetry_payload = self.model.generate_token_ids(prompt_ids, max_new_tokens=max_new_tokens, temperature=temperature, top_p=top_p, seed=seed, telemetry=telemetry)
+        layer_count = len(telemetry_payload.get("layer_times", {}))
+        tensors_touched = telemetry_payload.get("tensors_touched")
+        expected_layers = 0 if self.model is None else self.model.config.num_hidden_layers
+        if expected_layers > 0 and layer_count == 0:
+            raise DiskLLMError(
+                "Disk-LLM benchmark telemetry recorded zero executed layers even though the model config expects "
+                f"{expected_layers}. Refusing to write misleading benchmark results."
+            )
+        if expected_layers > 0 and tensors_touched is not None and int(tensors_touched) <= 3:
+            raise DiskLLMError(
+                "Disk-LLM touched only embeddings/final tensors during benchmark execution. "
+                "Refusing to treat this as a valid full-model benchmark."
+            )
         return {
             "generated_tokens": len(generated_ids),
             "elapsed_seconds": telemetry_payload.get("elapsed_seconds"),
             "first_token_seconds": telemetry_payload.get("first_token_seconds"),
             "tokens_per_second": telemetry_payload.get("tokens_per_second"),
             "logical_bytes_mapped_mb": telemetry_payload.get("logical_bytes_mapped", 0) / MB,
-            "tensors_touched": telemetry_payload.get("tensors_touched"),
-            "layer_count": len(telemetry_payload.get("layer_times", {})),
+            "tensors_touched": tensors_touched,
+            "layer_count": layer_count,
             "notes": [],
         }
 

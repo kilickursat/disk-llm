@@ -5,6 +5,8 @@ from __future__ import annotations
 import re
 from typing import Any
 
+from .model_config import normalized_text_config
+
 LAYER_PATTERN = re.compile(r"^(?:model\.language_model\.|model\.)layers\.(\d+)\.")
 
 
@@ -43,13 +45,30 @@ def default_block_kinds(num_hidden_layers: int) -> list[str]:
     return [pattern[index % len(pattern)] for index in range(num_hidden_layers)]
 
 
+def normalize_block_kind(kind: str) -> str:
+    """Collapse known aliases into the runtime's block-kind vocabulary."""
+    normalized = str(kind).strip().lower()
+    aliases = {
+        "attention": "attention",
+        "full_attention": "attention",
+        "self_attention": "attention",
+        "delta": "delta",
+        "delta_net": "delta",
+        "gated_delta": "delta",
+        # Keep the Qwen 3.5 text path explicit until the runtime has a native adapter.
+        "linear_attention": "linear_attention",
+    }
+    return aliases.get(normalized, normalized)
+
+
 def derive_block_kinds(config: dict[str, Any]) -> list[str]:
     """Derive hybrid block kinds from config when possible, otherwise use the v1 default."""
+    text_config = normalized_text_config(config)
     for key in ("block_kinds", "layer_types", "hybrid_block_types"):
-        value = config.get(key)
+        value = text_config.get(key)
         if isinstance(value, list) and all(isinstance(item, str) for item in value):
-            return [item.lower() for item in value]
-    num_hidden_layers = int(config.get("num_hidden_layers", 0))
+            return [normalize_block_kind(item) for item in value]
+    num_hidden_layers = int(text_config.get("num_hidden_layers", 0))
     return default_block_kinds(num_hidden_layers)
 
 

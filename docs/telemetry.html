@@ -4,7 +4,7 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Disk-LLM | Runtime Telemetry Dashboard</title>
-<meta name="description" content="Real-time telemetry dashboard for Disk-LLM runtime — layer latency, memory pressure, tensor mapping, and system logs."/>
+<meta name="description" content="Illustrative telemetry surface for the Disk-LLM runtime: layer latency, memory pressure, tensor mapping, and system logs."/>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@500&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
@@ -90,11 +90,14 @@ body { font-family: 'IBM Plex Sans', sans-serif; }
 <!-- Header -->
 <div class="mb-12 pt-4">
   <h1 class="text-5xl font-light tracking-tight text-inverse-surface mb-2 font-headline">SYSTEM_STATE: READY</h1>
-  <div class="flex gap-4 items-center">
-    <span class="mono-text text-sm text-primary">DISK-LLM RUNTIME</span>
-    <span class="h-px w-12 bg-outline-variant/30"></span>
-    <span class="mono-text text-sm opacity-50">Qwen3.5-9B Adapter</span>
-  </div>
+<div class="flex gap-4 items-center">
+  <span class="mono-text text-sm text-primary">DISK-LLM RUNTIME</span>
+  <span class="h-px w-12 bg-outline-variant/30"></span>
+  <span class="mono-text text-sm opacity-50">Qwen3.5-9B Adapter</span>
+</div>
+<div class="mt-6 max-w-3xl border-l-4 border-primary bg-surface-container-low p-4 text-sm leading-relaxed text-on-surface-variant">
+  This page is an illustrative telemetry surface, not the authoritative benchmark record. The corrected benchmark framing and archived Modal artifact live on the homepage and documentation pages.
+</div>
 </div>
 
 <div class="grid grid-cols-12 gap-px bg-outline-variant/10">

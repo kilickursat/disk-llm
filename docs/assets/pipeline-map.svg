@@ -1,0 +1,70 @@
+<svg width="1600" height="900" viewBox="0 0 1600 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="pipelineBg" x1="0" y1="0" x2="1600" y2="900" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F4EFE7"/>
+      <stop offset="1" stop-color="#EEE5D6"/>
+    </linearGradient>
+    <linearGradient id="flow" x1="184" y1="420" x2="1418" y2="420" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1F5AA6"/>
+      <stop offset="1" stop-color="#C67A2B"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1600" height="900" rx="32" fill="url(#pipelineBg)"/>
+  <text x="120" y="134" fill="#1F2B3D" font-family="'IBM Plex Mono', monospace" font-size="20" letter-spacing="0.2em">NATIVE NUMPY MEMMAP WORKFLOW</text>
+  <text x="120" y="230" fill="#101214" font-family="'Space Grotesk', sans-serif" font-size="76" font-weight="700">From checkpoint to benchmark artifact.</text>
+  <text x="122" y="286" fill="#455364" font-family="'IBM Plex Sans', sans-serif" font-size="28">
+    The project is strongest when the pipeline is explicit: inspect, pack, run, observe, then publish only what survives audit.
+  </text>
+
+  <path d="M184 470H1418" stroke="url(#flow)" stroke-width="12" stroke-linecap="round"/>
+  <path d="M1418 470L1378 444V496L1418 470Z" fill="#C67A2B"/>
+
+  <g>
+    <circle cx="228" cy="470" r="52" fill="#FFFFFF" stroke="#1F5AA6" stroke-width="8"/>
+    <text x="205" y="480" fill="#1F5AA6" font-family="'IBM Plex Mono', monospace" font-size="34">01</text>
+    <text x="174" y="596" fill="#101214" font-family="'Space Grotesk', sans-serif" font-size="34" font-weight="700">Inspect</text>
+    <text x="174" y="636" fill="#455364" font-family="'IBM Plex Sans', sans-serif" font-size="22">Read config.json and safetensors</text>
+    <text x="174" y="668" fill="#455364" font-family="'IBM Plex Sans', sans-serif" font-size="22">before touching the runtime.</text>
+  </g>
+
+  <g>
+    <circle cx="518" cy="470" r="52" fill="#FFFFFF" stroke="#1F5AA6" stroke-width="8"/>
+    <text x="495" y="480" fill="#1F5AA6" font-family="'IBM Plex Mono', monospace" font-size="34">02</text>
+    <text x="460" y="596" fill="#101214" font-family="'Space Grotesk', sans-serif" font-size="34" font-weight="700">Convert</text>
+    <text x="460" y="636" fill="#455364" font-family="'IBM Plex Sans', sans-serif" font-size="22">Pack text tensors into</text>
+    <text x="460" y="668" fill="#455364" font-family="'IBM Plex Sans', sans-serif" font-size="22">layer-oriented shard files.</text>
+  </g>
+
+  <g>
+    <circle cx="808" cy="470" r="52" fill="#FFFFFF" stroke="#1F5AA6" stroke-width="8"/>
+    <text x="785" y="480" fill="#1F5AA6" font-family="'IBM Plex Mono', monospace" font-size="34">03</text>
+    <text x="739" y="596" fill="#101214" font-family="'Space Grotesk', sans-serif" font-size="34" font-weight="700">Generate</text>
+    <text x="739" y="636" fill="#455364" font-family="'IBM Plex Sans', sans-serif" font-size="22">Run the NumPy path with</text>
+    <text x="739" y="668" fill="#455364" font-family="'IBM Plex Sans', sans-serif" font-size="22">telemetry on every call.</text>
+  </g>
+
+  <g>
+    <circle cx="1098" cy="470" r="52" fill="#FFFFFF" stroke="#C67A2B" stroke-width="8"/>
+    <text x="1075" y="480" fill="#C67A2B" font-family="'IBM Plex Mono', monospace" font-size="34">04</text>
+    <text x="1033" y="596" fill="#101214" font-family="'Space Grotesk', sans-serif" font-size="34" font-weight="700">Benchmark</text>
+    <text x="1033" y="636" fill="#455364" font-family="'IBM Plex Sans', sans-serif" font-size="22">Record runs, RSS, logical</text>
+    <text x="1033" y="668" fill="#455364" font-family="'IBM Plex Sans', sans-serif" font-size="22">mapped bytes, and plots.</text>
+  </g>
+
+  <g>
+    <circle cx="1388" cy="470" r="52" fill="#FFFFFF" stroke="#C67A2B" stroke-width="8"/>
+    <text x="1365" y="480" fill="#C67A2B" font-family="'IBM Plex Mono', monospace" font-size="34">05</text>
+    <text x="1314" y="596" fill="#101214" font-family="'Space Grotesk', sans-serif" font-size="34" font-weight="700">Audit</text>
+    <text x="1314" y="636" fill="#455364" font-family="'IBM Plex Sans', sans-serif" font-size="22">Reject results that bypass</text>
+    <text x="1314" y="668" fill="#455364" font-family="'IBM Plex Sans', sans-serif" font-size="22">real layer execution.</text>
+  </g>
+
+  <rect x="120" y="742" width="1360" height="92" rx="24" fill="#FFFFFF" stroke="#D4C9B7"/>
+  <text x="156" y="796" fill="#1F2B3D" font-family="'IBM Plex Sans', sans-serif" font-size="28">
+    Latest fix: Disk-LLM now unwraps nested Qwen text_config, detects model.language_model.layers.* in manifests,
+  </text>
+  <text x="156" y="830" fill="#1F2B3D" font-family="'IBM Plex Sans', sans-serif" font-size="28">
+    and refuses to save benchmark rows when telemetry shows a zero-layer execution path.
+  </text>
+</svg>

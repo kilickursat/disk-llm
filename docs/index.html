@@ -1,451 +1,527 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Disk-LLM | Inspectable Disk-Backed LLM Research Kit</title>
-<meta name="description" content="Disk-LLM is a researcher-first toolkit for exploring large language models on restricted hardware using Native NumPy Memmap. Optimized for observation and contribution."/>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;600&family=IBM+Plex+Mono:wght@400;500&family=Space+Grotesk:wght@500&family=Inter:wght@400;600&display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<script>
-tailwind.config = {
-  darkMode: "class",
-  theme: {
-    extend: {
-      colors: {
-        "primary": "#0f62fe",
-        "primary-dim": "#0043ce",
-        "primary-container": "#dbe1ff",
-        "on-primary": "#ffffff",
-        "on-primary-container": "#0047c1",
-        "surface": "#f4f4f4",
-        "surface-container": "#e0e0e0",
-        "surface-container-low": "#f6f3f2",
-        "surface-container-high": "#eae8e7",
-        "surface-container-highest": "#e4e2e2",
-        "surface-container-lowest": "#ffffff",
-        "surface-dim": "#dbdad9",
-        "surface-bright": "#fcf9f8",
-        "on-surface": "#161616",
-        "on-surface-variant": "#525252",
-        "outline": "#8d8d8d",
-        "outline-variant": "#b3b2b1",
-        "inverse-surface": "#161616",
-        "inverse-on-surface": "#9e9c9c",
-        "inverse-primary": "#628aff",
-        "secondary": "#525252",
-        "on-secondary": "#fbf8f8",
-        "secondary-container": "#e4e2e1",
-        "error": "#da1e28",
-        "background": "#f4f4f4",
-        "on-background": "#161616",
-      },
-      fontFamily: {
-        "headline": ["IBM Plex Sans", "sans-serif"],
-        "body": ["IBM Plex Sans", "sans-serif"],
-        "label": ["IBM Plex Mono", "monospace"],
-        "mono": ["IBM Plex Mono", "monospace"],
-        "sans-plex": ["IBM Plex Sans", "sans-serif"]
-      },
-      borderRadius: {
-        "none": "0px", "DEFAULT": "0px", "lg": "0px", "xl": "0px", "full": "0px"
-      },
-    },
-  },
-}
-</script>
-<style>
-.material-symbols-outlined {
-  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-  display: inline-block;
-  vertical-align: middle;
-}
-body {
-  font-family: 'IBM Plex Sans', sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Disk-LLM | Inspectable Disk-Backed LLM Research Kit</title>
+  <meta name="description" content="Disk-LLM is a researcher-first toolkit for packing checkpoints into memmap shards, exposing runtime telemetry, and benchmarking disk-backed inference honestly.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f4efe7;
+      --surface: #fffaf2;
+      --surface-2: #eee4d4;
+      --panel: #ffffff;
+      --ink: #101214;
+      --muted: #4b5663;
+      --line: #d6cab6;
+      --blue: #1f5aa6;
+      --blue-deep: #163e73;
+      --amber: #c67a2b;
+      --shadow: 0 18px 42px rgba(16, 18, 20, 0.09);
+      --radius: 26px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: "IBM Plex Sans", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(31, 90, 166, 0.08), transparent 28%),
+        radial-gradient(circle at bottom right, rgba(198, 122, 43, 0.08), transparent 28%),
+        var(--bg);
+    }
+
+    a { color: inherit; text-decoration: none; }
+    img { max-width: 100%; display: block; }
+
+    .shell {
+      width: min(1240px, calc(100% - 32px));
+      margin: 0 auto;
+    }
+
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      backdrop-filter: blur(18px);
+      background: rgba(244, 239, 231, 0.9);
+      border-bottom: 1px solid rgba(214, 202, 182, 0.9);
+    }
+
+    .nav-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      min-height: 78px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-family: "Space Grotesk", sans-serif;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      font-size: 1.1rem;
+    }
+
+    .brand img {
+      width: 36px;
+      height: 36px;
+      object-fit: contain;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .nav-links a:hover { color: var(--ink); }
+
+    .cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      border-radius: 999px;
+      padding: 13px 20px;
+      font-weight: 600;
+      transition: transform 180ms ease, background 180ms ease, color 180ms ease;
+    }
+
+    .cta:hover { transform: translateY(-1px); }
+
+    .cta-primary {
+      background: var(--ink);
+      color: #f7f2ea;
+    }
+
+    .cta-secondary {
+      background: rgba(16, 18, 20, 0.06);
+      color: var(--ink);
+    }
+
+    .hero {
+      padding: 72px 0 36px;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 36px;
+      align-items: end;
+    }
+
+    .eyebrow {
+      display: inline-block;
+      margin-bottom: 18px;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.78rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--blue);
+    }
+
+    h1, h2, h3 {
+      margin: 0;
+      font-family: "Space Grotesk", sans-serif;
+      letter-spacing: -0.04em;
+    }
+
+    h1 {
+      font-size: clamp(3rem, 6vw, 5.8rem);
+      line-height: 0.96;
+      max-width: 12ch;
+    }
+
+    .hero-copy p {
+      margin: 24px 0 0;
+      max-width: 58ch;
+      color: var(--muted);
+      font-size: 1.12rem;
+      line-height: 1.7;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-top: 28px;
+    }
+
+    .hero-note {
+      margin-top: 28px;
+      padding: 18px 20px;
+      border-left: 4px solid var(--amber);
+      background: rgba(255, 255, 255, 0.6);
+      color: var(--muted);
+      line-height: 1.6;
+      border-radius: 0 18px 18px 0;
+    }
+
+    .hero-visual {
+      position: relative;
+    }
+
+    .panel {
+      background: rgba(255, 255, 255, 0.75);
+      border: 1px solid rgba(214, 202, 182, 0.9);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .section {
+      padding: 32px 0 10px;
+    }
+
+    .section-head {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 16px;
+      align-items: end;
+      margin-bottom: 24px;
+    }
+
+    .section-head p {
+      margin: 14px 0 0;
+      color: var(--muted);
+      max-width: 64ch;
+      line-height: 1.7;
+    }
+
+    .meta-tag {
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(31, 90, 166, 0.08);
+      color: var(--blue-deep);
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.8rem;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-top: 22px;
+    }
+
+    .metric {
+      padding: 20px 22px;
+    }
+
+    .metric-label {
+      font-family: "IBM Plex Mono", monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-size: 0.74rem;
+      color: var(--muted);
+    }
+
+    .metric strong {
+      display: block;
+      margin-top: 14px;
+      font-family: "Space Grotesk", sans-serif;
+      font-size: 2.2rem;
+      letter-spacing: -0.05em;
+    }
+
+    .metric span:last-child {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+    }
+
+    .artifact-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 18px;
+      margin-top: 26px;
+    }
+
+    .artifact-grid figure {
+      margin: 0;
+      overflow: hidden;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+    }
+
+    .artifact-grid img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .artifact-grid figcaption {
+      padding: 14px 16px 18px;
+      color: var(--muted);
+      font-size: 0.94rem;
+      line-height: 1.6;
+    }
+
+    .status-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-top: 26px;
+    }
+
+    .status-card {
+      padding: 20px 22px;
+    }
+
+    .status-card strong {
+      display: block;
+      margin-bottom: 12px;
+      font-size: 1.05rem;
+    }
+
+    .status-ok { border-top: 4px solid var(--blue); }
+    .status-dev { border-top: 4px solid var(--amber); }
+
+    .status-card p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+
+    .footer {
+      padding: 48px 0 72px;
+      color: var(--muted);
+    }
+
+    .footer-grid {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding-top: 24px;
+      border-top: 1px solid var(--line);
+    }
+
+    @media (max-width: 980px) {
+      .hero-grid,
+      .section-head,
+      .metrics,
+      .artifact-grid,
+      .status-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .nav-inner,
+      .footer-grid {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .nav-links {
+        flex-wrap: wrap;
+      }
+    }
+  </style>
 </head>
-<body class="bg-surface text-on-surface">
-<!-- TopNavBar -->
-<nav class="fixed top-0 left-0 w-full z-50 flex items-center justify-between px-6 h-12 bg-white font-['IBM_Plex_Sans'] antialiased tracking-tight border-b border-surface-container">
-<div class="flex items-center gap-8">
-  <a href="index.html" class="text-xl font-semibold tracking-tighter text-zinc-900">Disk-LLM</a>
-  <div class="hidden md:flex items-center gap-6">
-    <a class="text-primary border-b-2 border-primary pb-1" href="index.html">Home</a>
-    <a class="text-secondary hover:text-zinc-900 transition-colors" href="documentation.html">Docs</a>
-    <a class="text-secondary hover:text-zinc-900 transition-colors" href="converter.html">Converter</a>
-    <a class="text-secondary hover:text-zinc-900 transition-colors" href="telemetry.html">Telemetry</a>
-    <a class="text-secondary hover:text-zinc-900 transition-colors" href="https://github.com/kilickursat/disk-llm" target="_blank">GitHub</a>
-  </div>
-</div>
-<div class="flex items-center gap-4">
-  <a href="https://github.com/kilickursat/disk-llm" target="_blank" class="flex items-center gap-2 px-4 py-1 bg-primary text-on-primary hover:bg-primary-dim transition-all active:opacity-80 duration-150">
-    <span class="material-symbols-outlined text-sm">star</span>
-    <span class="text-sm font-medium">Star on GitHub</span>
-  </a>
-</div>
-</nav>
-<main class="pt-12">
-<!-- Hero Section -->
-<section class="relative min-h-[600px] flex flex-col justify-center px-6 md:px-24 bg-surface py-20">
-<div class="max-w-4xl">
-  <h1 class="font-sans-plex font-light text-[56px] leading-[1.1] tracking-[-0.02em] text-on-surface mb-6">
-    Inspectable Disk-Backed LLM Research Kit.
-  </h1>
-  <p class="font-sans-plex text-xl text-on-surface-variant max-w-2xl mb-10 leading-relaxed">
-    A researcher-first toolkit for exploring large language models on restricted hardware using Native NumPy Memmap. Optimized for observation and contribution, not production scale.
-  </p>
-  <div class="flex flex-wrap gap-4">
-    <a href="documentation.html" class="bg-primary text-on-primary px-8 py-4 font-semibold tracking-wide hover:bg-primary-dim transition-colors inline-block">
-      Get Started
-    </a>
-    <a href="documentation.html" class="bg-surface-container text-on-surface px-8 py-4 font-semibold tracking-wide hover:bg-surface-dim transition-colors inline-block">
-      Documentation
-    </a>
-  </div>
-</div>
-<div class="mt-16 border-l-4 border-primary pl-6 py-2">
-  <p class="font-mono text-xs uppercase tracking-[0.2em] text-primary mb-1">Project Philosophy</p>
-  <p class="font-mono text-sm font-medium max-w-xl">This is an opinionated research tool for contributors. If you need a high-performance production inference engine, use vLLM or llama.cpp.</p>
-</div>
-</section>
+<body>
+  <header class="nav">
+    <div class="shell nav-inner">
+      <a class="brand" href="index.html">
+        <img src="logo.png" alt="Disk-LLM">
+        <span>Disk-LLM</span>
+      </a>
+      <nav class="nav-links">
+        <a href="documentation.html">Documentation</a>
+        <a href="converter.html">Converter</a>
+        <a href="telemetry.html">Telemetry</a>
+        <a href="https://github.com/kilickursat/disk-llm" target="_blank" rel="noreferrer">GitHub</a>
+      </nav>
+    </div>
+  </header>
 
-<!-- Why This Project Exists -->
-<section class="px-6 md:px-24 py-24 bg-surface border-y border-surface-container">
-<div class="max-w-5xl mx-auto">
-  <span class="font-mono text-xs uppercase tracking-[0.3em] text-primary mb-4 block">Rationale</span>
-  <h2 class="font-sans-plex font-light text-4xl mb-6 tracking-tight">What makes Disk-LLM uniquely novel?</h2>
-  <p class="font-sans-plex text-xl text-on-surface-variant max-w-3xl mb-16 leading-relaxed">
-    Offloading weights to disk is not a new concept—production engines like <b>llama.cpp</b> heavily rely on mmap(), and <b>accelerate</b> has an explicit disk offloading feature. However, Disk-LLM stands out by functioning as a <b>"Glass-Box Research Engine"</b> rather than a "Black-Box Production Engine":
-  </p>
-  
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
-    <div class="space-y-6">
-      <div class="flex items-center gap-4 border-b border-surface-container pb-4">
-        <span class="font-mono text-xl text-primary font-bold">01</span>
-        <h4 class="font-semibold text-lg">Engineered Layer-Sharding</h4>
-      </div>
-      <p class="text-on-surface-variant text-sm leading-relaxed">
-        Instead of mapping monolithic 15GB <code>safetensors</code> files and letting the Operating System randomly guess which pages to keep in memory, Disk-LLM proactively repacks weights into distinct architectural boundary files (Layer 0, Layer 1, etc.). This mathematically guarantees that the OS effortlessly handles highly predictable, sequential page-faults.
-      </p>
-    </div>
-
-    <div class="space-y-6">
-      <div class="flex items-center gap-4 border-b border-surface-container pb-4">
-        <span class="font-mono text-xl text-primary font-bold">02</span>
-        <h4 class="font-semibold text-lg">Naked Dependencies</h4>
-      </div>
-      <p class="text-on-surface-variant text-sm leading-relaxed">
-        Disk-LLM proves that you do not need complex C++, CUDA kernels, or massive framework bloat to understand fundamental compute limitations. By forcing the inference stack to rely entirely on standard Python, NumPy, and the OS's native file-system cache, researchers get an unadulterated view of pushing virtual memory mapped ceilings to their limits.
-      </p>
-    </div>
-
-    <div class="space-y-6">
-      <div class="flex items-center gap-4 border-b border-surface-container pb-4">
-        <span class="font-mono text-xl text-primary font-bold">03</span>
-        <h4 class="font-semibold text-lg">Telemetry as a First-Class Citizen</h4>
-      </div>
-      <p class="text-on-surface-variant text-sm leading-relaxed">
-        Usually, disk-swapping happens entirely in the background, making it a nightmare for researchers to compute bottlenecks. Disk-LLM exposes exactly <i>when</i> the disk is mapped, <i>how much</i> virtual memory is shifting (e.g. 500+GB arrays for lengthy generation contexts), and the latency penalty of each specific layer individually.
-      </p>
-    </div>
-  </div>
-</div>
-</section>
-
-<!-- Architecture Deep Dive -->
-<section class="px-6 md:px-24 py-24 bg-surface">
-<div class="max-w-5xl mx-auto">
-  <span class="font-mono text-xs uppercase tracking-[0.3em] text-primary mb-4 block">Architecture</span>
-  <h2 class="font-sans-plex font-light text-4xl mb-12 tracking-tight">Engineered Sharding</h2>
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-    <div class="lg:col-span-2 bg-surface-container p-8">
-      <p class="text-on-surface-variant mb-8 text-sm leading-relaxed">
-        Instead of massive monolithic checkpoints, Disk-LLM re-organizes weights into architectural-bound shards. This alignment ensures that when a transformer block requests its weights, the OS can fetch exactly those bytes from disk in a single sequential I/O operation.
-      </p>
-      <div class="grid grid-cols-4 gap-2">
-        <div class="h-16 bg-primary opacity-20 border border-primary flex items-center justify-center font-mono text-[10px]">Layer 0</div>
-        <div class="h-16 bg-primary opacity-40 border border-primary flex items-center justify-center font-mono text-[10px]">Layer 1</div>
-        <div class="h-16 bg-primary opacity-60 border border-primary flex items-center justify-center font-mono text-[10px]">Layer 2</div>
-        <div class="h-16 bg-primary opacity-80 border border-primary flex items-center justify-center font-mono text-[10px]">Layer 3</div>
-        <div class="h-16 bg-primary opacity-90 border border-primary flex items-center justify-center font-mono text-[10px] text-on-primary">...</div>
-        <div class="h-16 bg-primary border border-primary flex items-center justify-center font-mono text-[10px] text-on-primary">Layer N</div>
-        <div class="h-16 bg-surface-container border border-outline border-dashed"></div>
-        <div class="h-16 bg-surface-container border border-outline border-dashed"></div>
-      </div>
-      <div class="mt-4 flex justify-between font-mono text-[10px] text-outline">
-        <span>START_OFFSET</span>
-        <span>DISK_ALIGNMENT_4K</span>
-        <span>END_OFFSET</span>
-      </div>
-    </div>
-    <div class="bg-surface-container-high p-8 flex flex-col justify-center">
-      <h4 class="font-semibold mb-4 text-sm uppercase tracking-wider">Weight Packing Strategy</h4>
-      <ul class="space-y-4 text-xs font-mono">
-        <li class="flex items-start gap-2"><span class="text-primary">01</span><span>Layer-sequential sharding</span></li>
-        <li class="flex items-start gap-2"><span class="text-primary">02</span><span>4KB page alignment</span></li>
-        <li class="flex items-start gap-2"><span class="text-primary">03</span><span>Pre-computed tensor shapes</span></li>
-      </ul>
-    </div>
-  </div>
-</div>
-</section>
-
-<!-- Live Telemetry Preview -->
-<section class="px-6 md:px-24 py-24 bg-inverse-surface text-surface">
-<div class="max-w-5xl mx-auto">
-  <span class="font-mono text-xs uppercase tracking-[0.3em] text-primary mb-4 block">Telemetry</span>
-  <h2 class="font-sans-plex font-light text-4xl mb-12 tracking-tight text-white">Runtime Observability</h2>
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-px bg-zinc-800 border border-zinc-800">
-    <div class="bg-inverse-surface p-6">
-      <p class="font-mono text-[10px] text-zinc-500 mb-2 uppercase">Current Layer</p>
-      <p class="font-mono text-2xl text-primary">L-40/40</p>
-    </div>
-    <div class="bg-inverse-surface p-6">
-      <p class="font-mono text-[10px] text-zinc-500 mb-2 uppercase">Disk I/O Latency</p>
-      <p class="font-mono text-2xl text-white">198.5ms</p>
-    </div>
-    <div class="bg-inverse-surface p-6">
-      <p class="font-mono text-[10px] text-zinc-500 mb-2 uppercase">Memmap Status</p>
-      <p class="font-mono text-2xl text-green-500">ACTIVE</p>
-    </div>
-    <div class="bg-inverse-surface p-6">
-      <p class="font-mono text-[10px] text-zinc-500 mb-2 uppercase">Packed Tensors</p>
-      <p class="font-mono text-2xl text-white">427/427</p>
-    </div>
-  </div>
-  <div class="mt-8 bg-zinc-900 border border-zinc-800 p-6">
-    <div class="flex items-center justify-between mb-4 border-b border-zinc-800 pb-2">
-      <span class="font-mono text-xs text-zinc-400">LAYER_LATENCY_MAP</span>
-      <span class="font-mono text-[10px] text-primary uppercase">Real-time Stream</span>
-    </div>
-    <div class="space-y-2">
-      <div class="flex items-center gap-4">
-        <span class="font-mono text-[10px] w-8">L38</span>
-        <div class="flex-1 h-2 bg-zinc-800"><div class="h-full bg-primary" style="width: 65%"></div></div>
-        <span class="font-mono text-[10px] w-12 text-right">195ms</span>
-      </div>
-      <div class="flex items-center gap-4">
-        <span class="font-mono text-[10px] w-8">L39</span>
-        <div class="flex-1 h-2 bg-zinc-800"><div class="h-full bg-primary" style="width: 78%"></div></div>
-        <span class="font-mono text-[10px] w-12 text-right">204ms</span>
-      </div>
-      <div class="flex items-center gap-4">
-        <span class="font-mono text-[10px] w-8">L40</span>
-        <div class="flex-1 h-2 bg-zinc-800"><div class="h-full bg-primary animate-pulse" style="width: 72%"></div></div>
-        <span class="font-mono text-[10px] w-12 text-right">198ms</span>
-      </div>
-    </div>
-  </div>
-  <div class="mt-8 text-center">
-    <a href="telemetry.html" class="inline-block bg-primary text-on-primary px-6 py-3 font-semibold hover:bg-primary-dim transition-colors">View Full Dashboard →</a>
-  </div>
-</div>
-</section>
-
-<!-- Core Principles -->
-<section class="bg-surface">
-<div class="flex flex-col md:flex-row border-b border-surface-container">
-  <div class="w-full md:w-1/2 p-12 md:p-24 flex flex-col justify-center border-r border-surface-container">
-    <span class="font-mono text-xs uppercase tracking-widest text-primary mb-4 block">Principle A</span>
-    <h2 class="font-sans-plex font-light text-4xl mb-6 tracking-tight">Layer-Oriented Memmap Shards</h2>
-    <p class="text-on-surface-variant leading-relaxed mb-8">
-      Traditional LLM deployments struggle with fragmented memory. We shard models by architectural layers, allowing the OS-level memory mapper to treat the SSD as a primary cache with predictable page-fault patterns.
-    </p>
-    <ul class="space-y-4 font-mono text-sm">
-      <li class="flex items-start gap-3">
-        <span class="material-symbols-outlined text-primary text-base">layers</span>
-        <span>Predictable sequential page access patterns.</span>
-      </li>
-    </ul>
-  </div>
-  <div class="w-full md:w-1/2 p-12 md:p-24 flex flex-col justify-center">
-    <span class="font-mono text-xs uppercase tracking-widest text-primary mb-4 block">Principle B</span>
-    <h2 class="font-sans-plex font-light text-4xl mb-6 tracking-tight">Observable Runtime Environment</h2>
-    <p class="text-on-surface-variant leading-relaxed mb-8">
-      Inference shouldn't be a black box. Our runtime provides hooks into every stage of the transformer block, exposing internal states for research, debugging, and interpretive analysis.
-    </p>
-    <ul class="space-y-4 font-mono text-sm">
-      <li class="flex items-start gap-3">
-        <span class="material-symbols-outlined text-primary text-base">visibility</span>
-        <span>Real-time activation hooks and weight probing.</span>
-      </li>
-    </ul>
-  </div>
-</div>
-</section>
-
-<!-- Benchmarks -->
-<section class="px-6 md:px-24 py-24 bg-surface-container-low border-b border-surface-container">
-<div class="max-w-5xl mx-auto">
-  <span class="font-mono text-xs uppercase tracking-[0.3em] text-primary mb-4 block">Benchmarks</span>
-  <h2 class="font-sans-plex font-light text-4xl mb-12 tracking-tight">Reproducible Performance</h2>
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
-      <div class="space-y-8">
-        <h3 class="text-xl font-medium tracking-tight">Logical Bytes Mapped vs Prompt Length</h3>
-        <p class="text-on-surface-variant text-sm leading-relaxed">
-          Notice how the physical RSS limits remain flat at ~11GB for Disk-LLM while the OS seamlessly scales the memory mappings upward in response to prompt length. By contrast, the Hugging Face CPU baseline demands ~21.9 GB of pure physical RAM.
-        </p>
-        <img src="assets/logical_mapped.png" class="w-full border border-surface-container" alt="Logical Memory Mapped">
-        
-        <h3 class="text-xl font-medium tracking-tight mt-12">Peak RSS Memory Profile</h3>
-        <img src="assets/rss_timeline.png" class="w-full border border-surface-container" alt="RSS Physical Memory Peak">
-      </div>
-      <div class="space-y-8">
-        <h3 class="text-xl font-medium tracking-tight">First Token Latency Extrapolation</h3>
-        <p class="text-on-surface-variant text-sm leading-relaxed">
-          Disk-LLM parses weights directly out of SSD blocks. Cold start time scales linearly as layer sizes and prompt contexts increase.
-        </p>
-        <img src="assets/first_token_latency.png" class="w-full border border-surface-container" alt="First Token Latency">
-
-        <div class="grid grid-cols-2 gap-4 mt-8">
-          <div class="p-4 bg-white border border-primary shadow-sm">
-            <p class="font-mono text-2xl text-primary">~11.2 GB</p>
-            <p class="font-mono text-[10px] uppercase text-primary">Disk-LLM Peak RSS</p>
+  <main class="shell">
+    <section class="hero">
+      <div class="hero-grid">
+        <div class="hero-copy">
+          <span class="eyebrow">Native NumPy Memmap Research Kit</span>
+          <h1>Disk-backed inference, made inspectable.</h1>
+          <p>
+            Disk-LLM repacks checkpoints into layer-oriented memmap shards, exposes runtime telemetry, and keeps the benchmarking story explicit. It is built for people who want to understand the storage path, not hide it behind a black-box serving stack.
+          </p>
+          <div class="hero-actions">
+            <a class="cta cta-primary" href="documentation.html">Open Documentation</a>
+            <a class="cta cta-secondary" href="https://github.com/kilickursat/disk-llm" target="_blank" rel="noreferrer">View Repository</a>
           </div>
-          <div class="p-4 bg-white border border-surface-container shadow-sm">
-            <p class="font-mono text-2xl text-outline-variant">~21.9 GB</p>
-            <p class="font-mono text-[10px] uppercase text-outline">Baseline HF Peak RSS</p>
+          <div class="hero-note">
+            Latest repo fix: the Qwen audit path now unwraps nested <code>text_config</code>, resolves <code>model.language_model.layers.*</code>, and refuses zero-layer benchmark output. That means the project now protects itself against the exact misleading run shape the first real Modal artifact exposed.
           </div>
         </div>
+        <div class="hero-visual panel">
+          <img src="assets/showcase-hero.svg" alt="Disk-LLM showroom hero">
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="status">
+      <div class="section-head">
+        <div>
+          <span class="eyebrow">Verified Today</span>
+          <h2>What is solid, what is still being audited.</h2>
+          <p>
+            The conversion and inspection pipeline is real. The Modal workflow is real. The benchmark harness is real. The part still marked experimental is the native Qwen 3.5 <code>linear_attention</code> runtime path, which should be implemented and rerun before the repo promotes final performance claims.
+          </p>
+        </div>
+        <span class="meta-tag">Modal artifact archived in-repo</span>
+      </div>
+
+      <div class="metrics">
+        <div class="panel metric">
+          <span class="metric-label">Source snapshot</span>
+          <strong>775</strong>
+          <span>tensors discovered</span>
+        </div>
+        <div class="panel metric">
+          <span class="metric-label">Text path kept</span>
+          <strong>427</strong>
+          <span>packed tensors</span>
+        </div>
+        <div class="panel metric">
+          <span class="metric-label">Shard layout</span>
+          <strong>34</strong>
+          <span>layer shards</span>
+        </div>
+        <div class="panel metric">
+          <span class="metric-label">Packed footprint</span>
+          <strong>16.68</strong>
+          <span>GiB</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="pipeline">
+      <div class="section-head">
+        <div>
+          <span class="eyebrow">Workflow</span>
+          <h2>The project is strongest when the pipeline is visible.</h2>
+          <p>
+            Disk-LLM is not just a runtime. It is an inspect → convert → generate → benchmark → audit loop. The latest fixes reinforce that philosophy by preventing benchmark export when telemetry does not show real layer execution.
+          </p>
+        </div>
+        <span class="meta-tag">Inspect / Convert / Generate / Benchmark / Audit</span>
+      </div>
+      <div class="panel">
+        <img src="assets/pipeline-map.svg" alt="Disk-LLM pipeline map">
+      </div>
+    </section>
+
+    <section class="section" id="qwen-audit">
+      <div class="section-head">
+        <div>
+          <span class="eyebrow">Qwen Audit</span>
+          <h2>The real Qwen 3.5 Modal run changed the repo.</h2>
+          <p>
+            The archived artifact bundle showed a genuine remote run against <code>Qwen/Qwen3.5-9B</code>, but it also revealed that the model uses a multimodal wrapper architecture with nested text config and a <code>linear_attention</code> execution path. The repo now records that honestly instead of quietly treating a zero-layer path as a finished benchmark.
+          </p>
+        </div>
+        <span class="meta-tag">Nested config fixed / adapter still pending</span>
+      </div>
+      <div class="panel">
+        <img src="assets/qwen-audit.svg" alt="Qwen3.5 audit summary">
+      </div>
+    </section>
+
+    <section class="section" id="artifacts">
+      <div class="section-head">
+        <div>
+          <span class="eyebrow">Archived Artifact</span>
+          <h2>Plots retained as workflow evidence, not the final headline.</h2>
+          <p>
+            The current plot bundle is still useful because it proves the repo can export CSVs, Markdown summaries, and figures from a real Modal run. It should be read as an archived pre-fix artifact until the Qwen <code>linear_attention</code> runtime path is implemented and the Disk-LLM vs HF comparison is rerun under the new guardrails.
+          </p>
+        </div>
+        <span class="meta-tag">Read the charts as archived evidence</span>
+      </div>
+
+      <div class="artifact-grid">
+        <figure>
+          <img src="assets/tokens_per_second.png" alt="Archived tokens per second plot">
+          <figcaption>Throughput plot from the archived Modal bundle. Useful as pipeline evidence, but not the final benchmark claim.</figcaption>
+        </figure>
+        <figure>
+          <img src="assets/first_token_latency.png" alt="Archived first token latency plot">
+          <figcaption>Latency sweep preserved for comparison later, once the corrected runtime path is rerun.</figcaption>
+        </figure>
+        <figure>
+          <img src="assets/logical_mapped.png" alt="Archived logical mapped plot">
+          <figcaption>Logical mapped bytes remain one of the most distinctive Disk-LLM telemetry surfaces in the project.</figcaption>
+        </figure>
+        <figure>
+          <img src="assets/rss_timeline.png" alt="Archived RSS timeline plot">
+          <figcaption>RSS plotting is already part of the benchmark pipeline and can be regenerated on the next real rerun.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="section" id="implementation">
+      <div class="section-head">
+        <div>
+          <span class="eyebrow">Implementation Matrix</span>
+          <h2>Where the project stands right now.</h2>
+          <p>
+            The repo already works as a converter, inspector, benchmark harness, and Modal-ready research workflow. The next real milestone is not “more polish,” but a correct native adapter for Qwen 3.5 linear attention followed by a new benchmark publication pass.
+          </p>
+        </div>
+        <span class="meta-tag">Updated April 2026</span>
+      </div>
+
+      <div class="status-grid">
+        <div class="panel status-card status-ok">
+          <strong>Converter + inspector</strong>
+          <p>Checkpoint inspection, tensor discovery, text-only packing, and manifest validation are in good shape.</p>
+        </div>
+        <div class="panel status-card status-ok">
+          <strong>Benchmark infrastructure</strong>
+          <p>CSV export, plotting, Modal run orchestration, and repeatable benchmark artifacts are already wired.</p>
+        </div>
+        <div class="panel status-card status-ok">
+          <strong>Audit guardrails</strong>
+          <p>Zero-layer benchmark rows are now rejected instead of being silently written to result bundles.</p>
+        </div>
+        <div class="panel status-card status-dev">
+          <strong>Qwen linear attention</strong>
+          <p>The real Qwen 3.5 text path still needs a native adapter before the repo should promote final performance claims.</p>
+        </div>
+        <div class="panel status-card status-dev">
+          <strong>Final comparison rerun</strong>
+          <p>The next public benchmark should be a post-fix Disk-LLM vs HF CPU comparison, not the archived pre-fix artifact.</p>
+        </div>
+        <div class="panel status-card status-dev">
+          <strong>Research publication pass</strong>
+          <p>Once the rerun lands, the README and site can promote the new figures as the authoritative benchmark story.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="shell footer-grid">
+      <div>
+        <strong style="display:block; font-family:'Space Grotesk', sans-serif; font-size:1.1rem; color:var(--ink); margin-bottom:8px;">Disk-LLM</strong>
+        <span>Inspectable disk-backed LLM research kit for memmap-first experiments.</span>
+      </div>
+      <div style="display:flex; gap:18px; flex-wrap:wrap;">
+        <a href="documentation.html">Documentation</a>
+        <a href="converter.html">Converter</a>
+        <a href="telemetry.html">Telemetry</a>
+        <a href="https://github.com/kilickursat/disk-llm" target="_blank" rel="noreferrer">GitHub</a>
       </div>
     </div>
-</div>
-</section>
-
-<!-- Implementation Status -->
-<section class="px-6 md:px-24 py-24 bg-surface-container-highest">
-<div class="max-w-4xl mx-auto">
-  <div class="flex flex-col md:flex-row items-baseline justify-between mb-12 gap-4">
-    <h2 class="font-sans-plex font-light text-4xl tracking-tight">Implementation Status</h2>
-    <span class="font-mono text-xs text-on-surface-variant">Last update: April 2026</span>
-  </div>
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-    <div class="bg-surface p-6 flex items-center justify-between border-l-4 border-green-500">
-      <span class="font-mono text-sm">Model Conversion (HuggingFace)</span>
-      <span class="material-symbols-outlined text-green-600">check_circle</span>
-    </div>
-    <div class="bg-surface p-6 flex items-center justify-between border-l-4 border-green-500">
-      <span class="font-mono text-sm">Tensor Inspector (CLI)</span>
-      <span class="material-symbols-outlined text-green-600">check_circle</span>
-    </div>
-    <div class="bg-surface p-6 flex items-center justify-between border-l-4 border-green-500">
-      <span class="font-mono text-sm">Benchmark Suite</span>
-      <span class="material-symbols-outlined text-green-600">check_circle</span>
-    </div>
-    <div class="bg-surface p-6 flex items-center justify-between border-l-4 border-green-500">
-      <span class="font-mono text-sm">Modal Remote Runner</span>
-      <span class="material-symbols-outlined text-green-600">check_circle</span>
-    </div>
-    <div class="bg-surface p-6 flex items-center justify-between border-l-4 border-primary">
-      <span class="font-mono text-sm">Web Dashboard Demo</span>
-      <span class="text-xs font-bold text-primary px-2 py-0.5 border border-primary">BETA</span>
-    </div>
-    <div class="bg-surface p-6 flex items-center justify-between border-l-4 border-primary">
-      <span class="font-mono text-sm">Qwen 3.5 Adapter</span>
-      <span class="text-xs font-bold text-primary px-2 py-0.5 border border-primary">DEV</span>
-    </div>
-  </div>
-</div>
-</section>
-
-<!-- Getting Started Code Block -->
-<section class="py-24 px-6 md:px-24 bg-surface text-on-surface">
-<div class="max-w-5xl mx-auto">
-  <div class="mb-12">
-    <span class="font-mono text-xs uppercase tracking-[0.3em] text-primary mb-4 block">Getting Started</span>
-    <h2 class="font-sans-plex font-light text-4xl tracking-tight">Convert &amp; Inspect</h2>
-  </div>
-  <div class="bg-inverse-surface text-surface p-8 font-mono text-sm leading-relaxed overflow-x-auto">
-    <div class="flex gap-2 mb-6">
-      <div class="w-3 h-3 bg-zinc-700"></div>
-      <div class="w-3 h-3 bg-zinc-700"></div>
-      <div class="w-3 h-3 bg-zinc-700"></div>
-    </div>
-    <div class="space-y-1">
-      <p class="text-zinc-500"># Install for research use</p>
-      <p><span class="text-blue-400">pip install</span> -e .[hf,bench]</p>
-      <p class="pt-4 text-zinc-500"># Inspect a Hugging Face snapshot</p>
-      <p><span class="text-blue-400">disk-llm</span> inspect --source-dir /path/to/Qwen3.5-9B</p>
-      <p class="pt-4 text-zinc-500"># Convert to layer-packed memmap shards</p>
-      <p><span class="text-blue-400">disk-llm</span> convert /path/to/Qwen3.5-9B ./packed-qwen35</p>
-      <p class="pt-4 text-zinc-500"># Run inference with visible telemetry</p>
-      <p><span class="text-blue-400">disk-llm</span> generate ./packed-qwen35/manifest.json --prompt "Hello" --show-telemetry</p>
-      <p class="pt-8 text-green-400">Conversion complete: 72 shards generated. [OK]</p>
-      <p class="text-green-400">Telemetry active: Layer timing, RSS, tokens/sec [OK]</p>
-    </div>
-  </div>
-</div>
-</section>
-
-<!-- Technical Focus -->
-<section class="px-6 md:px-24 pb-24">
-<div class="bg-surface-container-lowest flex flex-col md:flex-row items-stretch border-l-2 border-primary">
-  <div class="p-8 flex-1">
-    <h4 class="font-mono text-xs uppercase tracking-widest text-outline mb-2">Target Users</h4>
-    <p class="font-sans-plex text-2xl font-light">Research &amp; Contributors</p>
-  </div>
-  <div class="p-8 flex-1 md:border-l border-surface-container">
-    <h4 class="font-mono text-xs uppercase tracking-widest text-outline mb-2">Core Tech</h4>
-    <p class="font-sans-plex text-2xl font-light">NumPy Memmap</p>
-  </div>
-  <div class="p-8 flex-1 md:border-l border-surface-container">
-    <h4 class="font-mono text-xs uppercase tracking-widest text-outline mb-2">Optimization</h4>
-    <p class="font-sans-plex text-2xl font-light">Layer-Packing</p>
-  </div>
-</div>
-</section>
-
-<!-- Contributor CTA -->
-<section class="bg-inverse-surface text-surface py-24 px-6 md:px-24">
-<div class="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-12">
-  <div class="max-w-2xl">
-    <span class="font-mono text-xs uppercase tracking-[0.3em] text-primary mb-4 block">Open Source</span>
-    <h2 class="font-sans-plex font-light text-[40px] leading-tight tracking-tight text-white mb-6">Built for Contributors</h2>
-    <p class="text-zinc-400 text-lg leading-relaxed mb-8">
-      Disk-LLM is written to be read. No complex abstractions, just clean Python and NumPy. We welcome pull requests for new model architectures, telemetry visualizations, and optimization strategies.
-    </p>
-    <div class="flex gap-4">
-      <a class="bg-primary text-on-primary px-8 py-4 font-semibold flex items-center gap-2 hover:bg-primary-dim transition-colors" href="https://github.com/kilickursat/disk-llm" target="_blank">
-        Explore Codebase
-        <span class="material-symbols-outlined">arrow_forward</span>
-      </a>
-    </div>
-  </div>
-  <div class="w-full md:w-1/3 aspect-square bg-zinc-900 border border-zinc-800 p-8 flex flex-col justify-center">
-    <div class="space-y-4">
-      <div class="flex justify-between items-center border-b border-zinc-800 pb-2">
-        <span class="font-mono text-xs text-zinc-500">LANGUAGE</span>
-        <span class="font-mono text-xs">Python</span>
-      </div>
-      <div class="flex justify-between items-center border-b border-zinc-800 pb-2">
-        <span class="font-mono text-xs text-zinc-500">RUNTIME</span>
-        <span class="font-mono text-xs">NumPy CPU</span>
-      </div>
-      <div class="flex justify-between items-center border-b border-zinc-800 pb-2">
-        <span class="font-mono text-xs text-zinc-500">LICENSE</span>
-        <span class="font-mono text-xs">APACHE 2.0</span>
-      </div>
-    </div>
-  </div>
-</div>
-</section>
-</main>
-
-<!-- Footer -->
-<footer class="w-full py-12 px-8 flex flex-col md:flex-row justify-between items-center gap-6 bg-zinc-50 font-['IBM_Plex_Mono'] text-xs uppercase tracking-widest border-t border-surface-container">
-<div class="flex flex-col items-center md:items-start gap-2">
-  <span class="font-bold text-zinc-900">Disk-LLM</span>
-  <p class="text-zinc-500 lowercase tracking-normal">© 2026 Disk-LLM Research Kit. Open Source under Apache 2.0.</p>
-</div>
-<div class="flex gap-8">
-  <a class="text-zinc-500 hover:text-zinc-900 hover:underline transition-all" href="documentation.html">Documentation</a>
-  <a class="text-zinc-500 hover:text-zinc-900 hover:underline transition-all" href="https://github.com/kilickursat/disk-llm" target="_blank">GitHub</a>
-  <a class="text-zinc-500 hover:text-zinc-900 hover:underline transition-all" href="converter.html">Converter</a>
-</div>
-</footer>
+  </footer>
 </body>
 </html>

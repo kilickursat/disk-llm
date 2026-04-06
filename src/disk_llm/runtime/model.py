@@ -202,13 +202,19 @@ class DiskLLMTextModel:
         block_kind = self.config.block_kind(layer_idx)
         if block_kind == "delta":
             block_output = self._delta_step(layer_idx, normed, cache=cache, telemetry=telemetry)
-        else:
+        elif block_kind == "attention":
             block_output = self._attention_step(
                 layer_idx,
                 normed,
                 position=position,
                 cache=cache,
                 telemetry=telemetry,
+            )
+        else:
+            raise RuntimeShapeError(
+                f"Unsupported block kind {block_kind!r} for layer {layer_idx}. "
+                "The current NumPy runtime supports attention blocks and the older delta-style path, "
+                "but not Qwen3.5 linear_attention layers yet."
             )
         hidden = hidden + block_output
 

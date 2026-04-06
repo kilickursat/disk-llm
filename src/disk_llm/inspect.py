@@ -7,6 +7,7 @@ from typing import Any
 
 from .layout import build_pack_plan, derive_block_kinds
 from .manifest import PackedModelManifest, validate_manifest_files
+from .model_config import normalized_text_config
 from .safetensors_io import discover_safetensors_files, format_bytes, read_config_json, read_safetensors_header
 
 
@@ -29,6 +30,7 @@ def inspect_source_dir(source_dir: str | Path, *, text_only: bool = True) -> dic
             }
 
     kept, skipped = build_pack_plan(list(tensors), text_only=text_only)
+    text_config = normalized_text_config(config)
     return {
         "kind": "source",
         "source_dir": str(source_path.resolve()),
@@ -39,7 +41,7 @@ def inspect_source_dir(source_dir: str | Path, *, text_only: bool = True) -> dic
         "skipped_tensor_count": len(skipped),
         "total_tensor_bytes": total_bytes,
         "total_tensor_bytes_human": format_bytes(total_bytes),
-        "num_hidden_layers": int(config.get("num_hidden_layers", 0)),
+        "num_hidden_layers": int(text_config.get("num_hidden_layers", 0)),
         "block_kinds": derive_block_kinds(config),
         "files": [path.name for path in files],
         "config": config,
@@ -64,6 +66,7 @@ def inspect_packed_manifest(manifest_path: str | Path) -> dict[str, Any]:
         "total_bytes": manifest.total_bytes(),
         "total_bytes_human": format_bytes(manifest.total_bytes()),
         "layer_ids": manifest.layer_ids(),
+        "num_hidden_layers": len(manifest.layer_ids()),
         "skipped_tensor_count": len(manifest.skipped_tensors),
         "layout_strategy": manifest.layout_strategy,
         "block_kinds": manifest.config.get("block_kinds", []),

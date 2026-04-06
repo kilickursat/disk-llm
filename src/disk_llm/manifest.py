@@ -123,6 +123,11 @@ class PackedModelManifest:
                     values.add(int(parts[2]))
                 except ValueError:
                     continue
+            if len(parts) > 3 and parts[0] == "model" and parts[1] == "language_model" and parts[2] == "layers":
+                try:
+                    values.add(int(parts[3]))
+                except ValueError:
+                    continue
         return sorted(values)
 
     def total_bytes(self) -> int:

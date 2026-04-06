@@ -4,14 +4,15 @@ import importlib.util
 import unittest
 
 NUMPY_AVAILABLE = importlib.util.find_spec("numpy") is not None
+ML_DTYPES_AVAILABLE = importlib.util.find_spec("ml_dtypes") is not None
 
-if NUMPY_AVAILABLE:
+if NUMPY_AVAILABLE and ML_DTYPES_AVAILABLE:
     import numpy as np
 
 from disk_llm.runtime.kernels import apply_rope_single, grouped_query_attention_step, rms_norm, sample_from_logits
 
 
-@unittest.skipUnless(NUMPY_AVAILABLE, "numpy is not installed")
+@unittest.skipUnless(NUMPY_AVAILABLE and ML_DTYPES_AVAILABLE, "numpy or ml-dtypes is not installed")
 class KernelTests(unittest.TestCase):
     def test_rms_norm_matches_manual_formula(self):
         hidden = np.array([1.0, 2.0, 3.0, 4.0], dtype=np.float32)

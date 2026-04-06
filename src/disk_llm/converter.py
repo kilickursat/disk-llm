@@ -11,6 +11,7 @@ from .exceptions import ConversionError
 from .inspect import inspect_source_dir
 from .layout import build_pack_plan, derive_block_kinds
 from .manifest import PackedModelManifest, ShardEntry, TensorEntry, validate_manifest_files
+from .model_config import normalized_text_config
 from .safetensors_io import discover_safetensors_files, read_config_json, read_safetensors_header, copy_tensor_bytes
 
 
@@ -53,6 +54,7 @@ def convert_model(
 
     source_summary = inspect_source_dir(source_path, text_only=text_only)
     source_config = read_config_json(source_path)
+    text_config = normalized_text_config(source_config)
     files = {
         file_path.name: read_safetensors_header(file_path)
         for file_path in discover_safetensors_files(source_path)
@@ -134,6 +136,7 @@ def convert_model(
         layout_strategy="layer_prefix_v1",
         config={
             **source_config,
+            **{key: value for key, value in text_config.items() if key not in ("architectures", "text_config")},
             "block_kinds": derive_block_kinds(source_config),
         },
         tensors=tensors,

@@ -4,7 +4,7 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Disk-LLM | Model Converter</title>
-<meta name="description" content="Disk-LLM Model Converter — convert HuggingFace checkpoints into layer-packed memmap shards for disk-backed inference."/>
+<meta name="description" content="Disk-LLM model converter for turning Hugging Face checkpoints into layer-packed memmap shards for disk-backed inference experiments."/>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Space+Grotesk:wght@500&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
@@ -97,7 +97,10 @@ body { font-family: 'IBM Plex Sans', sans-serif; }
     <span class="font-label text-xs uppercase tracking-[0.2em] text-primary">Converter_Protocol</span>
   </div>
   <h1 class="text-5xl font-headline font-light tracking-tight text-inverse-surface mb-4">Weight Packing Utility</h1>
-  <p class="text-on-surface-variant max-w-2xl leading-relaxed">Convert HuggingFace model checkpoints into the Disk-LLM optimized format — layer-packed memmap shards designed for sequential disk access during inference.</p>
+  <p class="text-on-surface-variant max-w-2xl leading-relaxed">Convert Hugging Face checkpoints into the Disk-LLM packed format: layer-oriented memmap shards designed for predictable, inspectable disk access during inference experiments.</p>
+  <div class="mt-6 max-w-3xl border-l-4 border-[#0052dd] bg-surface-container p-4 text-sm leading-relaxed text-on-surface-variant">
+    The converter and manifest flow are already solid for text-path packing. The next Qwen 3.5 milestone after conversion is the native <span class="font-mono">linear_attention</span> runtime adapter, not the packing stage itself.
+  </div>
 </header>
 
 <!-- Bento Grid Layout -->
