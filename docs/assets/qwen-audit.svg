@@ -1,57 +1,86 @@
-<svg width="1600" height="960" viewBox="0 0 1600 960" fill="none" xmlns="http://www.w3.org/2000/svg">
+<svg width="1600" height="1080" viewBox="0 0 1600 1080" fill="none" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <linearGradient id="auditBg" x1="0" y1="0" x2="1600" y2="960" gradientUnits="userSpaceOnUse">
+    <linearGradient id="auditBg" x1="0" y1="0" x2="1600" y2="1080" gradientUnits="userSpaceOnUse">
       <stop stop-color="#101214"/>
       <stop offset="1" stop-color="#181C26"/>
     </linearGradient>
-    <linearGradient id="auditAccent" x1="114" y1="194" x2="1480" y2="194" gradientUnits="userSpaceOnUse">
+    <linearGradient id="auditAccent" x1="114" y1="266" x2="1480" y2="266" gradientUnits="userSpaceOnUse">
       <stop stop-color="#2A6CD4"/>
       <stop offset="1" stop-color="#EAB97A"/>
     </linearGradient>
   </defs>
 
-  <rect width="1600" height="960" rx="36" fill="url(#auditBg)"/>
-  <rect x="72" y="72" width="1456" height="816" rx="28" fill="#0E1116" stroke="#283244"/>
-  <text x="114" y="136" fill="#8EA8D6" font-family="'IBM Plex Mono', monospace" font-size="20" letter-spacing="0.2em">REAL QWEN 3.5-9B MODAL AUDIT</text>
-  <text x="114" y="214" fill="#F5F1E8" font-family="'Space Grotesk', sans-serif" font-size="72" font-weight="700">What the real run proved, and what it corrected.</text>
-  <rect x="114" y="250" width="1366" height="6" rx="3" fill="url(#auditAccent)"/>
+  <rect width="1600" height="1080" rx="36" fill="url(#auditBg)"/>
+  <rect x="72" y="72" width="1456" height="936" rx="28" fill="#0E1116" stroke="#283244"/>
+
+  <text x="114" y="138" fill="#8EA8D6" font-family="'IBM Plex Mono', monospace" font-size="18" letter-spacing="0.16em">REAL QWEN 3.5-9B MODAL AUDIT</text>
+  <text x="114" y="208" fill="#F5F1E8" font-family="'Space Grotesk', sans-serif" font-size="60" font-weight="700">
+    <tspan x="114" dy="0">What the real run proved,</tspan>
+    <tspan x="114" dy="64">and what it corrected.</tspan>
+  </text>
+  <rect x="114" y="258" width="1366" height="6" rx="3" fill="url(#auditAccent)"/>
 
   <g>
-    <rect x="114" y="318" width="420" height="476" rx="24" fill="#141B27" stroke="#2C4D80"/>
-    <text x="146" y="370" fill="#8EA8D6" font-family="'IBM Plex Mono', monospace" font-size="18" letter-spacing="0.16em">ARCHIVED MODAL ARTIFACT</text>
-    <text x="146" y="436" fill="#F5F1E8" font-family="'Space Grotesk', sans-serif" font-size="52" font-weight="700">Workflow evidence</text>
-    <text x="146" y="484" fill="#BCC7D8" font-family="'IBM Plex Sans', sans-serif" font-size="24">The repo contains a real remote run bundle.</text>
-    <text x="146" y="544" fill="#F5F1E8" font-family="'IBM Plex Sans', sans-serif" font-size="28">775 source tensors</text>
-    <text x="146" y="588" fill="#F5F1E8" font-family="'IBM Plex Sans', sans-serif" font-size="28">427 packed text tensors</text>
-    <text x="146" y="632" fill="#F5F1E8" font-family="'IBM Plex Sans', sans-serif" font-size="28">34 layer shards</text>
-    <text x="146" y="676" fill="#F5F1E8" font-family="'IBM Plex Sans', sans-serif" font-size="28">16.68 GiB packed footprint</text>
-    <text x="146" y="748" fill="#EAB97A" font-family="'IBM Plex Sans', sans-serif" font-size="22">Keep these charts as archived pipeline artifacts,</text>
-    <text x="146" y="780" fill="#EAB97A" font-family="'IBM Plex Sans', sans-serif" font-size="22">not as the final performance headline.</text>
+    <rect x="114" y="332" width="420" height="560" rx="24" fill="#141B27" stroke="#2C4D80"/>
+    <text x="146" y="376" fill="#8EA8D6" font-family="'IBM Plex Mono', monospace" font-size="15" letter-spacing="0.12em">ARCHIVED MODAL ARTIFACT</text>
+    <text x="146" y="438" fill="#F5F1E8" font-family="'Space Grotesk', sans-serif" font-size="42" font-weight="700">
+      <tspan x="146" dy="0">Workflow</tspan>
+      <tspan x="146" dy="46">evidence</tspan>
+    </text>
+    <text x="146" y="540" fill="#BCC7D8" font-family="'IBM Plex Sans', sans-serif" font-size="22">
+      <tspan x="146" dy="0">The repo contains a real remote run bundle</tspan>
+      <tspan x="146" dy="30">from the Modal workflow.</tspan>
+    </text>
+    <text x="146" y="630" fill="#F5F1E8" font-family="'IBM Plex Sans', sans-serif" font-size="25">
+      <tspan x="146" dy="0">775 source tensors</tspan>
+      <tspan x="146" dy="38">427 packed text tensors</tspan>
+      <tspan x="146" dy="38">34 layer shards</tspan>
+      <tspan x="146" dy="38">16.68 GiB packed footprint</tspan>
+    </text>
+    <text x="146" y="820" fill="#EAB97A" font-family="'IBM Plex Sans', sans-serif" font-size="20">
+      <tspan x="146" dy="0">Keep these charts as archived pipeline</tspan>
+      <tspan x="146" dy="28">artifacts, not as the final performance</tspan>
+      <tspan x="146" dy="28">headline for the project.</tspan>
+    </text>
   </g>
 
   <g>
-    <rect x="590" y="318" width="420" height="476" rx="24" fill="#141B27" stroke="#2C4D80"/>
-    <text x="622" y="370" fill="#8EA8D6" font-family="'IBM Plex Mono', monospace" font-size="18" letter-spacing="0.16em">FIXES NOW IN MAIN</text>
-    <text x="622" y="436" fill="#F5F1E8" font-family="'Space Grotesk', sans-serif" font-size="52" font-weight="700">Audit guardrails</text>
-    <text x="622" y="496" fill="#F5F1E8" font-family="'IBM Plex Sans', sans-serif" font-size="28">Nested text_config is unwrapped</text>
-    <text x="622" y="540" fill="#F5F1E8" font-family="'IBM Plex Sans', sans-serif" font-size="28">model.language_model.layers.* is detected</text>
-    <text x="622" y="584" fill="#F5F1E8" font-family="'IBM Plex Sans', sans-serif" font-size="28">layer IDs now resolve from the manifest</text>
-    <text x="622" y="628" fill="#F5F1E8" font-family="'IBM Plex Sans', sans-serif" font-size="28">zero-layer benchmark rows are rejected</text>
-    <text x="622" y="700" fill="#BCC7D8" font-family="'IBM Plex Sans', sans-serif" font-size="22">This keeps the pipeline honest: no more</text>
-    <text x="622" y="732" fill="#BCC7D8" font-family="'IBM Plex Sans', sans-serif" font-size="22">publishing throughput numbers from a path that</text>
-    <text x="622" y="764" fill="#BCC7D8" font-family="'IBM Plex Sans', sans-serif" font-size="22">only touched embeddings plus final tensors.</text>
+    <rect x="590" y="332" width="420" height="560" rx="24" fill="#141B27" stroke="#2C4D80"/>
+    <text x="622" y="376" fill="#8EA8D6" font-family="'IBM Plex Mono', monospace" font-size="15" letter-spacing="0.12em">FIXES NOW IN MAIN</text>
+    <text x="622" y="438" fill="#F5F1E8" font-family="'Space Grotesk', sans-serif" font-size="42" font-weight="700">
+      <tspan x="622" dy="0">Audit</tspan>
+      <tspan x="622" dy="46">guardrails</tspan>
+    </text>
+    <text x="622" y="540" fill="#F5F1E8" font-family="'IBM Plex Sans', sans-serif" font-size="24">
+      <tspan x="622" dy="0">Nested text_config is unwrapped</tspan>
+      <tspan x="622" dy="36">model.language_model.layers.* is resolved</tspan>
+      <tspan x="622" dy="36">layer IDs now come from the manifest</tspan>
+      <tspan x="622" dy="36">zero-layer benchmark rows are rejected</tspan>
+    </text>
+    <text x="622" y="760" fill="#BCC7D8" font-family="'IBM Plex Sans', sans-serif" font-size="20">
+      <tspan x="622" dy="0">This keeps the pipeline honest: no more</tspan>
+      <tspan x="622" dy="28">publishing throughput numbers from a path</tspan>
+      <tspan x="622" dy="28">that only touched embeddings plus final tensors.</tspan>
+    </text>
   </g>
 
   <g>
-    <rect x="1066" y="318" width="414" height="476" rx="24" fill="#18161A" stroke="#8A5B1D"/>
-    <text x="1098" y="370" fill="#EAB97A" font-family="'IBM Plex Mono', monospace" font-size="18" letter-spacing="0.16em">NEXT VALIDATION MILESTONE</text>
-    <text x="1098" y="436" fill="#F5F1E8" font-family="'Space Grotesk', sans-serif" font-size="52" font-weight="700">Rerun after adapter work</text>
-    <text x="1098" y="500" fill="#F5F1E8" font-family="'IBM Plex Sans', sans-serif" font-size="28">Qwen3.5 uses linear_attention blocks</text>
-    <text x="1098" y="544" fill="#F5F1E8" font-family="'IBM Plex Sans', sans-serif" font-size="28">The current NumPy runtime does not yet</text>
-    <text x="1098" y="576" fill="#F5F1E8" font-family="'IBM Plex Sans', sans-serif" font-size="28">implement that execution path natively</text>
-    <text x="1098" y="648" fill="#BCC7D8" font-family="'IBM Plex Sans', sans-serif" font-size="22">Next trustworthy benchmark:</text>
-    <text x="1098" y="692" fill="#F5F1E8" font-family="'IBM Plex Sans', sans-serif" font-size="28">1. Implement linear_attention</text>
-    <text x="1098" y="736" fill="#F5F1E8" font-family="'IBM Plex Sans', sans-serif" font-size="28">2. Rerun Disk-LLM and HF CPU</text>
-    <text x="1098" y="780" fill="#F5F1E8" font-family="'IBM Plex Sans', sans-serif" font-size="28">3. Publish the new comparison bundle</text>
+    <rect x="1066" y="332" width="414" height="560" rx="24" fill="#18161A" stroke="#8A5B1D"/>
+    <text x="1098" y="376" fill="#EAB97A" font-family="'IBM Plex Mono', monospace" font-size="14" letter-spacing="0.1em">NEXT VALIDATION MILESTONE</text>
+    <text x="1098" y="438" fill="#F5F1E8" font-family="'Space Grotesk', sans-serif" font-size="42" font-weight="700">
+      <tspan x="1098" dy="0">Rerun after</tspan>
+      <tspan x="1098" dy="46">adapter work</tspan>
+    </text>
+    <text x="1098" y="540" fill="#F5F1E8" font-family="'IBM Plex Sans', sans-serif" font-size="24">
+      <tspan x="1098" dy="0">Qwen3.5 uses linear_attention blocks.</tspan>
+      <tspan x="1098" dy="36">The current NumPy runtime does not yet</tspan>
+      <tspan x="1098" dy="36">implement that execution path natively.</tspan>
+    </text>
+    <text x="1098" y="732" fill="#BCC7D8" font-family="'IBM Plex Sans', sans-serif" font-size="20">Next trustworthy benchmark:</text>
+    <text x="1098" y="786" fill="#F5F1E8" font-family="'IBM Plex Sans', sans-serif" font-size="24">
+      <tspan x="1098" dy="0">1. Implement linear_attention</tspan>
+      <tspan x="1098" dy="36">2. Rerun Disk-LLM and HF CPU</tspan>
+      <tspan x="1098" dy="36">3. Publish the new comparison bundle</tspan>
+    </text>
   </g>
 </svg>

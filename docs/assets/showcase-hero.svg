@@ -1,13 +1,13 @@
-<svg width="1600" height="900" viewBox="0 0 1600 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+<svg width="1600" height="960" viewBox="0 0 1600 960" fill="none" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1600" y2="900" gradientUnits="userSpaceOnUse">
+    <linearGradient id="bg" x1="0" y1="0" x2="1600" y2="960" gradientUnits="userSpaceOnUse">
       <stop stop-color="#0E1116"/>
-      <stop offset="1" stop-color="#161F2F"/>
+      <stop offset="1" stop-color="#182131"/>
     </linearGradient>
-    <linearGradient id="beam" x1="172" y1="118" x2="1511" y2="772" gradientUnits="userSpaceOnUse">
+    <linearGradient id="beam" x1="150" y1="108" x2="1480" y2="812" gradientUnits="userSpaceOnUse">
       <stop stop-color="#2A6CD4" stop-opacity="0.22"/>
       <stop offset="0.55" stop-color="#6EA7FF" stop-opacity="0.12"/>
-      <stop offset="1" stop-color="#EAB97A" stop-opacity="0.12"/>
+      <stop offset="1" stop-color="#EAB97A" stop-opacity="0.14"/>
     </linearGradient>
     <linearGradient id="panel" x1="0" y1="0" x2="0" y2="1">
       <stop stop-color="#161D29"/>
@@ -15,59 +15,63 @@
     </linearGradient>
   </defs>
 
-  <rect width="1600" height="900" fill="url(#bg)"/>
-  <rect x="48" y="48" width="1504" height="804" rx="28" fill="#0E1116" stroke="#263245"/>
-  <rect x="96" y="112" width="1408" height="676" rx="24" fill="url(#beam)" stroke="#223145"/>
+  <rect width="1600" height="960" fill="url(#bg)"/>
+  <rect x="48" y="48" width="1504" height="864" rx="28" fill="#0E1116" stroke="#263245"/>
+  <rect x="96" y="104" width="1408" height="738" rx="26" fill="url(#beam)" stroke="#223145"/>
 
-  <g opacity="0.18">
-    <path d="M96 240H1504" stroke="#87A6D4" stroke-dasharray="6 10"/>
-    <path d="M96 392H1504" stroke="#87A6D4" stroke-dasharray="6 10"/>
-    <path d="M96 544H1504" stroke="#87A6D4" stroke-dasharray="6 10"/>
-    <path d="M96 696H1504" stroke="#87A6D4" stroke-dasharray="6 10"/>
-    <path d="M392 112V788" stroke="#87A6D4" stroke-dasharray="6 10"/>
-    <path d="M760 112V788" stroke="#87A6D4" stroke-dasharray="6 10"/>
-    <path d="M1128 112V788" stroke="#87A6D4" stroke-dasharray="6 10"/>
+  <g opacity="0.16">
+    <path d="M96 238H1504" stroke="#87A6D4" stroke-dasharray="6 10"/>
+    <path d="M96 404H1504" stroke="#87A6D4" stroke-dasharray="6 10"/>
+    <path d="M96 570H1504" stroke="#87A6D4" stroke-dasharray="6 10"/>
+    <path d="M96 736H1504" stroke="#87A6D4" stroke-dasharray="6 10"/>
+    <path d="M392 104V842" stroke="#87A6D4" stroke-dasharray="6 10"/>
+    <path d="M760 104V842" stroke="#87A6D4" stroke-dasharray="6 10"/>
+    <path d="M1128 104V842" stroke="#87A6D4" stroke-dasharray="6 10"/>
   </g>
 
-  <text x="132" y="174" fill="#8EA8D6" font-family="'IBM Plex Mono', monospace" font-size="20" letter-spacing="0.22em">DISK-LLM / RESEARCH SHOWROOM</text>
-  <text x="132" y="310" fill="#F5F1E8" font-family="'Space Grotesk', sans-serif" font-size="96" font-weight="700">Disk-backed inference,</text>
-  <text x="132" y="406" fill="#F5F1E8" font-family="'Space Grotesk', sans-serif" font-size="96" font-weight="700">made inspectable.</text>
-  <text x="136" y="474" fill="#B8C4D7" font-family="'IBM Plex Sans', sans-serif" font-size="30">
-    Pack checkpoints into layer shards, trace what the runtime touches, and benchmark the path without hiding
-  </text>
-  <text x="136" y="516" fill="#B8C4D7" font-family="'IBM Plex Sans', sans-serif" font-size="30">
-    the storage story behind a heavyweight inference stack.
+  <text x="132" y="168" fill="#8EA8D6" font-family="'IBM Plex Mono', monospace" font-size="18" letter-spacing="0.18em">DISK-LLM / RESEARCH SHOWROOM</text>
+
+  <text x="132" y="286" fill="#F5F1E8" font-family="'Space Grotesk', sans-serif" font-size="84" font-weight="700">
+    <tspan x="132" dy="0">Disk-backed inference,</tspan>
+    <tspan x="132" dy="88">made inspectable.</tspan>
   </text>
 
+  <text x="136" y="470" fill="#B8C4D7" font-family="'IBM Plex Sans', sans-serif" font-size="24">
+    <tspan x="136" dy="0">Pack checkpoints into layer shards, trace what the runtime touches,</tspan>
+    <tspan x="136" dy="34">and benchmark the path without hiding the storage story behind</tspan>
+    <tspan x="136" dy="34">a heavyweight inference stack.</tspan>
+  </text>
+
   <g>
-    <rect x="132" y="598" width="316" height="134" rx="18" fill="url(#panel)" stroke="#335C9C"/>
-    <text x="162" y="640" fill="#8EA8D6" font-family="'IBM Plex Mono', monospace" font-size="18" letter-spacing="0.16em">SOURCE SNAPSHOT</text>
-    <text x="162" y="704" fill="#F5F1E8" font-family="'Space Grotesk', sans-serif" font-size="54" font-weight="700">775</text>
-    <text x="286" y="704" fill="#F5F1E8" font-family="'IBM Plex Sans', sans-serif" font-size="28">tensors discovered</text>
+    <rect x="132" y="620" width="308" height="154" rx="18" fill="url(#panel)" stroke="#335C9C"/>
+    <text x="160" y="654" fill="#8EA8D6" font-family="'IBM Plex Mono', monospace" font-size="15" letter-spacing="0.12em">SOURCE SNAPSHOT</text>
+    <text x="160" y="724" fill="#F5F1E8" font-family="'Space Grotesk', sans-serif" font-size="58" font-weight="700">775</text>
+    <text x="160" y="754" fill="#F5F1E8" font-family="'IBM Plex Sans', sans-serif" font-size="24">tensors discovered</text>
   </g>
 
   <g>
-    <rect x="474" y="598" width="316" height="134" rx="18" fill="url(#panel)" stroke="#335C9C"/>
-    <text x="504" y="640" fill="#8EA8D6" font-family="'IBM Plex Mono', monospace" font-size="18" letter-spacing="0.16em">TEXT PATH KEPT</text>
-    <text x="504" y="704" fill="#F5F1E8" font-family="'Space Grotesk', sans-serif" font-size="54" font-weight="700">427</text>
-    <text x="628" y="704" fill="#F5F1E8" font-family="'IBM Plex Sans', sans-serif" font-size="28">packed tensors</text>
+    <rect x="470" y="620" width="308" height="154" rx="18" fill="url(#panel)" stroke="#335C9C"/>
+    <text x="498" y="654" fill="#8EA8D6" font-family="'IBM Plex Mono', monospace" font-size="15" letter-spacing="0.12em">TEXT PATH KEPT</text>
+    <text x="498" y="724" fill="#F5F1E8" font-family="'Space Grotesk', sans-serif" font-size="58" font-weight="700">427</text>
+    <text x="498" y="754" fill="#F5F1E8" font-family="'IBM Plex Sans', sans-serif" font-size="24">packed tensors</text>
   </g>
 
   <g>
-    <rect x="816" y="598" width="316" height="134" rx="18" fill="url(#panel)" stroke="#335C9C"/>
-    <text x="846" y="640" fill="#8EA8D6" font-family="'IBM Plex Mono', monospace" font-size="18" letter-spacing="0.16em">SHARD LAYOUT</text>
-    <text x="846" y="704" fill="#F5F1E8" font-family="'Space Grotesk', sans-serif" font-size="54" font-weight="700">34</text>
-    <text x="970" y="704" fill="#F5F1E8" font-family="'IBM Plex Sans', sans-serif" font-size="28">layer shards</text>
+    <rect x="808" y="620" width="308" height="154" rx="18" fill="url(#panel)" stroke="#335C9C"/>
+    <text x="836" y="654" fill="#8EA8D6" font-family="'IBM Plex Mono', monospace" font-size="15" letter-spacing="0.12em">SHARD LAYOUT</text>
+    <text x="836" y="724" fill="#F5F1E8" font-family="'Space Grotesk', sans-serif" font-size="58" font-weight="700">34</text>
+    <text x="836" y="754" fill="#F5F1E8" font-family="'IBM Plex Sans', sans-serif" font-size="24">layer shards</text>
   </g>
 
   <g>
-    <rect x="1158" y="598" width="316" height="134" rx="18" fill="url(#panel)" stroke="#8A5B1D"/>
-    <text x="1188" y="640" fill="#EAB97A" font-family="'IBM Plex Mono', monospace" font-size="18" letter-spacing="0.16em">PACKED FOOTPRINT</text>
-    <text x="1188" y="704" fill="#F5F1E8" font-family="'Space Grotesk', sans-serif" font-size="54" font-weight="700">16.68</text>
-    <text x="1370" y="704" fill="#F5F1E8" font-family="'IBM Plex Sans', sans-serif" font-size="28">GiB</text>
+    <rect x="1146" y="620" width="308" height="154" rx="18" fill="url(#panel)" stroke="#8A5B1D"/>
+    <text x="1174" y="654" fill="#EAB97A" font-family="'IBM Plex Mono', monospace" font-size="15" letter-spacing="0.12em">PACKED FOOTPRINT</text>
+    <text x="1174" y="724" fill="#F5F1E8" font-family="'Space Grotesk', sans-serif" font-size="58" font-weight="700">16.68</text>
+    <text x="1174" y="754" fill="#F5F1E8" font-family="'IBM Plex Sans', sans-serif" font-size="24">GiB packed</text>
   </g>
 
-  <text x="132" y="806" fill="#9FB2CF" font-family="'IBM Plex Sans', sans-serif" font-size="22">
-    Real Modal artifact archived in the repo. Runtime now unwraps nested text_config and refuses zero-layer benchmarks.
+  <text x="132" y="836" fill="#9FB2CF" font-family="'IBM Plex Sans', sans-serif" font-size="20">
+    <tspan x="132" dy="0">Real Modal artifact archived in the repo. Runtime now unwraps nested text_config,</tspan>
+    <tspan x="132" dy="30">detects model.language_model.layers.*, and refuses zero-layer benchmark output.</tspan>
   </text>
 </svg>
