@@ -174,29 +174,32 @@ def write_fake_nested_text_config_model(source_dir: str | Path) -> Path:
             {
                 "model_type": "qwen3_5",
                 "architectures": ["Qwen3_5ForConditionalGeneration"],
-                "text_config": {
-                    "model_type": "qwen3_5_text",
-                    "vocab_size": 16,
-                    "hidden_size": 8,
-                    "intermediate_size": 16,
-                    "num_hidden_layers": 4,
-                    "num_attention_heads": 2,
-                    "num_key_value_heads": 1,
-                    "rms_norm_eps": 1e-6,
-                    "layer_types": [
-                        "linear_attention",
-                        "linear_attention",
-                        "linear_attention",
-                        "full_attention",
-                    ],
-                    "rope_parameters": {
-                        "rope_theta": 10000000,
+                    "text_config": {
+                        "model_type": "qwen3_5_text",
+                        "vocab_size": 16,
+                        "hidden_size": 8,
+                        "intermediate_size": 16,
+                        "num_hidden_layers": 4,
+                        "num_attention_heads": 2,
+                        "num_key_value_heads": 1,
+                        "head_dim": 4,
+                        "rms_norm_eps": 1e-6,
+                        "layer_types": [
+                            "linear_attention",
+                            "linear_attention",
+                            "linear_attention",
+                            "full_attention",
+                        ],
+                        "rope_parameters": {
+                            "rope_theta": 10000000,
+                            "partial_rotary_factor": 0.25,
+                        },
+                        "attn_output_gate": True,
+                        "eos_token_id": 15,
                     },
-                    "eos_token_id": 15,
                 },
-            },
-            indent=2,
-        ),
+                indent=2,
+            ),
         encoding="utf-8",
     )
     write_fake_safetensors(
@@ -266,6 +269,138 @@ def write_fake_nested_text_config_model(source_dir: str | Path) -> Path:
                 "dtype": "F32",
                 "shape": [4, 4],
                 "values": [9.0] * 16,
+            },
+        },
+        metadata={"format": "test"},
+    )
+    return source_path
+
+
+def write_fake_qwen_full_attention_model(source_dir: str | Path) -> Path:
+    source_path = Path(source_dir)
+    source_path.mkdir(parents=True, exist_ok=True)
+    (source_path / "config.json").write_text(
+        json.dumps(
+            {
+                "model_type": "qwen3_5",
+                "architectures": ["Qwen3_5ForConditionalGeneration"],
+                "text_config": {
+                    "model_type": "qwen3_5_text",
+                    "vocab_size": 4,
+                    "hidden_size": 4,
+                    "intermediate_size": 8,
+                    "num_hidden_layers": 1,
+                    "num_attention_heads": 2,
+                    "num_key_value_heads": 1,
+                    "head_dim": 2,
+                    "rms_norm_eps": 1e-6,
+                    "layer_types": ["full_attention"],
+                    "rope_parameters": {
+                        "rope_theta": 10000000,
+                        "partial_rotary_factor": 0.25,
+                    },
+                    "attn_output_gate": True,
+                    "eos_token_id": 3,
+                },
+            },
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
+
+    def eye(size: int) -> list[float]:
+        return [1.0 if row == col else 0.0 for row in range(size) for col in range(size)]
+
+    def rows(*matrix_rows: list[float]) -> list[float]:
+        return [float(value) for row in matrix_rows for value in row]
+
+    write_fake_safetensors(
+        source_path / "model-00001-of-00001.safetensors",
+        {
+            "model.language_model.embed_tokens.weight": {
+                "dtype": "F32",
+                "shape": [4, 4],
+                "values": eye(4),
+            },
+            "model.language_model.layers.0.input_layernorm.weight": {
+                "dtype": "F32",
+                "shape": [4],
+                "values": [1.0, 1.0, 1.0, 1.0],
+            },
+            "model.language_model.layers.0.post_attention_layernorm.weight": {
+                "dtype": "F32",
+                "shape": [4],
+                "values": [1.0, 1.0, 1.0, 1.0],
+            },
+            "model.language_model.layers.0.self_attn.q_proj.weight": {
+                "dtype": "F32",
+                "shape": [8, 4],
+                "values": rows(
+                    [1.0, 0.0, 0.0, 0.0],
+                    [0.0, 1.0, 0.0, 0.0],
+                    [0.0, 0.0, 0.0, 0.0],
+                    [0.0, 0.0, 0.0, 0.0],
+                    [1.0, 0.0, 0.0, 0.0],
+                    [0.0, 1.0, 0.0, 0.0],
+                    [0.0, 0.0, 0.0, 0.0],
+                    [0.0, 0.0, 0.0, 0.0],
+                ),
+            },
+            "model.language_model.layers.0.self_attn.k_proj.weight": {
+                "dtype": "F32",
+                "shape": [2, 4],
+                "values": rows(
+                    [1.0, 0.0, 0.0, 0.0],
+                    [0.0, 1.0, 0.0, 0.0],
+                ),
+            },
+            "model.language_model.layers.0.self_attn.v_proj.weight": {
+                "dtype": "F32",
+                "shape": [2, 4],
+                "values": rows(
+                    [1.0, 0.0, 0.0, 0.0],
+                    [0.0, 1.0, 0.0, 0.0],
+                ),
+            },
+            "model.language_model.layers.0.self_attn.q_norm.weight": {
+                "dtype": "F32",
+                "shape": [2],
+                "values": [1.0, 1.0],
+            },
+            "model.language_model.layers.0.self_attn.k_norm.weight": {
+                "dtype": "F32",
+                "shape": [2],
+                "values": [1.0, 1.0],
+            },
+            "model.language_model.layers.0.self_attn.o_proj.weight": {
+                "dtype": "F32",
+                "shape": [4, 4],
+                "values": eye(4),
+            },
+            "model.language_model.layers.0.mlp.gate_proj.weight": {
+                "dtype": "F32",
+                "shape": [8, 4],
+                "values": [0.0] * 32,
+            },
+            "model.language_model.layers.0.mlp.up_proj.weight": {
+                "dtype": "F32",
+                "shape": [8, 4],
+                "values": [0.0] * 32,
+            },
+            "model.language_model.layers.0.mlp.down_proj.weight": {
+                "dtype": "F32",
+                "shape": [4, 8],
+                "values": [0.0] * 32,
+            },
+            "model.language_model.norm.weight": {
+                "dtype": "F32",
+                "shape": [4],
+                "values": [1.0, 1.0, 1.0, 1.0],
+            },
+            "lm_head.weight": {
+                "dtype": "F32",
+                "shape": [4, 4],
+                "values": eye(4),
             },
         },
         metadata={"format": "test"},

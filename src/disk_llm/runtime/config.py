@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from dataclasses import dataclass
 from typing import Any
 
@@ -32,6 +33,16 @@ class TextModelConfig:
     delta_num_heads: int | None = None
     delta_head_dim: int | None = None
     attention_head_dim: int | None = None
+    head_dim: int | None = None
+    partial_rotary_factor: float = 1.0
+    linear_num_key_heads: int | None = None
+    linear_num_value_heads: int | None = None
+    linear_key_head_dim: int | None = None
+    linear_value_head_dim: int | None = None
+    linear_conv_kernel_dim: int | None = None
+    attn_output_gate: bool = False
+    enable_prefetch: bool = False
+    use_qwen3_next_norms: bool = False
 
     def block_kind(self, layer_idx: int) -> str:
         if not self.block_kinds:
@@ -49,6 +60,18 @@ class TextModelConfig:
         text_config = normalized_text_config(data)
         block_kinds = tuple(derive_block_kinds(data))
         rope_parameters = text_config.get("rope_parameters", {})
+        attention_head_dim = _maybe_int(text_config.get("attention_head_dim"))
+        head_dim = _maybe_int(text_config.get("head_dim"))
+        if attention_head_dim is None:
+            attention_head_dim = head_dim
+        enable_prefetch = _bool_value(
+            os.environ.get(
+                "DISK_LLM_EXPERIMENT_LAYER_PREFETCH",
+                os.environ.get("DISK_LLM_ENABLE_PREFETCH"),
+            )
+        )
+        model_type = str(text_config.get("model_type", data.get("model_type", "")))
+        parent_model_type = str(data.get("parent_model_type", ""))
         return cls(
             family=family,
             variant=variant,
@@ -67,7 +90,17 @@ class TextModelConfig:
             block_kinds=block_kinds,
             delta_num_heads=_maybe_int(text_config.get("delta_num_heads")),
             delta_head_dim=_maybe_int(text_config.get("delta_head_dim")),
-            attention_head_dim=_maybe_int(text_config.get("attention_head_dim")),
+            attention_head_dim=attention_head_dim,
+            head_dim=head_dim,
+            partial_rotary_factor=_maybe_float(rope_parameters.get("partial_rotary_factor"), 1.0),
+            linear_num_key_heads=_maybe_int(text_config.get("linear_num_key_heads")),
+            linear_num_value_heads=_maybe_int(text_config.get("linear_num_value_heads")),
+            linear_key_head_dim=_maybe_int(text_config.get("linear_key_head_dim")),
+            linear_value_head_dim=_maybe_int(text_config.get("linear_value_head_dim")),
+            linear_conv_kernel_dim=_maybe_int(text_config.get("linear_conv_kernel_dim")),
+            attn_output_gate=_bool_value(text_config.get("attn_output_gate")),
+            enable_prefetch=enable_prefetch,
+            use_qwen3_next_norms=("qwen3_5" in model_type.lower()) or ("qwen3_5" in parent_model_type.lower()),
         )
 
     @classmethod
@@ -82,3 +115,20 @@ def _maybe_int(value: Any) -> int | None:
         return int(value)
     except (TypeError, ValueError):
         return None
+
+
+def _maybe_float(value: Any, default: float) -> float:
+    if value is None:
+        return default
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return default
+
+
+def _bool_value(value: Any) -> bool:
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, str):
+        return value.strip().lower() in {"1", "true", "yes", "on"}
+    return bool(value)

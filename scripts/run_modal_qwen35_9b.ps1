@@ -14,4 +14,4 @@ python scripts/modal_qwen_benchmark.py `
   --warmup-runs 0 `
   --backends disk_llm,hf_cpu `
   --hf-dtype float32 `
-  --run-label qwen35-9b-modal-cpu-prefetch
+  --run-label qwen35-9b-modal-cpu

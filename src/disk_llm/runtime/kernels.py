@@ -20,6 +20,18 @@ def silu(values):
     return values / (1.0 + np.exp(-values))
 
 
+def sigmoid(values):
+    np = require_numpy()
+    values = np.asarray(values)
+    return 1.0 / (1.0 + np.exp(-values))
+
+
+def softplus(values):
+    np = require_numpy()
+    values = np.asarray(values)
+    return np.log1p(np.exp(-np.abs(values))) + np.maximum(values, 0)
+
+
 def rms_norm(hidden, weight, *, eps: float):
     np = require_numpy()
     hidden = np.asarray(hidden)
@@ -27,22 +39,39 @@ def rms_norm(hidden, weight, *, eps: float):
     return (hidden / np.sqrt(variance + eps)) * weight
 
 
-def apply_rope_single(values, *, position: int, theta: float):
+def apply_rope_single(values, *, position: int, theta: float, rotary_fraction: float = 1.0):
     np = require_numpy()
+    values = np.asarray(values)
     head_dim = values.shape[-1]
-    if head_dim % 2 != 0:
+    rotary_dim = int(head_dim * rotary_fraction)
+    if rotary_dim <= 0:
+        return values
+    if rotary_dim > head_dim:
+        rotary_dim = head_dim
+    if rotary_dim % 2 != 0:
+        rotary_dim -= 1
+    if rotary_dim <= 0:
+        return values
+    if rotary_dim % 2 != 0:
         raise ValueError("RoPE requires an even head dimension.")
-    inv_freq = 1.0 / (theta ** (np.arange(0, head_dim, 2) / head_dim))
+    inv_freq = 1.0 / (theta ** (np.arange(0, rotary_dim, 2) / rotary_dim))
     angles = position * inv_freq
-    cos = np.cos(angles)
-    sin = np.sin(angles)
-    even = values[..., 0::2]
-    odd = values[..., 1::2]
-    rotated_even = even * cos - odd * sin
-    rotated_odd = even * sin + odd * cos
+    cos = np.concatenate([np.cos(angles), np.cos(angles)], axis=0)
+    sin = np.concatenate([np.sin(angles), np.sin(angles)], axis=0)
+    rotary_values = values[..., :rotary_dim]
+    pass_values = values[..., rotary_dim:]
+    first_half = rotary_values[..., : rotary_dim // 2]
+    second_half = rotary_values[..., rotary_dim // 2 :]
+    rotated = np.concatenate(
+        [
+            (first_half * cos[: rotary_dim // 2]) - (second_half * sin[: rotary_dim // 2]),
+            (second_half * cos[rotary_dim // 2 :]) + (first_half * sin[rotary_dim // 2 :]),
+        ],
+        axis=-1,
+    )
     output = np.empty_like(values)
-    output[..., 0::2] = rotated_even
-    output[..., 1::2] = rotated_odd
+    output[..., :rotary_dim] = rotated
+    output[..., rotary_dim:] = pass_values
     return output
 
 
@@ -121,3 +150,82 @@ def repeat_kv_heads(values, *, target_heads: int):
 
 def attention_scale(head_dim: int) -> float:
     return 1.0 / math.sqrt(head_dim)
+
+
+def l2norm(values, *, axis: int = -1, eps: float = 1e-6):
+    np = require_numpy()
+    values = np.asarray(values)
+    inv_norm = 1.0 / np.sqrt(np.sum(values * values, axis=axis, keepdims=True) + eps)
+    return values * inv_norm
+
+
+def qwen3next_rms_norm(values, weight, *, eps: float):
+    np = require_numpy()
+    values = np.asarray(values)
+    weight = np.asarray(weight)
+    variance = np.mean(values * values, axis=-1, keepdims=True)
+    normalized = values / np.sqrt(variance + eps)
+    return normalized * (1.0 + weight)
+
+
+def rms_norm_gated(values, weight, gate, *, eps: float):
+    np = require_numpy()
+    values = np.asarray(values)
+    variance = np.mean(values * values, axis=-1, keepdims=True)
+    normalized = values / np.sqrt(variance + eps)
+    return np.asarray(weight) * normalized * silu(np.asarray(gate))
+
+
+def depthwise_causal_conv1d_update(hidden_states, state, weight, *, activation: str = "silu"):
+    np = require_numpy()
+    hidden_states = np.asarray(hidden_states)
+    kernels = np.asarray(weight)
+    if kernels.ndim == 3:
+        kernels = kernels[:, 0, :]
+    kernel_size = kernels.shape[-1]
+    state_width = max(kernel_size - 1, 0)
+    if state is None:
+        state = np.zeros((hidden_states.shape[0], state_width), dtype=hidden_states.dtype)
+    if state_width > 0:
+        window = np.concatenate([state, hidden_states[:, None]], axis=-1)
+        new_state = window[:, -state_width:]
+    else:
+        window = hidden_states[:, None]
+        new_state = np.zeros((hidden_states.shape[0], 0), dtype=hidden_states.dtype)
+    output = np.sum(window * kernels, axis=-1)
+    if activation == "silu":
+        output = silu(output)
+    return output, new_state
+
+
+def recurrent_gated_delta_step(query, key, value, g, beta, state, *, use_qk_l2norm: bool = True):
+    np = require_numpy()
+    query = np.asarray(query)
+    key = np.asarray(key)
+    value = np.asarray(value)
+    if use_qk_l2norm:
+        query = l2norm(query, axis=-1, eps=1e-6)
+        key = l2norm(key, axis=-1, eps=1e-6)
+    scale = 1.0 / math.sqrt(query.shape[-1])
+    query = query * scale
+
+    query_f32 = query.astype(np.float32, copy=False)
+    key_f32 = key.astype(np.float32, copy=False)
+    value_f32 = value.astype(np.float32, copy=False)
+    g_f32 = np.exp(np.asarray(g, dtype=np.float32))[:, None, None]
+    beta_f32 = np.asarray(beta, dtype=np.float32)[:, None]
+
+    if state is None:
+        state = np.zeros(
+            (query.shape[0], query.shape[-1], value.shape[-1]),
+            dtype=np.float32,
+        )
+    else:
+        state = np.asarray(state, dtype=np.float32)
+
+    state = state * g_f32
+    kv_memory = np.sum(state * key_f32[:, :, None], axis=-2)
+    delta = (value_f32 - kv_memory) * beta_f32
+    state = state + key_f32[:, :, None] * delta[:, None, :]
+    output = np.sum(state * query_f32[:, :, None], axis=-2).astype(value.dtype, copy=False)
+    return output, state

@@ -136,7 +136,11 @@ def convert_model(
         layout_strategy="layer_prefix_v1",
         config={
             **source_config,
-            **{key: value for key, value in text_config.items() if key not in ("architectures", "text_config")},
+            **{
+                key: value
+                for key, value in text_config.items()
+                if key not in ("architectures", "text_config", "enable_prefetch", "disk_llm_enable_prefetch")
+            },
             "block_kinds": derive_block_kinds(source_config),
         },
         tensors=tensors,
