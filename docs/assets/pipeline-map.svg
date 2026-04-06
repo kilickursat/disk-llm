@@ -12,14 +12,14 @@
 
   <rect width="1600" height="980" rx="32" fill="url(#pipelineBg)"/>
 
-  <text x="120" y="130" fill="#1F2B3D" font-family="'IBM Plex Mono', monospace" font-size="18" letter-spacing="0.16em">NATIVE NUMPY MEMMAP WORKFLOW</text>
-  <text x="120" y="214" fill="#101214" font-family="'Space Grotesk', sans-serif" font-size="64" font-weight="700">
-    <tspan x="120" dy="0">From checkpoint to benchmark,</tspan>
-    <tspan x="120" dy="68">with the audit path included.</tspan>
+  <text x="120" y="130" fill="#1F2B3D" font-family="'Courier New', monospace" font-size="16" letter-spacing="0.06em" textLength="306" lengthAdjust="spacingAndGlyphs">NATIVE NUMPY MEMMAP WORKFLOW</text>
+  <text x="120" y="208" fill="#101214" font-family="Arial, Helvetica, sans-serif" font-size="54" font-weight="700">
+    <tspan x="120" dy="0" textLength="852" lengthAdjust="spacingAndGlyphs">From checkpoint to benchmark,</tspan>
+    <tspan x="120" dy="58" textLength="764" lengthAdjust="spacingAndGlyphs">with the audit path included.</tspan>
   </text>
-  <text x="122" y="338" fill="#455364" font-family="'IBM Plex Sans', sans-serif" font-size="24">
-    <tspan x="122" dy="0">The project is strongest when the workflow is explicit:</tspan>
-    <tspan x="122" dy="32">inspect, pack, run, observe, and only publish what survives validation.</tspan>
+  <text x="122" y="316" fill="#455364" font-family="Arial, Helvetica, sans-serif" font-size="21">
+    <tspan x="122" dy="0" textLength="556" lengthAdjust="spacingAndGlyphs">The project is strongest when the workflow is explicit:</tspan>
+    <tspan x="122" dy="28" textLength="730" lengthAdjust="spacingAndGlyphs">inspect, pack, run, observe, and only publish what survives validation.</tspan>
   </text>
 
   <path d="M180 486H1420" stroke="url(#flow)" stroke-width="12" stroke-linecap="round"/>
@@ -27,58 +27,58 @@
 
   <g>
     <circle cx="220" cy="486" r="54" fill="#FFFFFF" stroke="#1F5AA6" stroke-width="8"/>
-    <text x="220" y="496" text-anchor="middle" fill="#1F5AA6" font-family="'IBM Plex Mono', monospace" font-size="32">01</text>
-    <text x="220" y="618" text-anchor="middle" fill="#101214" font-family="'Space Grotesk', sans-serif" font-size="32" font-weight="700">Inspect</text>
-    <text x="220" y="656" text-anchor="middle" fill="#455364" font-family="'IBM Plex Sans', sans-serif" font-size="19">
-      <tspan x="220" dy="0">Read config.json and</tspan>
-      <tspan x="220" dy="28">the safetensors layout first.</tspan>
+    <text x="220" y="496" text-anchor="middle" fill="#1F5AA6" font-family="'Courier New', monospace" font-size="30">01</text>
+    <text x="220" y="616" text-anchor="middle" fill="#101214" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700" textLength="92" lengthAdjust="spacingAndGlyphs">Inspect</text>
+    <text x="220" y="652" text-anchor="middle" fill="#455364" font-family="Arial, Helvetica, sans-serif" font-size="17">
+      <tspan x="220" dy="0" textLength="164" lengthAdjust="spacingAndGlyphs">Read config.json and</tspan>
+      <tspan x="220" dy="24" textLength="188" lengthAdjust="spacingAndGlyphs">the safetensors layout first.</tspan>
     </text>
   </g>
 
   <g>
     <circle cx="510" cy="486" r="54" fill="#FFFFFF" stroke="#1F5AA6" stroke-width="8"/>
-    <text x="510" y="496" text-anchor="middle" fill="#1F5AA6" font-family="'IBM Plex Mono', monospace" font-size="32">02</text>
-    <text x="510" y="618" text-anchor="middle" fill="#101214" font-family="'Space Grotesk', sans-serif" font-size="32" font-weight="700">Convert</text>
-    <text x="510" y="656" text-anchor="middle" fill="#455364" font-family="'IBM Plex Sans', sans-serif" font-size="19">
-      <tspan x="510" dy="0">Pack text tensors into</tspan>
-      <tspan x="510" dy="28">layer-oriented shard files.</tspan>
+    <text x="510" y="496" text-anchor="middle" fill="#1F5AA6" font-family="'Courier New', monospace" font-size="30">02</text>
+    <text x="510" y="616" text-anchor="middle" fill="#101214" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700" textLength="106" lengthAdjust="spacingAndGlyphs">Convert</text>
+    <text x="510" y="652" text-anchor="middle" fill="#455364" font-family="Arial, Helvetica, sans-serif" font-size="17">
+      <tspan x="510" dy="0" textLength="172" lengthAdjust="spacingAndGlyphs">Pack text tensors into</tspan>
+      <tspan x="510" dy="24" textLength="192" lengthAdjust="spacingAndGlyphs">layer-oriented shard files.</tspan>
     </text>
   </g>
 
   <g>
     <circle cx="800" cy="486" r="54" fill="#FFFFFF" stroke="#1F5AA6" stroke-width="8"/>
-    <text x="800" y="496" text-anchor="middle" fill="#1F5AA6" font-family="'IBM Plex Mono', monospace" font-size="32">03</text>
-    <text x="800" y="618" text-anchor="middle" fill="#101214" font-family="'Space Grotesk', sans-serif" font-size="32" font-weight="700">Generate</text>
-    <text x="800" y="656" text-anchor="middle" fill="#455364" font-family="'IBM Plex Sans', sans-serif" font-size="19">
-      <tspan x="800" dy="0">Run the NumPy path with</tspan>
-      <tspan x="800" dy="28">telemetry on every call.</tspan>
+    <text x="800" y="496" text-anchor="middle" fill="#1F5AA6" font-family="'Courier New', monospace" font-size="30">03</text>
+    <text x="800" y="616" text-anchor="middle" fill="#101214" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700" textLength="120" lengthAdjust="spacingAndGlyphs">Generate</text>
+    <text x="800" y="652" text-anchor="middle" fill="#455364" font-family="Arial, Helvetica, sans-serif" font-size="17">
+      <tspan x="800" dy="0" textLength="188" lengthAdjust="spacingAndGlyphs">Run the NumPy path with</tspan>
+      <tspan x="800" dy="24" textLength="176" lengthAdjust="spacingAndGlyphs">telemetry on every call.</tspan>
     </text>
   </g>
 
   <g>
     <circle cx="1090" cy="486" r="54" fill="#FFFFFF" stroke="#C67A2B" stroke-width="8"/>
-    <text x="1090" y="496" text-anchor="middle" fill="#C67A2B" font-family="'IBM Plex Mono', monospace" font-size="32">04</text>
-    <text x="1090" y="618" text-anchor="middle" fill="#101214" font-family="'Space Grotesk', sans-serif" font-size="32" font-weight="700">Benchmark</text>
-    <text x="1090" y="656" text-anchor="middle" fill="#455364" font-family="'IBM Plex Sans', sans-serif" font-size="19">
-      <tspan x="1090" dy="0">Record runs, RSS, mapped</tspan>
-      <tspan x="1090" dy="28">bytes, summaries, and plots.</tspan>
+    <text x="1090" y="496" text-anchor="middle" fill="#C67A2B" font-family="'Courier New', monospace" font-size="30">04</text>
+    <text x="1090" y="616" text-anchor="middle" fill="#101214" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700" textLength="142" lengthAdjust="spacingAndGlyphs">Benchmark</text>
+    <text x="1090" y="652" text-anchor="middle" fill="#455364" font-family="Arial, Helvetica, sans-serif" font-size="17">
+      <tspan x="1090" dy="0" textLength="194" lengthAdjust="spacingAndGlyphs">Record runs, RSS, mapped</tspan>
+      <tspan x="1090" dy="24" textLength="208" lengthAdjust="spacingAndGlyphs">bytes, summaries, and plots.</tspan>
     </text>
   </g>
 
   <g>
     <circle cx="1380" cy="486" r="54" fill="#FFFFFF" stroke="#C67A2B" stroke-width="8"/>
-    <text x="1380" y="496" text-anchor="middle" fill="#C67A2B" font-family="'IBM Plex Mono', monospace" font-size="32">05</text>
-    <text x="1380" y="618" text-anchor="middle" fill="#101214" font-family="'Space Grotesk', sans-serif" font-size="32" font-weight="700">Audit</text>
-    <text x="1380" y="656" text-anchor="middle" fill="#455364" font-family="'IBM Plex Sans', sans-serif" font-size="19">
-      <tspan x="1380" dy="0">Reject runs that bypass</tspan>
-      <tspan x="1380" dy="28">real layer execution.</tspan>
+    <text x="1380" y="496" text-anchor="middle" fill="#C67A2B" font-family="'Courier New', monospace" font-size="30">05</text>
+    <text x="1380" y="616" text-anchor="middle" fill="#101214" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700" textLength="78" lengthAdjust="spacingAndGlyphs">Audit</text>
+    <text x="1380" y="652" text-anchor="middle" fill="#455364" font-family="Arial, Helvetica, sans-serif" font-size="17">
+      <tspan x="1380" dy="0" textLength="176" lengthAdjust="spacingAndGlyphs">Reject runs that bypass</tspan>
+      <tspan x="1380" dy="24" textLength="152" lengthAdjust="spacingAndGlyphs">real layer execution.</tspan>
     </text>
   </g>
 
   <rect x="120" y="786" width="1360" height="122" rx="24" fill="#FFFFFF" stroke="#D4C9B7"/>
-  <text x="800" y="836" text-anchor="middle" fill="#1F2B3D" font-family="'IBM Plex Sans', sans-serif" font-size="24">
-    <tspan x="800" dy="0">Latest fix: Disk-LLM now unwraps nested Qwen text_config,</tspan>
-    <tspan x="800" dy="32">detects model.language_model.layers.* in manifests,</tspan>
-    <tspan x="800" dy="32">and refuses to save benchmark rows when telemetry shows a zero-layer execution path.</tspan>
+  <text x="800" y="832" text-anchor="middle" fill="#1F2B3D" font-family="Arial, Helvetica, sans-serif" font-size="20">
+    <tspan x="800" dy="0" textLength="602" lengthAdjust="spacingAndGlyphs">Latest fix: Disk-LLM now unwraps nested Qwen text_config,</tspan>
+    <tspan x="800" dy="26" textLength="524" lengthAdjust="spacingAndGlyphs">detects model.language_model.layers.* in manifests,</tspan>
+    <tspan x="800" dy="26" textLength="788" lengthAdjust="spacingAndGlyphs">and refuses to save benchmark rows when telemetry shows a zero-layer execution path.</tspan>
   </text>
 </svg>
