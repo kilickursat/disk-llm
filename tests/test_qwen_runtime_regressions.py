@@ -45,3 +45,24 @@ class QwenRuntimeRegressionTests(unittest.TestCase):
             self.assertEqual(len(generated_ids), 2)
             self.assertEqual(len(telemetry["layer_times"]), 1)
             self.assertIn("tokens_per_second", telemetry)
+    def test_qwen_hybrid_linear_attention_toy_model(self):
+        from tests.helpers import write_fake_qwen_hybrid_model
+        with workspace_tempdir() as tmp:
+            source_dir = write_fake_qwen_hybrid_model(tmp / "source")
+            output_dir = tmp / "packed"
+
+            result = convert_model(source_dir, output_dir)
+            model = DiskLLMTextModel.from_manifest(result.manifest_path)
+
+            self.assertEqual(model.config.num_hidden_layers, 2)
+            self.assertEqual(model.config.block_kind(0), "linear_attention")
+            self.assertEqual(model.config.block_kind(1), "attention")
+
+            generated_ids, telemetry = model.generate_token_ids(
+                [0],
+                max_new_tokens=2,
+                temperature=0.0,
+                seed=7,
+            )
+            self.assertEqual(len(generated_ids), 2)
+            self.assertEqual(len(telemetry["layer_times"]), 2)

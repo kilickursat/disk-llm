@@ -1,0 +1,31 @@
+{
+  "backends": [
+    "disk_llm",
+    "hf_cpu"
+  ],
+  "created_at": "2026-04-06T22:34:25.550898+00:00",
+  "hf_dtype": "float32",
+  "hf_model_path": "/__modal/volumes/vo-oHh6Gg8uG2RRqiwJljz00y/models/Qwen--Qwen3.5-9B/main",
+  "manifest_path": "/__modal/volumes/vo-oHh6Gg8uG2RRqiwJljz00y/packed/Qwen--Qwen3.5-9B/qwen35-9b-modal-cpu-postfix/manifest.json",
+  "max_new_tokens": [
+    2
+  ],
+  "notes": [
+    "Prompt cases are built by cycling the base prompt token ids to the requested lengths.",
+    "Repeated runs show initial versus steady-state behavior inside one process; OS page cache is not forcibly dropped."
+  ],
+  "platform": "Linux-4.4.0-x86_64-with-glibc2.36",
+  "prompt_lengths": [
+    8,
+    128
+  ],
+  "python_version": "3.12.6",
+  "runs": 1,
+  "sample_interval_seconds": 0.025,
+  "seed": 0,
+  "source_dir": "/__modal/volumes/vo-oHh6Gg8uG2RRqiwJljz00y/models/Qwen--Qwen3.5-9B/main",
+  "temperature": 0.0,
+  "tokenizer_path": "/__modal/volumes/vo-oHh6Gg8uG2RRqiwJljz00y/models/Qwen--Qwen3.5-9B/main",
+  "top_p": 0.95,
+  "warmup_runs": 0
+}

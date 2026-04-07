@@ -406,3 +406,97 @@ def write_fake_qwen_full_attention_model(source_dir: str | Path) -> Path:
         metadata={"format": "test"},
     )
     return source_path
+def write_fake_qwen_hybrid_model(source_dir: str | Path) -> Path:
+    source_path = Path(source_dir)
+    source_path.mkdir(parents=True, exist_ok=True)
+    
+    hidden_size = 4
+    num_heads = 2
+    head_dim = 2
+    intermediate_size = 8
+    
+    (source_path / "config.json").write_text(
+        json.dumps(
+            {
+                "model_type": "qwen3_5",
+                "architectures": ["Qwen3_5ForConditionalGeneration"],
+                "text_config": {
+                    "model_type": "qwen3_5_text",
+                    "vocab_size": 4,
+                    "hidden_size": hidden_size,
+                    "intermediate_size": intermediate_size,
+                    "num_hidden_layers": 2,
+                    "num_attention_heads": num_heads,
+                    "num_key_value_heads": 1,
+                    "head_dim": head_dim,
+                    "rms_norm_eps": 1e-6,
+                    "layer_types": ["linear_attention", "full_attention"],
+                    "rope_parameters": {
+                        "rope_theta": 1000000.0,
+                        "partial_rotary_factor": 1.0,
+                    },
+                    "use_qk_l2norm": True,
+                    "linear_num_key_heads": 2,
+                    "linear_num_value_heads": 2,
+                    "linear_key_head_dim": 2,
+                    "linear_value_head_dim": 2,
+                },
+            },
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
+
+    tensors = {
+        "model.language_model.embed_tokens.weight": {
+            "dtype": "F32",
+            "shape": [4, hidden_size],
+            "values": [1.0 if i == j else 0.0 for i in range(4) for j in range(hidden_size)],
+        },
+        "model.language_model.norm.weight": {
+            "dtype": "F32",
+            "shape": [hidden_size],
+            "values": [1.0] * hidden_size,
+        },
+        "lm_head.weight": {
+            "dtype": "F32",
+            "shape": [4, hidden_size],
+            "values": [1.0 if i == j else 0.0 for i in range(4) for j in range(hidden_size)],
+        },
+    }
+
+    # Layer 0: Linear Attention
+    l0_prefix = "model.language_model.layers.0.linear_attn."
+    tensors.update({
+        "model.language_model.layers.0.input_layernorm.weight": {"dtype": "F32", "shape": [hidden_size], "values": [1.0] * hidden_size},
+        "model.language_model.layers.0.post_attention_layernorm.weight": {"dtype": "F32", "shape": [hidden_size], "values": [1.0] * hidden_size},
+        l0_prefix + "in_proj_qkv.weight": {"dtype": "F32", "shape": [12, hidden_size], "values": [0.1] * (12 * hidden_size)}, # k_dim=4, v_dim=4, q_dim=4 => 12
+        l0_prefix + "in_proj_z.weight": {"dtype": "F32", "shape": [4, hidden_size], "values": [0.1] * (4 * hidden_size)},
+        l0_prefix + "in_proj_a.weight": {"dtype": "F32", "shape": [hidden_size, hidden_size], "values": [0.1] * (hidden_size * hidden_size)},
+        l0_prefix + "in_proj_b.weight": {"dtype": "F32", "shape": [hidden_size, hidden_size], "values": [0.1] * (hidden_size * hidden_size)},
+        l0_prefix + "conv1d.weight": {"dtype": "F32", "shape": [12, 1, 4], "values": [0.1] * (12 * 4)},
+        l0_prefix + "dt_bias": {"dtype": "F32", "shape": [hidden_size], "values": [0.1] * hidden_size},
+        l0_prefix + "A_log": {"dtype": "F32", "shape": [hidden_size], "values": [0.1] * hidden_size},
+        l0_prefix + "norm.weight": {"dtype": "F32", "shape": [hidden_size], "values": [1.0] * hidden_size},
+        l0_prefix + "out_proj.weight": {"dtype": "F32", "shape": [hidden_size, hidden_size], "values": [0.1] * (hidden_size * hidden_size)},
+        "model.language_model.layers.0.mlp.gate_proj.weight": {"dtype": "F32", "shape": [intermediate_size, hidden_size], "values": [0.1] * (intermediate_size * hidden_size)},
+        "model.language_model.layers.0.mlp.up_proj.weight": {"dtype": "F32", "shape": [intermediate_size, hidden_size], "values": [0.1] * (intermediate_size * hidden_size)},
+        "model.language_model.layers.0.mlp.down_proj.weight": {"dtype": "F32", "shape": [hidden_size, intermediate_size], "values": [0.1] * (hidden_size * intermediate_size)},
+    })
+
+    # Layer 1: Full Attention
+    l1_prefix = "model.language_model.layers.1.self_attn."
+    tensors.update({
+        "model.language_model.layers.1.input_layernorm.weight": {"dtype": "F32", "shape": [hidden_size], "values": [1.0] * hidden_size},
+        "model.language_model.layers.1.post_attention_layernorm.weight": {"dtype": "F32", "shape": [hidden_size], "values": [1.0] * hidden_size},
+        l1_prefix + "q_proj.weight": {"dtype": "F32", "shape": [num_heads * head_dim, hidden_size], "values": [0.1] * (num_heads * head_dim * hidden_size)},
+        l1_prefix + "k_proj.weight": {"dtype": "F32", "shape": [head_dim, hidden_size], "values": [0.1] * (head_dim * hidden_size)},
+        l1_prefix + "v_proj.weight": {"dtype": "F32", "shape": [head_dim, hidden_size], "values": [0.1] * (head_dim * hidden_size)},
+        l1_prefix + "o_proj.weight": {"dtype": "F32", "shape": [hidden_size, hidden_size], "values": [0.1] * (hidden_size * hidden_size)},
+        "model.language_model.layers.1.mlp.gate_proj.weight": {"dtype": "F32", "shape": [intermediate_size, hidden_size], "values": [0.1] * (intermediate_size * hidden_size)},
+        "model.language_model.layers.1.mlp.up_proj.weight": {"dtype": "F32", "shape": [intermediate_size, hidden_size], "values": [0.1] * (intermediate_size * hidden_size)},
+        "model.language_model.layers.1.mlp.down_proj.weight": {"dtype": "F32", "shape": [hidden_size, intermediate_size], "values": [0.1] * (hidden_size * intermediate_size)},
+    })
+
+    write_fake_safetensors(source_path / "model-00001-of-00001.safetensors", tensors)
+    return source_path

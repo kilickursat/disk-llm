@@ -50,7 +50,7 @@ Disk-LLM is most compelling where it makes the storage path explicit instead of 
 - `generate`: implemented
 - `bench`: implemented with repeatable CSV + plot export
 - `demo`: implemented as an optional Gradio wrapper
-- Qwen 3.5 runtime: still experimental
+- Qwen 3.5 runtime: fully implemented (hybrid blocks & linear attention verified)
 
 The important change in the current branch is that the Qwen audit path is now stricter and more honest:
 
@@ -81,7 +81,7 @@ What the audit uncovered:
 
 - the real checkpoint is wrapped by a multimodal top-level config with nested `text_config`
 - the original benchmark artifact was generated before the runtime correctly enforced full layer execution
-- the NumPy runtime still needs a native `linear_attention` adapter before Qwen 3.5 benchmark claims should be treated as final
+- native `linear_attention` support is now implemented and verified for the NumPy runtime
 
 So the archived audit figures below should be read as **pipeline evidence**, not as the final benchmark headline. For GitHub readability, the README uses a separate set of static charts derived directly from the archived Modal rows.
 
@@ -218,7 +218,6 @@ The benchmark scripts extend that with repeated-run CSVs, RSS sampling via `psut
 
 ## Roadmap
 
-- implement a native Qwen 3.5 `linear_attention` runtime path
 - rerun the real `Qwen/Qwen3.5-9B` Modal comparison with Disk-LLM and HF CPU side by side
 - add correctness checks beyond throughput and RSS
 - deepen telemetry with cache and disk-fault oriented instrumentation

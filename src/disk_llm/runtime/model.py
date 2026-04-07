@@ -471,6 +471,12 @@ class DiskLLMTextModel:
             np.asarray(a, dtype=np.float32) + np.asarray(dt_bias, dtype=np.float32)
         )
 
+        # Reshape to head-structure if they are channel-wise
+        if beta.size == num_v_heads * head_v_dim:
+            beta = beta.reshape(num_v_heads, head_v_dim)
+        if g.size == num_v_heads * head_v_dim:
+            g = g.reshape(num_v_heads, head_v_dim)
+
         if num_v_heads % num_k_heads != 0:
             raise RuntimeShapeError(
                 f"linear_attention head ratio mismatch in layer {layer_idx}: "

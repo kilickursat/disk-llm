@@ -32,9 +32,18 @@ def softplus(values):
     return np.log1p(np.exp(-np.abs(values))) + np.maximum(values, 0)
 
 
+def _ensure_broadcastable(values, weight):
+    np = require_numpy()
+    weight = np.asarray(weight)
+    if weight.shape != values.shape and weight.size == values.size:
+        return weight.reshape(values.shape)
+    return weight
+
+
 def rms_norm(hidden, weight, *, eps: float):
     np = require_numpy()
     hidden = np.asarray(hidden)
+    weight = _ensure_broadcastable(hidden, weight)
     variance = np.mean(hidden * hidden, axis=-1, keepdims=True)
     return (hidden / np.sqrt(variance + eps)) * weight
 
@@ -162,7 +171,7 @@ def l2norm(values, *, axis: int = -1, eps: float = 1e-6):
 def qwen3next_rms_norm(values, weight, *, eps: float):
     np = require_numpy()
     values = np.asarray(values)
-    weight = np.asarray(weight)
+    weight = _ensure_broadcastable(values, weight)
     variance = np.mean(values * values, axis=-1, keepdims=True)
     normalized = values / np.sqrt(variance + eps)
     return normalized * (1.0 + weight)
@@ -171,9 +180,11 @@ def qwen3next_rms_norm(values, weight, *, eps: float):
 def rms_norm_gated(values, weight, gate, *, eps: float):
     np = require_numpy()
     values = np.asarray(values)
+    weight = _ensure_broadcastable(values, weight)
+    gate = _ensure_broadcastable(values, gate)
     variance = np.mean(values * values, axis=-1, keepdims=True)
     normalized = values / np.sqrt(variance + eps)
-    return np.asarray(weight) * normalized * silu(np.asarray(gate))
+    return weight * normalized * silu(gate)
 
 
 def depthwise_causal_conv1d_update(hidden_states, state, weight, *, activation: str = "silu"):
@@ -212,8 +223,20 @@ def recurrent_gated_delta_step(query, key, value, g, beta, state, *, use_qk_l2no
     query_f32 = query.astype(np.float32, copy=False)
     key_f32 = key.astype(np.float32, copy=False)
     value_f32 = value.astype(np.float32, copy=False)
-    g_f32 = np.exp(np.asarray(g, dtype=np.float32))[:, None, None]
-    beta_f32 = np.asarray(beta, dtype=np.float32)[:, None]
+    g_f32 = np.exp(np.asarray(g, dtype=np.float32))
+    beta_f32 = np.asarray(beta, dtype=np.float32)
+
+    # State is (H, D_k, D_v). 
+    # g applies to each state element.
+    # beta applies to the kv update.
+    if g_f32.ndim == 1:
+        g_f32 = g_f32[:, None, None]
+    elif g_f32.ndim == 2:
+        g_f32 = g_f32[:, :, None]
+
+    if beta_f32.ndim == 1:
+        beta_f32 = beta_f32[:, None]
+    # If 2D (H, D_v), it stays (H, D_v) which matches (value - memory) -> (H, D_v)
 
     if state is None:
         state = np.zeros(
