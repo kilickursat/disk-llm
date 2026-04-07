@@ -87,12 +87,12 @@ So the archived audit figures below should be read as **pipeline evidence**, not
 
 <table>
   <tr>
-    <td><img src="docs/assets/readme-qwen-throughput.svg" alt="README throughput chart from archived Qwen Modal rows"></td>
-    <td><img src="docs/assets/readme-qwen-latency.svg" alt="README first-token latency chart from archived Qwen Modal rows"></td>
+    <td><img src="docs/assets/tokens_per_second.png" alt="README throughput chart from archived Qwen Modal rows"></td>
+    <td><img src="docs/assets/first_token_latency.png" alt="README first-token latency chart from archived Qwen Modal rows"></td>
   </tr>
   <tr>
-    <td><img src="docs/assets/readme-qwen-logical-mapped.svg" alt="README logical mapped bytes chart from archived Qwen Modal rows"></td>
-    <td><img src="docs/assets/readme-qwen-rss.svg" alt="README RSS profile chart from archived Qwen Modal rows"></td>
+    <td><img src="docs/assets/logical_mapped.png" alt="README logical mapped bytes chart from archived Qwen Modal rows"></td>
+    <td><img src="docs/assets/rss_timeline.png" alt="README RSS profile chart from archived Qwen Modal rows"></td>
   </tr>
 </table>
 

@@ -1,11 +1,12 @@
 {
   "backends": [
-    "disk_llm"
+    "disk_llm",
+    "hf_cpu"
   ],
-  "created_at": "2026-04-05T06:06:07.748659+00:00",
+  "created_at": "2026-04-06T22:34:25.550898+00:00",
   "hf_dtype": "float32",
   "hf_model_path": "/__modal/volumes/vo-oHh6Gg8uG2RRqiwJljz00y/models/Qwen--Qwen3.5-9B/main",
-  "manifest_path": "/__modal/volumes/vo-oHh6Gg8uG2RRqiwJljz00y/packed/Qwen--Qwen3.5-9B/qwen35-9b-modal-cpu/manifest.json",
+  "manifest_path": "/__modal/volumes/vo-oHh6Gg8uG2RRqiwJljz00y/packed/Qwen--Qwen3.5-9B/qwen35-9b-modal-cpu-postfix/manifest.json",
   "max_new_tokens": [
     2
   ],

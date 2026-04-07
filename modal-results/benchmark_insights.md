@@ -11,12 +11,14 @@
 ## Key Comparisons
 
 ### Prompt 8 / Generate 2
-- Disk-LLM mean throughput: `0.204` tok/s; first-token latency: `7.906` s; peak RSS: `11263.941` MB.
-- HF CPU baseline data is missing for this case.
+- Disk-LLM mean throughput: `0.153` tok/s; first-token latency: `10.388` s; peak RSS: `11266.043` MB.
+- HF CPU mean throughput: `0.125` tok/s; first-token latency: `6.117` s; peak RSS: `21943.293` MB.
+- Relative to HF CPU, Disk-LLM throughput ratio is `1.221`, first-token latency ratio is `1.698`, and peak RSS ratio is `0.513`.
 
 ### Prompt 128 / Generate 2
-- Disk-LLM mean throughput: `0.016` tok/s; first-token latency: `126.610` s; peak RSS: `11264.902` MB.
-- HF CPU baseline data is missing for this case.
+- Disk-LLM mean throughput: `0.012` tok/s; first-token latency: `158.646` s; peak RSS: `11268.035` MB.
+- HF CPU mean throughput: `0.076` tok/s; first-token latency: `18.310` s; peak RSS: `21943.293` MB.
+- Relative to HF CPU, Disk-LLM throughput ratio is `0.162`, first-token latency ratio is `8.664`, and peak RSS ratio is `0.514`.
 
 ## Interpretation Notes
 

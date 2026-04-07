@@ -4,7 +4,7 @@
   "kind": "packed",
   "layer_ids": [],
   "layout_strategy": "layer_prefix_v1",
-  "manifest_path": "/__modal/volumes/vo-oHh6Gg8uG2RRqiwJljz00y/packed/Qwen--Qwen3.5-9B/qwen35-9b-modal-cpu/manifest.json",
+  "manifest_path": "/__modal/volumes/vo-oHh6Gg8uG2RRqiwJljz00y/packed/Qwen--Qwen3.5-9B/qwen35-9b-modal-cpu-postfix/manifest.json",
   "shard_count": 34,
   "skipped_tensor_count": 348,
   "tensor_count": 427,
