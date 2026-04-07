@@ -32,7 +32,8 @@ hf = [
   "transformers>=4.57.0",
 ]
 bench = [
-  "matplotlib>=3.8.0",
+  "plotly>=5.18.0",
+  "kaleido>=0.2.1",
   "psutil>=5.9.0",
 ]
 demo = [

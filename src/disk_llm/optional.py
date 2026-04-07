@@ -39,18 +39,20 @@ def require_psutil():
     return psutil
 
 
-def require_matplotlib_pyplot():
-    """Import matplotlib only for offline plot generation."""
+def require_plotly():
+    """Import plotly only for offline plot generation."""
     try:
-        import matplotlib
+        import plotly.graph_objects as go
+        import plotly.express as px
+        import plotly.io as pio
 
-        matplotlib.use("Agg", force=True)
-        from matplotlib import pyplot as plt
+        # Set default beautiful template
+        pio.templates.default = "plotly_dark"
     except ImportError as exc:  # pragma: no cover - exercised through callers
         raise DependencyMissingError(
-            "matplotlib is required for plot generation. Install it with `pip install -e .[bench]`."
+            "plotly and kaleido are required for plot generation. Install them with `pip install -e .[bench]`."
         ) from exc
-    return plt
+    return go, px
 
 
 def require_auto_tokenizer():
