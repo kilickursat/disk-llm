@@ -19,16 +19,37 @@ def generate_plots(results_dir: str | Path) -> dict[str, Path]:
     plots_dir = results_path / "plots"
     plots_dir.mkdir(parents=True, exist_ok=True)
 
-    tokens_path = plots_dir / "tokens_per_second.png"
-    latency_path = plots_dir / "first_token_latency.png"
-    timeline_path = plots_dir / "rss_timeline.png"
-    logical_mapped_path = plots_dir / "logical_mapped.png"
+    tokens_path = _plot_grouped_metric(
+        summary_rows,
+        metric_key="tokens_per_second_mean",
+        error_key="tokens_per_second_stdev",
+        ylabel="Generated tokens / second",
+        title="Disk-LLM throughput vs. baseline",
+        output_path=plots_dir / "tokens_per_second.png",
+        metadata=metadata,
+    )
+    latency_path = _plot_line_metric(
+        summary_rows,
+        metric_key="first_token_seconds_mean",
+        ylabel="First-token latency (s)",
+        title="First-token latency by prompt length",
+        output_path=plots_dir / "first_token_latency.png",
+        metadata=metadata,
+    )
+    logical_mapped_path = _plot_line_metric(
+        summary_rows,
+        metric_key="logical_bytes_mapped_mb_mean",
+        ylabel="Logical Mapped (MB)",
+        title="Total logical bytes mapped by prompt length",
+        output_path=plots_dir / "logical_mapped.png",
+        metadata=metadata,
+    )
+    timeline_path = _plot_timeline(
+        timeline_rows,
+        output_path=plots_dir / "rss_timeline.png",
+        metadata=metadata,
+    )
     markdown_path = plots_dir / "comparison_summary.md"
-
-    _plot_grouped_metric(summary_rows, metric_key="tokens_per_second_mean", error_key="tokens_per_second_stdev", ylabel="Generated tokens / second", title="Disk-LLM throughput vs. baseline", output_path=tokens_path, metadata=metadata)
-    _plot_line_metric(summary_rows, metric_key="first_token_seconds_mean", ylabel="First-token latency (s)", title="First-token latency by prompt length", output_path=latency_path, metadata=metadata)
-    _plot_line_metric(summary_rows, metric_key="logical_bytes_mapped_mb_mean", ylabel="Logical Mapped (MB)", title="Total logical bytes mapped by prompt length", output_path=logical_mapped_path, metadata=metadata)
-    _plot_timeline(timeline_rows, output_path=timeline_path, metadata=metadata)
     _write_markdown_summary(summary_rows, metadata, markdown_path)
 
     return {
@@ -40,101 +61,139 @@ def generate_plots(results_dir: str | Path) -> dict[str, Path]:
     }
 
 
-def _plot_grouped_metric(summary_rows: list[dict[str, Any]], *, metric_key: str, error_key: str, ylabel: str, title: str, output_path: Path, metadata: dict[str, Any]) -> None:
+def _plot_grouped_metric(
+    summary_rows: list[dict[str, Any]],
+    *,
+    metric_key: str,
+    error_key: str,
+    ylabel: str,
+    title: str,
+    output_path: Path,
+    metadata: dict[str, Any],
+) -> Path:
     go, _ = require_plotly()
     max_new_tokens_values = sorted({int(row["max_new_tokens"]) for row in summary_rows})
     prompt_tokens = sorted({int(row["prompt_tokens"]) for row in summary_rows})
     backends = _ordered_backends(summary_rows)
-    colors = {"disk_llm": "#00d2ff", "hf_cpu": "#ff8a00"}  # Vibrant modern palette
+    colors = {"disk_llm": "#00d2ff", "hf_cpu": "#ff8a00"}
 
+    final_path = output_path
     for max_new_tokens in max_new_tokens_values:
         fig = go.Figure()
         subset = [row for row in summary_rows if int(row["max_new_tokens"]) == max_new_tokens]
         for backend in backends:
-            backend_rows = {int(row["prompt_tokens"]): row for row in subset if row["backend"] == backend}
-            values = [_maybe_float(backend_rows.get(pt, {}).get(metric_key)) for pt in prompt_tokens]
-            errors = [_maybe_float(backend_rows.get(pt, {}).get(error_key)) for pt in prompt_tokens]
-            
-            # Filter None to avoid broken bars
-            clean_values = [v if v is not None else 0 for v in values]
-            clean_errors = [e if e is not None else 0 for e in errors]
+            backend_rows = {
+                int(row["prompt_tokens"]): row for row in subset if row["backend"] == backend
+            }
+            values = [_maybe_float(backend_rows.get(prompt_token, {}).get(metric_key)) for prompt_token in prompt_tokens]
+            errors = [_maybe_float(backend_rows.get(prompt_token, {}).get(error_key)) for prompt_token in prompt_tokens]
 
-            fig.add_trace(go.Bar(
-                name=_backend_label(backend, summary_rows),
-                x=[str(p) for p in prompt_tokens],
-                y=clean_values,
-                error_y=dict(type='data', array=clean_errors, visible=True, thickness=1.5, color='rgba(255,255,255,0.7)'),
-                marker_color=colors.get(backend, "#5b7083"),
-                marker_line=dict(width=1.5, color='rgba(255, 255, 255, 0.2)'),
-            ))
+            clean_values = [value if value is not None else 0 for value in values]
+            clean_errors = [error if error is not None else 0 for error in errors]
+
+            fig.add_trace(
+                go.Bar(
+                    name=_backend_label(backend, summary_rows),
+                    x=[str(prompt_token) for prompt_token in prompt_tokens],
+                    y=clean_values,
+                    error_y=dict(
+                        type="data",
+                        array=clean_errors,
+                        visible=True,
+                        thickness=1.5,
+                        color="rgba(255,255,255,0.7)",
+                    ),
+                    marker_color=colors.get(backend, "#5b7083"),
+                    marker_line=dict(width=1.5, color="rgba(255, 255, 255, 0.2)"),
+                )
+            )
 
         fig.update_layout(
-            title=f"<b>{title}</b><br><sup>(max_new_tokens={max_new_tokens})</sup>",
+            title=f"<b>{_figure_title(title, metadata)}</b><br><sup>(max_new_tokens={max_new_tokens})</sup>",
             xaxis_title="Prompt tokens",
             yaxis_title=ylabel,
-            barmode='group',
-            template='plotly_dark',
-            plot_bgcolor='rgba(15, 15, 20, 1)',
-            paper_bgcolor='rgba(15, 15, 20, 1)',
+            barmode="group",
+            template="plotly_dark",
+            plot_bgcolor="rgba(15, 15, 20, 1)",
+            paper_bgcolor="rgba(15, 15, 20, 1)",
             margin=dict(l=60, r=40, t=80, b=60),
-            legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
+            legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
         )
-        # Generate for the last max_new_tokens map if there are multiple
-        # (Assuming we only have 1 value for max_new_tokens usually based on original behavior)
-        fig.write_image(str(output_path), scale=2.5)
+        final_path = _write_figure(fig, output_path, scale=2.5)
+
+    return final_path
 
 
-def _plot_line_metric(summary_rows: list[dict[str, Any]], *, metric_key: str, ylabel: str, title: str, output_path: Path, metadata: dict[str, Any]) -> None:
+def _plot_line_metric(
+    summary_rows: list[dict[str, Any]],
+    *,
+    metric_key: str,
+    ylabel: str,
+    title: str,
+    output_path: Path,
+    metadata: dict[str, Any],
+) -> Path:
     go, _ = require_plotly()
     max_new_tokens_values = sorted({int(row["max_new_tokens"]) for row in summary_rows})
     backends = _ordered_backends(summary_rows)
     colors = {"disk_llm": "#00f2fe", "hf_cpu": "#f093fb"}
 
+    final_path = output_path
     for max_new_tokens in max_new_tokens_values:
         fig = go.Figure()
         subset = [row for row in summary_rows if int(row["max_new_tokens"]) == max_new_tokens]
         for backend in backends:
-            backend_rows = sorted((row for row in subset if row["backend"] == backend), key=lambda row: int(row["prompt_tokens"]))
+            backend_rows = sorted(
+                (row for row in subset if row["backend"] == backend),
+                key=lambda row: int(row["prompt_tokens"]),
+            )
             x_vals = [str(int(row["prompt_tokens"])) for row in backend_rows]
             y_vals = [_maybe_float(row.get(metric_key)) for row in backend_rows]
 
-            fig.add_trace(go.Scatter(
-                name=_backend_label(backend, summary_rows),
-                x=x_vals,
-                y=y_vals,
-                mode='lines+markers',
-                line=dict(color=colors.get(backend, "#5b7083"), width=3, shape='spline', smoothing=0.3),
-                marker=dict(size=10, line=dict(width=2, color='rgba(255,255,255,0.8)')),
-            ))
+            fig.add_trace(
+                go.Scatter(
+                    name=_backend_label(backend, summary_rows),
+                    x=x_vals,
+                    y=y_vals,
+                    mode="lines+markers",
+                    line=dict(color=colors.get(backend, "#5b7083"), width=3, shape="spline", smoothing=0.3),
+                    marker=dict(size=10, line=dict(width=2, color="rgba(255,255,255,0.8)")),
+                )
+            )
 
         fig.update_layout(
-            title=f"<b>{title}</b><br><sup>(max_new_tokens={max_new_tokens})</sup>",
+            title=f"<b>{_figure_title(title, metadata)}</b><br><sup>(max_new_tokens={max_new_tokens})</sup>",
             xaxis_title="Prompt tokens",
             yaxis_title=ylabel,
-            template='plotly_dark',
-            plot_bgcolor='rgba(15, 15, 20, 1)',
-            paper_bgcolor='rgba(15, 15, 20, 1)',
-            xaxis=dict(showgrid=True, gridcolor='rgba(255,255,255,0.05)', type='category'),
-            yaxis=dict(showgrid=True, gridcolor='rgba(255,255,255,0.05)'),
+            template="plotly_dark",
+            plot_bgcolor="rgba(15, 15, 20, 1)",
+            paper_bgcolor="rgba(15, 15, 20, 1)",
+            xaxis=dict(showgrid=True, gridcolor="rgba(255,255,255,0.05)", type="category"),
+            yaxis=dict(showgrid=True, gridcolor="rgba(255,255,255,0.05)"),
             margin=dict(l=60, r=40, t=80, b=60),
-            legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
+            legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
         )
-        fig.write_image(str(output_path), scale=2.5)
+        final_path = _write_figure(fig, output_path, scale=2.5)
+
+    return final_path
 
 
-def _plot_timeline(timeline_rows: list[dict[str, Any]], *, output_path: Path, metadata: dict[str, Any]) -> None:
+def _plot_timeline(timeline_rows: list[dict[str, Any]], *, output_path: Path, metadata: dict[str, Any]) -> Path:
     go, _ = require_plotly()
     if not timeline_rows:
         fig = go.Figure()
         fig.add_annotation(text="No memory timeline data recorded.", x=0.5, y=0.5, showarrow=False, font=dict(size=16))
-        fig.update_layout(template='plotly_dark', xaxis=dict(visible=False), yaxis=dict(visible=False))
-        fig.write_image(str(output_path), scale=2)
-        return
+        fig.update_layout(template="plotly_dark", xaxis=dict(visible=False), yaxis=dict(visible=False))
+        return _write_figure(fig, output_path, scale=2.0)
 
     focus_prompt_tokens = max(int(row["prompt_tokens"]) for row in timeline_rows)
     focus_max_new_tokens = max(int(row["max_new_tokens"]) for row in timeline_rows)
-    candidates = [row for row in timeline_rows if int(row["prompt_tokens"]) == focus_prompt_tokens and int(row["max_new_tokens"]) == focus_max_new_tokens]
-    
+    candidates = [
+        row
+        for row in timeline_rows
+        if int(row["prompt_tokens"]) == focus_prompt_tokens and int(row["max_new_tokens"]) == focus_max_new_tokens
+    ]
+
     selected_run_ids: dict[str, tuple[int, str]] = {}
     for row in candidates:
         backend = row["backend"]
@@ -145,35 +204,41 @@ def _plot_timeline(timeline_rows: list[dict[str, Any]], *, output_path: Path, me
 
     colors = {"disk_llm": "#00f2fe", "hf_cpu": "#f093fb"}
     fig = go.Figure()
-    
+
     for backend, (_, run_id) in sorted(selected_run_ids.items()):
-        series = sorted((row for row in candidates if row["run_id"] == run_id), key=lambda row: int(row["sample_index"]))
+        series = sorted(
+            (row for row in candidates if row["run_id"] == run_id),
+            key=lambda row: int(row["sample_index"]),
+        )
         x_vals = [_maybe_float(row.get("elapsed_seconds")) for row in series]
         y_vals = [_maybe_float(row.get("rss_mb")) for row in series]
-        
-        fig.add_trace(go.Scatter(
-            name=_backend_label(backend, candidates),
-            x=x_vals,
-            y=y_vals,
-            mode='lines',
-            fill='tozeroy',  # Area chart makes timeline look incredible
-            fillcolor=colors.get(backend, "#5b7083").replace(')', ', 0.15)').replace('rgb', 'rgba') if '#' not in colors.get(backend, "") else None,
-            line=dict(color=colors.get(backend, "#5b7083"), width=2.5),
-        ))
+        line_color = colors.get(backend, "#5b7083")
+
+        fig.add_trace(
+            go.Scatter(
+                name=_backend_label(backend, candidates),
+                x=x_vals,
+                y=y_vals,
+                mode="lines",
+                fill="tozeroy",
+                fillcolor=_hex_to_rgba(line_color, 0.16),
+                line=dict(color=line_color, width=2.5),
+            )
+        )
 
     fig.update_layout(
-        title=f"<b>RSS memory over time</b><br><sup>(prompt_tokens={focus_prompt_tokens}, max_new_tokens={focus_max_new_tokens})</sup>",
+        title=f"<b>{_figure_title('RSS memory over time', metadata)}</b><br><sup>(prompt_tokens={focus_prompt_tokens}, max_new_tokens={focus_max_new_tokens})</sup>",
         xaxis_title="Elapsed seconds",
         yaxis_title="RSS (MB)",
-        template='plotly_dark',
-        plot_bgcolor='rgba(15, 15, 20, 1)',
-        paper_bgcolor='rgba(15, 15, 20, 1)',
-        xaxis=dict(showgrid=True, gridcolor='rgba(255,255,255,0.05)', zeroline=False),
-        yaxis=dict(showgrid=True, gridcolor='rgba(255,255,255,0.05)', zeroline=False),
+        template="plotly_dark",
+        plot_bgcolor="rgba(15, 15, 20, 1)",
+        paper_bgcolor="rgba(15, 15, 20, 1)",
+        xaxis=dict(showgrid=True, gridcolor="rgba(255,255,255,0.05)", zeroline=False),
+        yaxis=dict(showgrid=True, gridcolor="rgba(255,255,255,0.05)", zeroline=False),
         margin=dict(l=60, r=40, t=80, b=60),
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
     )
-    fig.write_image(str(output_path), scale=2.5)
+    return _write_figure(fig, output_path, scale=2.5)
 
 
 def _write_markdown_summary(summary_rows: list[dict[str, Any]], metadata: dict[str, Any], output_path: Path) -> None:
@@ -188,7 +253,18 @@ def _write_markdown_summary(summary_rows: list[dict[str, Any]], metadata: dict[s
         "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
     ]
     for row in sorted(summary_rows, key=lambda item: (int(item["prompt_tokens"]), int(item["max_new_tokens"]), item["backend"])):
-        lines.append("| {backend} | {prompt_tokens} | {max_new_tokens} | {tps} | {latency} | {rss} | {io_read} | {mapped} |".format(backend=row["backend_label"], prompt_tokens=row["prompt_tokens"], max_new_tokens=row["max_new_tokens"], tps=_format_number(row.get("tokens_per_second_mean")), latency=_format_number(row.get("first_token_seconds_mean")), rss=_format_number(row.get("rss_mb_peak_mean")), io_read=_format_number(row.get("io_read_mb_mean")), mapped=_format_number(row.get("logical_bytes_mapped_mb_mean"))))
+        lines.append(
+            "| {backend} | {prompt_tokens} | {max_new_tokens} | {tps} | {latency} | {rss} | {io_read} | {mapped} |".format(
+                backend=row["backend_label"],
+                prompt_tokens=row["prompt_tokens"],
+                max_new_tokens=row["max_new_tokens"],
+                tps=_format_number(row.get("tokens_per_second_mean")),
+                latency=_format_number(row.get("first_token_seconds_mean")),
+                rss=_format_number(row.get("rss_mb_peak_mean")),
+                io_read=_format_number(row.get("io_read_mb_mean")),
+                mapped=_format_number(row.get("logical_bytes_mapped_mb_mean")),
+            )
+        )
     output_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
@@ -221,6 +297,38 @@ def _backend_label(backend: str, rows: list[dict[str, Any]]) -> str:
 def _figure_title(base_title: str, metadata: dict[str, Any]) -> str:
     manifest_path = metadata.get("manifest_path")
     return base_title if not manifest_path else f"{base_title}\n{Path(manifest_path).name}"
+
+
+def _write_figure(fig: Any, output_path: Path, *, scale: float) -> Path:
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        fig.write_image(str(output_path), scale=scale)
+        return output_path
+    except Exception as exc:
+        html_path = output_path.with_suffix(".html")
+        fig.write_html(str(html_path), include_plotlyjs="cdn", full_html=True)
+        warning_path = output_path.with_name(f"{output_path.stem}_export_warning.txt")
+        warning_path.write_text(
+            "Static plot export failed; interactive HTML fallback was written instead.\n"
+            f"Requested file: {output_path.name}\n"
+            f"Fallback file: {html_path.name}\n"
+            f"Reason: {exc!r}\n",
+            encoding="utf-8",
+        )
+        print(
+            f"[plotting] warning: static export failed for {output_path.name}; "
+            f"wrote {html_path.name} instead. Reason: {exc!r}"
+        )
+        return html_path
+
+
+def _hex_to_rgba(color: str, alpha: float) -> str | None:
+    if not color.startswith("#") or len(color) != 7:
+        return None
+    red = int(color[1:3], 16)
+    green = int(color[3:5], 16)
+    blue = int(color[5:7], 16)
+    return f"rgba({red}, {green}, {blue}, {alpha})"
 
 
 def _maybe_float(value: Any) -> float | None:

@@ -87,9 +87,9 @@ Expected artifacts include:
 - `benchmark_summary.csv`
 - `memory_timeline.csv`
 - `benchmark_metadata.json`
-- `plots/tokens_per_second.png`
-- `plots/first_token_latency.png`
-- `plots/rss_timeline.png`
+- `plots/tokens_per_second.png` or `plots/tokens_per_second.html` when static export falls back
+- `plots/first_token_latency.png` or `plots/first_token_latency.html` when static export falls back
+- `plots/rss_timeline.png` or `plots/rss_timeline.html` when static export falls back
 - `plots/comparison_summary.md`
 - `benchmark_insights.md`
 - `source_inspection.json`

@@ -33,7 +33,7 @@ hf = [
 ]
 bench = [
   "plotly>=5.18.0",
-  "kaleido>=0.2.1",
+  "kaleido>=0.2.1,<1.0.0",
   "psutil>=5.9.0",
 ]
 demo = [
