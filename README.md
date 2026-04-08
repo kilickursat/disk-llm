@@ -15,11 +15,11 @@ Instead of treating checkpoint files as the runtime layout, Disk-LLM repacks tex
 
 ## Current Validated Qwen Baseline
 
-The latest fully validated Modal result bundle is tracked in [`modal-results-postfix/qwen35-9b-postfix-v3`](modal-results-postfix/qwen35-9b-postfix-v3).
+The latest fully validated Modal result bundle is tracked in [`modal-results-postfix/qwen35-9b-postfix-v4`](modal-results-postfix/qwen35-9b-postfix-v4).
 
-This is the current honest baseline for `Qwen/Qwen3.5-9B` on the repo's native NumPy memmap path:
+This is the current honest baseline for `Qwen/Qwen3.5-9B` on the repo's native NumPy memmap path after the HF CPU image cleanup and small runtime caching tweaks:
 
-- run label: `qwen35-9b-postfix-v3`
+- run label: `qwen35-9b-postfix-v4`
 - requested revision: `main`
 - resolved SHA: `c202236235762e1c871ad0ccb60c8ee5ba337b9a`
 - packed tensors: `427`
@@ -28,39 +28,41 @@ This is the current honest baseline for `Qwen/Qwen3.5-9B` on the repo's native N
 - executed layers: `32`
 - benchmark shape: prompt lengths `8` and `128`, generate `2`, `runs = 1`, `warmup_runs = 0`
 
-This is not a win report. It is the current validated full-model research snapshot.
+This is still not a win report. It is the current validated full-model research snapshot, and `v4` remains slower than the HF CPU reference on this Modal setup.
 
 <table>
   <tr>
-    <td><img src="docs/assets/qwen35-postfix-v3-throughput.png" alt="Qwen v3 throughput plot"></td>
-    <td><img src="docs/assets/qwen35-postfix-v3-first-token-latency.png" alt="Qwen v3 first-token latency plot"></td>
+    <td><img src="docs/assets/qwen35-postfix-v4-throughput.png" alt="Qwen v4 throughput plot"></td>
+    <td><img src="docs/assets/qwen35-postfix-v4-first-token-latency.png" alt="Qwen v4 first-token latency plot"></td>
   </tr>
   <tr>
-    <td><img src="docs/assets/qwen35-postfix-v3-logical-mapped.png" alt="Qwen v3 logical mapped bytes plot"></td>
-    <td><img src="docs/assets/qwen35-postfix-v3-rss-timeline.png" alt="Qwen v3 RSS timeline plot"></td>
+    <td><img src="docs/assets/qwen35-postfix-v4-logical-mapped.png" alt="Qwen v4 logical mapped bytes plot"></td>
+    <td><img src="docs/assets/qwen35-postfix-v4-rss-timeline.png" alt="Qwen v4 RSS timeline plot"></td>
   </tr>
 </table>
 
-## Qwen v3 Comparison
+## Qwen v4 Comparison
 
 | Prompt tokens | Backend | Tokens/s | First token (s) | Peak RSS (MB) | Logical mapped (MB) |
 | --- | --- | ---: | ---: | ---: | ---: |
-| 8 | Disk-LLM | 0.0147 | 114.217 | 24463.44 | 170780.32 |
-| 8 | HF CPU | 0.1359 | 6.525 | 21981.11 | - |
-| 128 | Disk-LLM | 0.00130 | 1520.855 | 24480.34 | 2220144.13 |
-| 128 | HF CPU | 0.0789 | 17.074 | 21981.11 | - |
+| 8 | Disk-LLM | 0.0183 | 88.501 | 21873.83 | 170780.32 |
+| 8 | HF CPU | 0.1646 | 4.773 | 19403.96 | - |
+| 128 | Disk-LLM | 0.00170 | 1157.395 | 21885.98 | 2220144.13 |
+| 128 | HF CPU | 0.0795 | 17.142 | 19407.14 | - |
 
-What this means right now:
+What changed from `v3`:
 
-- the full Qwen path is now genuinely exercised end-to-end
-- the current validated postfix baseline is slower than HF CPU and uses more RSS on this Modal setup
-- the logical mapped metric remains useful as a storage-facing signal, but it should not be read as resident RAM
+- Disk-LLM prompt `8` improved from `0.0147` to `0.0183` tok/s, first-token latency fell by `25.7s`, and peak RSS dropped by about `2.59 GB`.
+- Disk-LLM prompt `128` improved from `0.00130` to `0.00170` tok/s, first-token latency fell by `363.5s`, and peak RSS dropped by about `2.59 GB`.
+- HF CPU also got leaner on this run, so the comparison remains honest: Disk-LLM improved, but HF CPU is still materially faster.
 
 ## Legacy Note
 
 The earlier checked-in bundle at [`modal-results-postfix/qwen35-9b-modal-cpu-postfix`](modal-results-postfix/qwen35-9b-modal-cpu-postfix) is now best read as a legacy pre-guard artifact, not the current baseline.
 
 Its `benchmark_runs.csv` reported `layer_count = 0` and `tensors_touched = 3` for Disk-LLM, so it should not be used as the headline comparison for the current branch.
+
+The immediately previous validated bundle at [`modal-results-postfix/qwen35-9b-postfix-v3`](modal-results-postfix/qwen35-9b-postfix-v3) remains useful as the before-state for `v4`, but it is no longer the current headline snapshot.
 
 ## Why Disk-LLM Exists
 
@@ -194,10 +196,10 @@ The benchmark scripts extend that with repeated-run CSVs, RSS sampling via `psut
 
 ## Roadmap
 
-- update the README and GitHub Pages from real validated result bundles, even when the current numbers are unfavorable
+- keep the README and GitHub Pages synced to real validated result bundles, even when the current numbers are unfavorable
 - optimize the HF CPU image path so the Modal baseline stops pulling an oversized CPU-unfriendly Torch stack
 - apply only small Disk-LLM runtime tweaks that preserve the project's native NumPy memmap identity
-- rerun the Qwen postfix baseline as `v4`
+- run the matching prefetch experiment against the validated postfix `v4` baseline
 - rerun the matching prefetch experiment after the postfix baseline is improved
 - expand to additional model families such as Gemma and GLM once the Qwen path is stable
 - use those later results for the stronger publication pass

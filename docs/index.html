@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Disk-LLM | Current Qwen Research Snapshot</title>
-  <meta name="description" content="Disk-LLM is an inspectable disk-backed LLM research kit. This page shows the current validated Qwen postfix baseline with real exported benchmark plots and an honest comparison table.">
+  <title>Disk-LLM | Current Qwen v4 Research Snapshot</title>
+  <meta name="description" content="Disk-LLM is an inspectable disk-backed LLM research kit. This page shows the current validated Qwen postfix v4 baseline with seaborn-rendered benchmark plots, real CSV-backed numbers, and an honest comparison table.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
@@ -375,23 +375,23 @@
     <section class="hero">
       <div class="hero-grid">
         <div class="hero-copy">
-          <span class="eyebrow">Validated Qwen Research Snapshot</span>
-          <h1>The current Qwen result is real, and it is not flattering.</h1>
+          <span class="eyebrow">Validated Qwen v4 Snapshot</span>
+          <h1>The current Qwen result is still slower than HF CPU, but v4 moved the baseline forward.</h1>
           <p>
-            Disk-LLM is an inspectable disk-backed LLM research kit. The latest validated full-model Modal run for <code>Qwen/Qwen3.5-9B</code> is now published here exactly as it landed: real plots, real CSV-backed numbers, and no attempt to hide that the current postfix baseline is slower than the HF CPU reference on this setup.
+            Disk-LLM is an inspectable disk-backed LLM research kit. After the HF CPU image cleanup and a small runtime caching pass, the latest validated full-model Modal run for <code>Qwen/Qwen3.5-9B</code> is now published here as <code>v4</code>: real plots, real CSV-backed numbers, and a measurable improvement over <code>v3</code> without hiding the remaining gap.
           </p>
           <div class="pill-row">
-            <span class="pill">run <code>qwen35-9b-postfix-v3</code></span>
+            <span class="pill">run <code>qwen35-9b-postfix-v4</code></span>
             <span class="pill">32 layers exercised</span>
             <span class="pill">427 tensors touched</span>
             <span class="pill">resolved SHA <code>c202236</code></span>
           </div>
           <div class="hero-note">
-            The earlier prettier postfix numbers are now treated as legacy pre-guard output. This page uses the current validated full-model bundle instead, even though the current result is unfavorable.
+            Compared with the prior validated <code>v3</code> snapshot, Disk-LLM throughput improved by <strong>24.4%</strong> at 8 prompt tokens and <strong>31.2%</strong> at 128 prompt tokens, while peak RSS fell by about <strong>2.6 GB</strong>. HF CPU still wins this matchup.
           </div>
         </div>
         <div class="hero-visual panel">
-          <img src="assets/qwen35-postfix-v3-throughput.png" alt="Qwen postfix v3 throughput plot">
+          <img src="assets/qwen35-postfix-v4-throughput.png" alt="Qwen postfix v4 throughput plot">
         </div>
       </div>
     </section>
@@ -400,9 +400,9 @@
       <div class="section-head">
         <div>
           <span class="eyebrow">Snapshot Metrics</span>
-          <h2>The storage artifact is compact enough to inspect, but the runtime path still needs work.</h2>
+          <h2>The packed artifact is stable, and the runtime path is improving, but it still needs more work.</h2>
           <p>
-            The packed model itself is stable and inspectable. What this baseline tells us is that correctness and full-path honesty now exist together, and that the next engineering focus should be performance, not presentation.
+            The storage-side story is steady: the pack is still compact enough to inspect and the full-model path is still honest. What changed in <code>v4</code> is that the validated baseline moved in the right direction without changing the project's native NumPy memmap identity.
           </p>
         </div>
         <span class="meta-tag">Current validated baseline</span>
@@ -436,9 +436,9 @@
       <div class="section-head">
         <div>
           <span class="eyebrow">Real Plots</span>
-          <h2>The homepage now uses exported benchmark evidence instead of decorative SVGs.</h2>
+          <h2>The public visuals now come from the tracked <code>v4</code> CSV bundle, rendered again for the site with seaborn.</h2>
           <p>
-            These plots come from the tracked result bundle at <code>modal-results-postfix/qwen35-9b-postfix-v3</code>. They are the current evidence layer for the project and should be read as a research snapshot, not a victory screen.
+            These plots come from the tracked result bundle at <code>modal-results-postfix/qwen35-9b-postfix-v4</code>. They are the current evidence layer for the project and should still be read as a research snapshot, not a victory screen.
           </p>
         </div>
         <span class="meta-tag">Tracked in-repo</span>
@@ -446,20 +446,20 @@
 
       <div class="plot-grid">
         <figure class="plot-card panel">
-          <img src="assets/qwen35-postfix-v3-throughput.png" alt="Qwen postfix v3 throughput plot">
-          <figcaption>Throughput shows the current gap clearly: Disk-LLM trails the HF CPU reference at both prompt lengths in this validated run.</figcaption>
+          <img src="assets/qwen35-postfix-v4-throughput.png" alt="Qwen postfix v4 throughput plot">
+          <figcaption>Throughput improved versus <code>v3</code>, but Disk-LLM still trails the HF CPU reference at both prompt lengths in this validated run.</figcaption>
         </figure>
         <figure class="plot-card panel">
-          <img src="assets/qwen35-postfix-v3-first-token-latency.png" alt="Qwen postfix v3 first-token latency plot">
-          <figcaption>First-token latency is currently the most severe issue in the full-model path, especially once the prompt grows to 128 tokens.</figcaption>
+          <img src="assets/qwen35-postfix-v4-first-token-latency.png" alt="Qwen postfix v4 first-token latency plot">
+          <figcaption>First-token latency remains the dominant pain point, though <code>v4</code> shaved meaningful time off both prompt cases compared with <code>v3</code>.</figcaption>
         </figure>
         <figure class="plot-card panel">
-          <img src="assets/qwen35-postfix-v3-logical-mapped.png" alt="Qwen postfix v3 logical mapped bytes plot">
-          <figcaption>Logical mapped bytes remain a distinctive Disk-LLM telemetry surface. They expose how much of the runtime path is being touched, even when they should not be read as resident RAM.</figcaption>
+          <img src="assets/qwen35-postfix-v4-logical-mapped.png" alt="Qwen postfix v4 logical mapped bytes plot">
+          <figcaption>Logical mapped bytes remain a distinctive Disk-LLM telemetry surface. They show how much of the storage path is being touched, even though they should not be read as resident RAM.</figcaption>
         </figure>
         <figure class="plot-card panel">
-          <img src="assets/qwen35-postfix-v3-rss-timeline.png" alt="Qwen postfix v3 RSS timeline plot">
-          <figcaption>The current full-model Disk-LLM baseline peaks above the HF CPU reference on this Modal setup, which is exactly why the next work is optimization rather than polish.</figcaption>
+          <img src="assets/qwen35-postfix-v4-rss-timeline.png" alt="Qwen postfix v4 RSS timeline plot">
+          <figcaption>The full-model Disk-LLM baseline now sits lower in RSS than <code>v3</code>, but it still peaks above the HF CPU reference on this Modal setup.</figcaption>
         </figure>
       </div>
     </section>
@@ -468,7 +468,7 @@
       <div class="section-head">
         <div>
           <span class="eyebrow">Comparison Table</span>
-          <h2>The honest reading is straightforward: Qwen works, but this baseline is not yet competitive.</h2>
+          <h2><code>v4</code> is better than <code>v3</code>, but the honest reading is still that Qwen is not yet competitive here.</h2>
           <p>
             The old checked-in postfix bundle looked much better, but it was not a trustworthy full-model comparison. This table reflects the current validated path instead.
           </p>
@@ -493,36 +493,36 @@
             <tr>
               <td><strong>8</strong></td>
               <td>Disk-LLM</td>
-              <td class="negative">0.0147</td>
-              <td class="negative">114.217 s</td>
-              <td class="negative">24.46 GB</td>
+              <td class="negative">0.0183</td>
+              <td class="negative">88.501 s</td>
+              <td class="negative">21.87 GB</td>
               <td>170,780 MB</td>
-              <td>Slower and higher-RSS than HF CPU</td>
+              <td><code>v4</code> improves on <code>v3</code>, but HF CPU is still much faster</td>
             </tr>
             <tr>
               <td><strong>8</strong></td>
               <td>HF CPU</td>
-              <td>0.1359</td>
-              <td>6.525 s</td>
-              <td>21.98 GB</td>
+              <td>0.1646</td>
+              <td>4.773 s</td>
+              <td>19.40 GB</td>
               <td>-</td>
               <td>Current reference</td>
             </tr>
             <tr>
               <td><strong>128</strong></td>
               <td>Disk-LLM</td>
-              <td class="negative">0.00130</td>
-              <td class="negative">1520.855 s</td>
-              <td class="negative">24.48 GB</td>
+              <td class="negative">0.00170</td>
+              <td class="negative">1157.395 s</td>
+              <td class="negative">21.89 GB</td>
               <td>2,220,144 MB</td>
-              <td>Prompt scaling is currently the main pain point</td>
+              <td>Better than <code>v3</code>, but prompt scaling is still the main pain point</td>
             </tr>
             <tr>
               <td><strong>128</strong></td>
               <td>HF CPU</td>
-              <td>0.0789</td>
-              <td>17.074 s</td>
-              <td>21.98 GB</td>
+              <td>0.0795</td>
+              <td>17.142 s</td>
+              <td>19.41 GB</td>
               <td>-</td>
               <td>Current reference</td>
             </tr>
@@ -545,13 +545,13 @@
 
       <div class="note">
         <p>
-          The most useful finding from this rerun is not that Qwen is fast today. It is that the repo now has a trustworthy full-model baseline to improve against. The next work items are already clear: optimize the HF CPU image path, apply only small Disk-LLM runtime tweaks, rerun postfix as <code>v4</code>, and then republish the updated snapshot.
+          The most useful finding from this rerun is that <code>v4</code> is now a better full-model baseline than <code>v3</code> without changing the project's core identity. The repo can now show both things at once: the current comparison is still unfavorable, and the direction of travel is finally measurable.
         </p>
       </div>
       <ul class="bullet-list">
-        <li>HF CPU image optimization comes first because the current Modal baseline still pulls an oversized Torch stack for a CPU benchmark.</li>
-        <li>Disk-LLM changes stay small and local so the project's native NumPy memmap identity remains intact.</li>
-        <li>The next public benchmark refresh should be based on a new validated postfix <code>v4</code> run, followed by a matching prefetch comparison.</li>
+        <li>The earlier checked-in bundle at <code>qwen35-9b-modal-cpu-postfix</code> remains a legacy pre-guard artifact and should not be treated as the current headline.</li>
+        <li>The new public charts are rendered from the tracked <code>qwen35-9b-postfix-v4</code> CSV bundle, not copied from decorative SVGs.</li>
+        <li>The next benchmark work should branch from this validated <code>v4</code> baseline: matching prefetch runs, more small runtime tweaks, and then broader Qwen sweeps.</li>
       </ul>
     </section>
   </main>
