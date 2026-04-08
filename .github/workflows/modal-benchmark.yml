@@ -1,0 +1,135 @@
+﻿name: Modal Benchmark
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_label:
+        description: Run label used by the Modal benchmark script
+        required: true
+        default: qwen35-9b-modal-cpu-postfix
+      prompt:
+        description: Benchmark prompt
+        required: true
+        default: Explain disk-backed inference in one paragraph.
+      prompt_lengths:
+        description: Comma-separated prompt lengths
+        required: true
+        default: 8,128
+      max_new_tokens:
+        description: Number of generated tokens
+        required: true
+        default: "2"
+      runs:
+        description: Timed runs per prompt length
+        required: true
+        default: "1"
+      warmup_runs:
+        description: Warmup runs per prompt length
+        required: true
+        default: "0"
+      model_revision:
+        description: Hugging Face revision
+        required: true
+        default: main
+      backends:
+        description: Backends to benchmark
+        required: true
+        default: disk_llm,hf_cpu
+      hf_dtype:
+        description: HF baseline dtype
+        required: true
+        default: float32
+      enable_prefetch:
+        description: Enable the experimental prefetch path
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: modal-benchmark-${{ github.ref }}-${{ inputs.run_label }}
+  cancel-in-progress: false
+
+jobs:
+  run-modal-benchmark:
+    name: Run Qwen 3.5 9B benchmark on Modal
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    environment: modal-benchmark
+    env:
+      PYTHONUNBUFFERED: "1"
+      MODAL_TOKEN_ID: ${{ secrets.MODAL_TOKEN_ID }}
+      MODAL_TOKEN_SECRET: ${{ secrets.MODAL_TOKEN_SECRET }}
+      HF_TOKEN: ${{ secrets.HF_TOKEN }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Validate required secrets
+        shell: bash
+        run: |
+          set -euo pipefail
+          for name in MODAL_TOKEN_ID MODAL_TOKEN_SECRET HF_TOKEN; do
+            if [ -z "${!name:-}" ]; then
+              echo "::error title=Missing secret::$name is not configured."
+              exit 1
+            fi
+          done
+
+      - name: Install project and Modal SDK
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install "modal>=1.4,<2"
+          python -m pip install -e ".[bench,hf]"
+
+      - name: Run remote Modal benchmark
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts
+          if [ "${{ inputs.enable_prefetch }}" = "true" ]; then
+            export DISK_LLM_EXPERIMENT_LAYER_PREFETCH=1
+          fi
+
+          python scripts/modal_qwen_benchmark.py \
+            --repo-id Qwen/Qwen3.5-9B \
+            --revision "${{ inputs.model_revision }}" \
+            --prompt "${{ inputs.prompt }}" \
+            --prompt-lengths "${{ inputs.prompt_lengths }}" \
+            --max-new-tokens "${{ inputs.max_new_tokens }}" \
+            --runs "${{ inputs.runs }}" \
+            --warmup-runs "${{ inputs.warmup_runs }}" \
+            --backends "${{ inputs.backends }}" \
+            --hf-dtype "${{ inputs.hf_dtype }}" \
+            --run-label "${{ inputs.run_label }}" \
+            2>&1 | tee artifacts/modal-run.log
+
+      - name: Collect local outputs
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts
+          for candidate in modal-results benchmark-results benchmark-artifacts; do
+            if [ -d "$candidate" ]; then
+              cp -R "$candidate" "artifacts/$candidate"
+            fi
+          done
+
+      - name: Upload workflow artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: modal-benchmark-${{ github.run_id }}
+          path: artifacts
+          if-no-files-found: warn
+          retention-days: 14
