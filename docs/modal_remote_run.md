@@ -44,7 +44,7 @@ python scripts/modal_qwen_benchmark.py \
   --repo-id Qwen/Qwen3.5-9B \
   --revision main \
   --prompt "Explain disk-backed inference in one paragraph." \
-  --prompt-lengths 8,64,256,512 \
+  --prompt-lengths "8 64 256 512" \
   --max-new-tokens 16 \
   --runs 3 \
   --warmup-runs 0 \
@@ -70,15 +70,17 @@ qwen35-9b-modal-cpu
 So the expected results path in the Modal Volume is:
 
 ```text
-/vol/results/Qwen--Qwen3.5-9B/qwen35-9b-modal-cpu
+/results/Qwen--Qwen3.5-9B/qwen35-9b-modal-cpu
 ```
+
+Use the Volume path above with `modal volume get`. The mounted container path is `/vol/results/...`, but the CLI fetch command expects the Volume-relative `/results/...` form.
 
 ## Pull Results Back Later
 
 After the remote run finishes, pull the artifacts back locally with:
 
 ```bash
-modal volume get disk-llm-benchmarks /vol/results/Qwen--Qwen3.5-9B/qwen35-9b-modal-cpu ./modal-results
+modal volume get disk-llm-benchmarks /results/Qwen--Qwen3.5-9B/qwen35-9b-modal-cpu ./modal-results
 ```
 
 Expected artifacts include:

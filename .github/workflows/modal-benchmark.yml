@@ -133,15 +133,22 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          RESULTS_DIR=$(python - <<'PY'
+          VOLUME_RESULTS_PATH=$(python - <<'PY'
           import json
           from pathlib import Path
           payload = json.loads(Path("artifacts/modal-result-pointer.json").read_text(encoding="utf-8"))
-          print(payload["results_dir"])
+          volume_path = payload.get("volume_results_path")
+          if volume_path:
+              print(volume_path)
+          else:
+              raw = payload["results_dir"]
+              print(raw[len("/vol"):] if raw.startswith("/vol/") else raw)
           PY
           )
           rm -rf artifacts/modal-volume-results
-          python -m modal volume get disk-llm-benchmarks "$RESULTS_DIR" artifacts/modal-volume-results
+          mkdir -p artifacts/modal-volume-results
+          echo "Fetching Modal volume path: $VOLUME_RESULTS_PATH"
+          python -m modal volume get disk-llm-benchmarks "$VOLUME_RESULTS_PATH" artifacts/modal-volume-results
 
 
       - name: Show benchmark log tail on failure

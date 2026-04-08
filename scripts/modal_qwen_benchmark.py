@@ -216,6 +216,7 @@ def run_qwen_benchmark(
         "source_dir": str(source_dir),
         "packed_dir": str(packed_dir),
         "results_dir": str(results_dir),
+        "volume_results_path": _volume_path(results_dir),
         "manifest_path": str(conversion.manifest_path),
         "benchmark_paths": {name: str(path) for name, path in benchmark_paths.items()},
         "plot_paths": {name: str(path) for name, path in plot_paths.items()},
@@ -264,11 +265,13 @@ def run_local(
         report_path.parent.mkdir(parents=True, exist_ok=True)
         report_path.write_text(json.dumps(result, indent=2), encoding="utf-8")
     print(json.dumps(result, indent=2))
-    remote_results_dir = result["results_dir"]
-    quoted_remote_path = shlex.quote(remote_results_dir)
+    mounted_results_dir = result["results_dir"]
+    volume_results_path = result.get("volume_results_path") or _normalize_volume_results_path(mounted_results_dir)
+    quoted_remote_path = shlex.quote(volume_results_path)
     print()
     print("Modal workflow finished.")
-    print(f"Results live in Volume '{DEFAULT_VOLUME_NAME}' under {remote_results_dir}")
+    print(f"Results live in Volume '{DEFAULT_VOLUME_NAME}' under {volume_results_path}")
+    print(f"Mounted inside the Modal container at {mounted_results_dir}")
     print("To copy them back locally later, run:")
     print(f"  modal volume get {DEFAULT_VOLUME_NAME} {quoted_remote_path} ./modal-results")
 
@@ -279,6 +282,16 @@ def _parse_int_csv(raw: str) -> list[int]:
 
 def _parse_name_csv(raw: str) -> list[str]:
     return [part.strip() for part in raw.split(",") if part.strip()]
+
+
+def _normalize_volume_results_path(raw: str) -> str:
+    if raw.startswith("/vol/"):
+        return raw[len("/vol") :]
+    return raw
+
+
+def _volume_path(path: Path) -> str:
+    return "/" + path.relative_to(VOLUME_ROOT).as_posix()
 
 
 def _write_json(path: Path, payload: dict[str, Any]) -> None:
