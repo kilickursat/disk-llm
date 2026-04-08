@@ -243,6 +243,7 @@ def run_local(
     backends: str = "disk_llm,hf_cpu",
     hf_dtype: str = "float32",
     run_label: str = "",
+    local_report_path: str = "",
 ) -> None:
     with enable_output():
         with app.run():
@@ -258,6 +259,10 @@ def run_local(
                 hf_dtype=hf_dtype,
                 run_label=run_label or None,
             )
+    if local_report_path:
+        report_path = Path(local_report_path)
+        report_path.parent.mkdir(parents=True, exist_ok=True)
+        report_path.write_text(json.dumps(result, indent=2), encoding="utf-8")
     print(json.dumps(result, indent=2))
     remote_results_dir = result["results_dir"]
     quoted_remote_path = shlex.quote(remote_results_dir)
@@ -398,6 +403,7 @@ def _build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--backends", default="disk_llm,hf_cpu")
     parser.add_argument("--hf-dtype", default="float32")
     parser.add_argument("--run-label", default="")
+    parser.add_argument("--local-report-path", default="")
     return parser
 
 
@@ -415,5 +421,5 @@ if __name__ == "__main__":
         backends=args.backends,
         hf_dtype=args.hf_dtype,
         run_label=args.run_label,
+        local_report_path=args.local_report_path,
     )
-

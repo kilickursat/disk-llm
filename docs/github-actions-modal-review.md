@@ -11,7 +11,7 @@ This workflow is a review-first path for running the Modal benchmark from GitHub
 - Keeps the experimental prefetch path opt-in and separate from the baseline
 - Uses Node 24-ready GitHub action versions
 - Uses space-separated prompt lengths in workflow inputs to avoid GitHub input formatting surprises
-- Uploads local logs and any produced result folders as workflow artifacts
+- Uploads local logs and pulls the real Modal Volume result bundle into the workflow artifact on successful runs
 
 ## Required GitHub environment secrets
 
@@ -37,6 +37,7 @@ If the run fails, the workflow now prints:
 - the installed Modal client version
 - whether the three required secrets are present in the runner environment
 - the tail of `artifacts/modal-run.log` when that file exists
+- the downloaded Modal Volume result bundle under `artifacts/modal-volume-results` on successful runs
 
 That makes it easier to tell whether the failure happened in Modal auth, Hugging Face access, remote image build, or the benchmark itself.
 

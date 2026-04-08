@@ -126,7 +126,23 @@ jobs:
             --backends "${{ inputs.backends }}" \
             --hf-dtype "${{ inputs.hf_dtype }}" \
             --run-label "${{ inputs.run_label }}" \
+            --local-report-path "artifacts/modal-result-pointer.json" \
             2>&1 | tee artifacts/modal-run.log
+      - name: Fetch Modal volume results
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          RESULTS_DIR=$(python - <<'PY'
+          import json
+          from pathlib import Path
+          payload = json.loads(Path("artifacts/modal-result-pointer.json").read_text(encoding="utf-8"))
+          print(payload["results_dir"])
+          PY
+          )
+          rm -rf artifacts/modal-volume-results
+          python -m modal volume get disk-llm-benchmarks "$RESULTS_DIR" artifacts/modal-volume-results
+
 
       - name: Show benchmark log tail on failure
         if: failure()
@@ -145,7 +161,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p artifacts
-          for candidate in modal-results benchmark-results benchmark-artifacts; do
+          for candidate in benchmark-results benchmark-artifacts; do
             if [ -d "$candidate" ]; then
               cp -R "$candidate" "artifacts/$candidate"
             fi
