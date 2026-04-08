@@ -9,6 +9,7 @@ This workflow is a review-first path for running the Modal benchmark from GitHub
 - Uses a dedicated GitHub environment named `modal-benchmark`
 - Reads secrets from GitHub secrets, not from `.env`
 - Keeps the experimental prefetch path opt-in and separate from the baseline
+- Uses Node 24-ready GitHub action versions
 - Uploads local logs and any produced result folders as workflow artifacts
 
 ## Required GitHub environment secrets
@@ -27,6 +28,16 @@ Recommended: keep them as environment secrets rather than broad repository secre
 2. Leave the defaults as they are for the first smoke test.
 3. Keep `enable_prefetch = false` for the baseline run.
 4. Review the uploaded artifact bundle after the job finishes.
+
+## Failure diagnostics
+
+If the run fails, the workflow now prints:
+
+- the installed Modal client version
+- whether the three required secrets are present in the runner environment
+- the tail of `artifacts/modal-run.log` when that file exists
+
+That makes it easier to tell whether the failure happened in Modal auth, Hugging Face access, remote image build, or the benchmark itself.
 
 ## Review checklist before a larger run
 

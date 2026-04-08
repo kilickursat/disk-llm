@@ -65,10 +65,10 @@ jobs:
       HF_TOKEN: ${{ secrets.HF_TOKEN }}
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.11"
 
@@ -88,8 +88,23 @@ jobs:
         run: |
           set -euo pipefail
           python -m pip install --upgrade pip
-          python -m pip install "modal>=1.4,<2"
+          python -m pip install "modal==1.4.0"
           python -m pip install -e ".[bench,hf]"
+
+      - name: Show runner diagnostics
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m modal --version
+          python - <<'PY'
+          import os
+          import modal
+          print(f"modal_version={modal.__version__}")
+          print(f"hf_token_present={bool(os.environ.get('HF_TOKEN'))}")
+          print(f"modal_token_id_present={bool(os.environ.get('MODAL_TOKEN_ID'))}")
+          print(f"modal_token_secret_present={bool(os.environ.get('MODAL_TOKEN_SECRET'))}")
+          PY
+          python scripts/modal_qwen_benchmark.py --help > /dev/null
 
       - name: Run remote Modal benchmark
         shell: bash
@@ -113,6 +128,17 @@ jobs:
             --run-label "${{ inputs.run_label }}" \
             2>&1 | tee artifacts/modal-run.log
 
+      - name: Show benchmark log tail on failure
+        if: failure()
+        shell: bash
+        run: |
+          if [ -f artifacts/modal-run.log ]; then
+            echo "Last 200 lines from artifacts/modal-run.log"
+            tail -n 200 artifacts/modal-run.log
+          else
+            echo "artifacts/modal-run.log was not created."
+          fi
+
       - name: Collect local outputs
         if: always()
         shell: bash
@@ -127,7 +153,7 @@ jobs:
 
       - name: Upload workflow artifacts
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: modal-benchmark-${{ github.run_id }}
           path: artifacts
