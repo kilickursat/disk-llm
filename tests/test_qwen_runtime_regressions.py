@@ -10,6 +10,7 @@ from disk_llm.converter import convert_model
 from disk_llm.inspect import inspect_source_dir
 from disk_llm.manifest import PackedModelManifest
 from disk_llm.runtime.model import DiskLLMTextModel
+from disk_llm.runtime.telemetry import TelemetryRecorder
 from tests.helpers import workspace_tempdir, write_fake_qwen_full_attention_model
 
 
@@ -45,6 +46,46 @@ class QwenRuntimeRegressionTests(unittest.TestCase):
             self.assertEqual(len(generated_ids), 2)
             self.assertEqual(len(telemetry["layer_times"]), 1)
             self.assertIn("tokens_per_second", telemetry)
+
+    def test_tensor_name_resolution_cache_skips_repeated_manifest_lookups(self):
+        with workspace_tempdir() as tmp:
+            source_dir = write_fake_qwen_full_attention_model(tmp / "source")
+            output_dir = tmp / "packed"
+
+            result = convert_model(source_dir, output_dir)
+            model = DiskLLMTextModel.from_manifest(result.manifest_path)
+
+            original_has = model.store.has
+            manifest_lookups: list[str] = []
+
+            def counted_has(name: str) -> bool:
+                manifest_lookups.append(name)
+                return original_has(name)
+
+            model.store.has = counted_has  # type: ignore[method-assign]
+            telemetry = TelemetryRecorder(prompt_tokens=1)
+            candidates = (
+                "model.layers.0.input_layernorm.weight",
+                "model.language_model.layers.0.input_layernorm.weight",
+            )
+
+            model._get_tensor(candidates, telemetry=telemetry)
+            first_lookup_count = len(manifest_lookups)
+            self.assertGreater(first_lookup_count, 0)
+
+            model._get_tensor(candidates, telemetry=telemetry)
+            self.assertEqual(len(manifest_lookups), first_lookup_count)
+
+            missing_candidates = (
+                "missing.tensor.weight",
+                "missing.tensor.alias",
+            )
+            self.assertIsNone(model._maybe_get_tensor(missing_candidates, telemetry=telemetry))
+            missing_lookup_count = len(manifest_lookups)
+
+            self.assertIsNone(model._maybe_get_tensor(missing_candidates, telemetry=telemetry))
+            self.assertEqual(len(manifest_lookups), missing_lookup_count)
+
     def test_qwen_hybrid_linear_attention_toy_model(self):
         from tests.helpers import write_fake_qwen_hybrid_model
         with workspace_tempdir() as tmp:

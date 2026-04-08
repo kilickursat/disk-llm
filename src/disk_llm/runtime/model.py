@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import threading
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Iterable, Sequence
@@ -46,6 +47,17 @@ class LayerCache:
 class DiskLLMTextModel:
     """Experimental text-only runtime for packed Disk-LLM models."""
 
+    _EMBED_TENSOR_CANDIDATES = (
+        "model.embed_tokens.weight",
+        "model.language_model.embed_tokens.weight",
+    )
+    _FINAL_NORM_TENSOR_CANDIDATES = (
+        "model.norm.weight",
+        "model.language_model.norm.weight",
+        "model.final_layernorm.weight",
+    )
+    _LM_HEAD_TENSOR_CANDIDATES = ("lm_head.weight",) + _EMBED_TENSOR_CANDIDATES
+
     def __init__(
         self,
         manifest: PackedModelManifest,
@@ -56,6 +68,8 @@ class DiskLLMTextModel:
         self.manifest_path = Path(manifest_path)
         self.store = MemmapTensorStore(manifest, base_dir=self.manifest_path.parent)
         self.config = TextModelConfig.from_manifest(manifest)
+        self._resolved_tensor_names: dict[tuple[str, ...], str] = {}
+        self._optional_tensor_names: dict[tuple[str, ...], str | None] = {}
 
     @classmethod
     def from_manifest(cls, manifest_path: str | Path) -> "DiskLLMTextModel":
@@ -147,45 +161,43 @@ class DiskLLMTextModel:
     ):
         np = require_numpy()
         embed_weight = self._get_tensor(
-            [
-                "model.embed_tokens.weight",
-                "model.language_model.embed_tokens.weight",
-            ],
+            self._EMBED_TENSOR_CANDIDATES,
             telemetry=telemetry,
         )
         hidden = np.asarray(embed_weight[int(token_id)])
 
-        import threading
-        for layer_idx in range(self.config.num_hidden_layers):
+        enable_prefetch = self.config.enable_prefetch
+        num_hidden_layers = self.config.num_hidden_layers
+        for layer_idx in range(num_hidden_layers):
             layer_name = f"layer_{layer_idx:03d}"
-            
-            # Spawn OS page fault scout for the next layer in the background
-            if self.config.enable_prefetch and layer_idx + 1 < self.config.num_hidden_layers:
-                threading.Thread(target=self._prefetch_layer, args=(layer_idx + 1,), daemon=True).start()
-                
+
+            # Spawn OS page fault scout for the next layer in the background.
+            if enable_prefetch and layer_idx + 1 < num_hidden_layers:
+                threading.Thread(
+                    target=self._prefetch_layer,
+                    args=(layer_idx + 1,),
+                    daemon=True,
+                ).start()
+
             with telemetry.time_layer(layer_name):
-                hidden = self._forward_layer(layer_idx, hidden, position=position, cache=cache[layer_idx], telemetry=telemetry)
+                hidden = self._forward_layer(
+                    layer_idx,
+                    hidden,
+                    position=position,
+                    cache=cache[layer_idx],
+                    telemetry=telemetry,
+                )
 
         norm_weight = self._get_tensor(
-            [
-                "model.norm.weight",
-                "model.language_model.norm.weight",
-                "model.final_layernorm.weight",
-            ],
+            self._FINAL_NORM_TENSOR_CANDIDATES,
             telemetry=telemetry,
         )
         hidden = self._apply_hidden_norm(hidden, norm_weight)
 
-        if self.store.has("lm_head.weight"):
-            lm_head = self.store.get("lm_head.weight", telemetry)
-        else:
-            lm_head = self._get_tensor(
-                [
-                    "model.embed_tokens.weight",
-                    "model.language_model.embed_tokens.weight",
-                ],
-                telemetry=telemetry,
-            )
+        lm_head = self._get_tensor(
+            self._LM_HEAD_TENSOR_CANDIDATES,
+            telemetry=telemetry,
+        )
         return np.dot(hidden, lm_head.T)
 
     def _forward_layer(
@@ -599,19 +611,37 @@ class DiskLLMTextModel:
         )
         return swiglu(hidden, gate, up, down)
 
-    def _get_tensor(self, candidates: Sequence[str], *, telemetry: TelemetryRecorder):
-        for name in candidates:
+    def _resolve_optional_tensor_name(self, candidates: Sequence[str]) -> str | None:
+        key = tuple(candidates)
+        resolved = self._resolved_tensor_names.get(key)
+        if resolved is not None:
+            return resolved
+        if key in self._optional_tensor_names:
+            return self._optional_tensor_names[key]
+        for name in key:
             if self.store.has(name):
-                return self.store.get(name, telemetry)
+                self._resolved_tensor_names[key] = name
+                self._optional_tensor_names[key] = name
+                return name
+        self._optional_tensor_names[key] = None
+        return None
+
+    def _resolve_tensor_name(self, candidates: Sequence[str]) -> str:
+        resolved = self._resolve_optional_tensor_name(candidates)
+        if resolved is not None:
+            return resolved
         raise RuntimeShapeError(
             "Could not resolve any tensor name from candidates: " + ", ".join(candidates)
         )
 
+    def _get_tensor(self, candidates: Sequence[str], *, telemetry: TelemetryRecorder):
+        return self.store.get(self._resolve_tensor_name(candidates), telemetry)
+
     def _maybe_get_tensor(self, candidates: Sequence[str], *, telemetry: TelemetryRecorder):
-        for name in candidates:
-            if self.store.has(name):
-                return self.store.get(name, telemetry)
-        return None
+        resolved = self._resolve_optional_tensor_name(candidates)
+        if resolved is None:
+            return None
+        return self.store.get(resolved, telemetry)
 
     def _prefetch_layer(self, layer_idx: int):
         """
