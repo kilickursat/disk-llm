@@ -1,4 +1,4 @@
-﻿# GitHub Actions Modal Runbook
+# GitHub Actions Modal Runbook
 
 This workflow is a review-first path for running the Modal benchmark from GitHub-hosted infrastructure instead of the local company network path.
 
@@ -10,6 +10,7 @@ This workflow is a review-first path for running the Modal benchmark from GitHub
 - Reads secrets from GitHub secrets, not from `.env`
 - Keeps the experimental prefetch path opt-in and separate from the baseline
 - Uses Node 24-ready GitHub action versions
+- Uses space-separated prompt lengths in workflow inputs to avoid GitHub input formatting surprises
 - Uploads local logs and any produced result folders as workflow artifacts
 
 ## Required GitHub environment secrets

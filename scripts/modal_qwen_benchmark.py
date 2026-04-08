@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 # --- Windows console encoding fix ---
-# Rich's legacy Windows renderer writes Unicode symbols (✓) that the default
+# Rich's legacy Windows renderer writes Unicode symbols that the default
 # cp1252 code page cannot encode, causing UnicodeEncodeError.  Force UTF-8
 # for all console I/O before any other imports touch the console.
 import os
@@ -23,6 +23,7 @@ if sys.platform == "win32":
 import argparse
 import json
 from pathlib import Path
+import re
 import shlex
 from typing import Any
 
@@ -235,7 +236,7 @@ def run_local(
     repo_id: str = "Qwen/Qwen3.5-9B",
     revision: str = "main",
     prompt: str = "Explain disk-backed inference in one paragraph.",
-    prompt_lengths: str = "8,64,256,512",
+    prompt_lengths: str = "8 64 256 512",
     max_new_tokens: str = "16",
     runs: int = 3,
     warmup_runs: int = 0,
@@ -268,7 +269,7 @@ def run_local(
 
 
 def _parse_int_csv(raw: str) -> list[int]:
-    return [int(part.strip()) for part in raw.split(",") if part.strip()]
+    return [int(part) for part in re.split(r"[\s,;]+", raw.strip()) if part]
 
 
 def _parse_name_csv(raw: str) -> list[str]:
@@ -390,7 +391,7 @@ def _build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--repo-id", default="Qwen/Qwen3.5-9B")
     parser.add_argument("--revision", default="main")
     parser.add_argument("--prompt", default="Explain disk-backed inference in one paragraph.")
-    parser.add_argument("--prompt-lengths", default="8,64,256,512")
+    parser.add_argument("--prompt-lengths", default="8 64 256 512")
     parser.add_argument("--max-new-tokens", default="16")
     parser.add_argument("--runs", type=int, default=3)
     parser.add_argument("--warmup-runs", type=int, default=0)
@@ -415,3 +416,4 @@ if __name__ == "__main__":
         hf_dtype=args.hf_dtype,
         run_label=args.run_label,
     )
+

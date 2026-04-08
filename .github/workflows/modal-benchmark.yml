@@ -1,4 +1,4 @@
-﻿name: Modal Benchmark
+name: Modal Benchmark
 
 on:
   workflow_dispatch:
@@ -12,9 +12,9 @@ on:
         required: true
         default: Explain disk-backed inference in one paragraph.
       prompt_lengths:
-        description: Comma-separated prompt lengths
+        description: Space-separated prompt lengths
         required: true
-        default: 8,128
+        default: "8 128"
       max_new_tokens:
         description: Number of generated tokens
         required: true
