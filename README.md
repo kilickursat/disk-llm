@@ -2,99 +2,75 @@
   <img src="logo.png" alt="Disk-LLM logo" width="360">
 </p>
 
-<p align="center">
-  <img src="docs/assets/showcase-hero.svg" alt="Disk-LLM showroom hero">
-</p>
-
 # Disk-LLM
 
-Disk-LLM is an inspectable disk-backed LLM research kit.
+[![Modal Benchmark](https://github.com/kilickursat/disk-llm/actions/workflows/modal-benchmark.yml/badge.svg)](https://github.com/kilickursat/disk-llm/actions/workflows/modal-benchmark.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-3776AB?logo=python&logoColor=white)](#quick-start)
+[![Status: Research Snapshot](https://img.shields.io/badge/status-research%20snapshot-C67A2B)](#current-validated-qwen-baseline)
 
-The project is built around a simple idea: if we are going to stream model weights from disk, we should make that path explicit, measurable, and understandable. Instead of treating checkpoint files as the final runtime layout, Disk-LLM repacks text weights into layer-oriented memmap shards and exposes runtime telemetry so the storage story stays visible.
+Disk-LLM is an inspectable disk-backed LLM research kit built around one idea: if model weights are going to stream from disk, that path should stay explicit, measurable, and understandable.
 
-The goal is not to beat mature inference engines like `llama.cpp`, `vLLM`, or `SGLang` on production throughput. The goal is narrower and more research-friendly:
+Instead of treating checkpoint files as the runtime layout, Disk-LLM repacks text weights into layer-oriented memmap shards, runs a native NumPy CPU path, and exports telemetry about what the runtime actually touched. The project website is published at [kilickursat.github.io/disk-llm](https://kilickursat.github.io/disk-llm/).
 
-- convert checkpoints into a layout the OS can page predictably
-- run a native NumPy memmap path on CPU
-- inspect what was packed, what was skipped, and what the runtime actually touched
-- benchmark that path with reproducible CSVs, plots, and remote Modal runs
+## Current Validated Qwen Baseline
 
-The project website is published at [kilickursat.github.io/disk-llm](https://kilickursat.github.io/disk-llm/).
+The latest fully validated Modal result bundle is tracked in [`modal-results-postfix/qwen35-9b-postfix-v3`](modal-results-postfix/qwen35-9b-postfix-v3).
 
-## Why Disk-LLM Exists
+This is the current honest baseline for `Qwen/Qwen3.5-9B` on the repo's native NumPy memmap path:
 
-Disk offload is not new. What is different here is the emphasis on inspectability.
-
-- **Engineered layer sharding:** weights are packed into architecture-aligned shard files instead of left in monolithic checkpoint blobs.
-- **Glass-box telemetry:** the runtime reports logical bytes mapped, tensors touched, first-token latency, generated token counts, and per-layer timings.
-- **Research-first workflow:** inspect, convert, benchmark, plot, and audit are all first-class parts of the repo.
-
-## Disk-LLM Novelties
-
-Disk-LLM is most compelling where it makes the storage path explicit instead of treating it as an invisible backend detail.
-
-- **Layout-first conversion:** checkpoints are repacked into layer-oriented shard files so the runtime layout is designed for paging and inspection, not inherited blindly from the source snapshot.
-- **Memmap-native CPU path:** the project runs a native NumPy memmap inference path that keeps disk-backed behavior visible instead of hiding it inside a larger serving engine.
-- **Storage-facing telemetry:** Disk-LLM reports logical bytes mapped, tensors touched, first-token latency, and per-layer timings so benchmark outputs carry runtime evidence, not just speed numbers.
-- **Benchmark honesty guards:** the current branch refuses to save zero-layer benchmark rows, which is a meaningful research safeguard revealed by the real Qwen Modal audit.
-- **Remote reproducibility:** the Modal workflow lets the project inspect, pack, benchmark, and archive large-model artifacts without forcing a local workstation download.
-
-<p align="center">
-  <img src="docs/assets/pipeline-map.svg" alt="Disk-LLM pipeline map">
-</p>
-
-## Current Status
-
-- `convert`: implemented
-- `inspect`: implemented
-- `generate`: implemented
-- `bench`: implemented with repeatable CSV + plot export
-- `demo`: implemented as an optional Gradio wrapper
-- Qwen 3.5 runtime: fully implemented (hybrid blocks & linear attention verified)
-
-The important change in the current branch is that the Qwen audit path is now stricter and more honest:
-
-- nested `text_config` is now unwrapped correctly
-- `model.language_model.layers.*` is now detected in manifests and inspections
-- benchmark runs now refuse to save misleading zero-layer telemetry results
-
-That means the project is better positioned for a trustworthy rerun than it was when the first Modal artifact bundle was committed.
-
-<p align="center">
-  <img src="docs/assets/qwen-audit.svg" alt="Qwen3.5 audit summary">
-</p>
-
-## Real Qwen Modal Audit
-
-The repo includes a real Modal artifact bundle in [`modal-results`](modal-results). It proves that the remote workflow ran against `Qwen/Qwen3.5-9B` and produced a full inspection / conversion / plotting bundle.
-
-Verified facts from that archived artifact:
-
-- source tensors discovered: `775`
-- packed text tensors: `427`
-- skipped tensors: `348`
+- run label: `qwen35-9b-postfix-v3`
+- requested revision: `main`
+- resolved SHA: `c202236235762e1c871ad0ccb60c8ee5ba337b9a`
+- packed tensors: `427`
 - packed shards: `34`
 - packed footprint: `16.68 GiB`
-- source architecture: `Qwen3_5ForConditionalGeneration`
+- executed layers: `32`
+- benchmark shape: prompt lengths `8` and `128`, generate `2`, `runs = 1`, `warmup_runs = 0`
 
-What the audit uncovered:
-
-- the real checkpoint is wrapped by a multimodal top-level config with nested `text_config`
-- the original benchmark artifact was generated before the runtime correctly enforced full layer execution
-- native `linear_attention` support is now implemented and verified for the NumPy runtime
-
-So the archived audit figures below should be read as **pipeline evidence**, not as the final benchmark headline. For GitHub readability, the README uses a separate set of static charts derived directly from the archived Modal rows.
+This is not a win report. It is the current validated full-model research snapshot.
 
 <table>
   <tr>
-    <td><img src="docs/assets/tokens_per_second.png" alt="README throughput chart from archived Qwen Modal rows"></td>
-    <td><img src="docs/assets/first_token_latency.png" alt="README first-token latency chart from archived Qwen Modal rows"></td>
+    <td><img src="docs/assets/qwen35-postfix-v3-throughput.png" alt="Qwen v3 throughput plot"></td>
+    <td><img src="docs/assets/qwen35-postfix-v3-first-token-latency.png" alt="Qwen v3 first-token latency plot"></td>
   </tr>
   <tr>
-    <td><img src="docs/assets/logical_mapped.png" alt="README logical mapped bytes chart from archived Qwen Modal rows"></td>
-    <td><img src="docs/assets/rss_timeline.png" alt="README RSS profile chart from archived Qwen Modal rows"></td>
+    <td><img src="docs/assets/qwen35-postfix-v3-logical-mapped.png" alt="Qwen v3 logical mapped bytes plot"></td>
+    <td><img src="docs/assets/qwen35-postfix-v3-rss-timeline.png" alt="Qwen v3 RSS timeline plot"></td>
   </tr>
 </table>
+
+## Qwen v3 Comparison
+
+| Prompt tokens | Backend | Tokens/s | First token (s) | Peak RSS (MB) | Logical mapped (MB) |
+| --- | --- | ---: | ---: | ---: | ---: |
+| 8 | Disk-LLM | 0.0147 | 114.217 | 24463.44 | 170780.32 |
+| 8 | HF CPU | 0.1359 | 6.525 | 21981.11 | - |
+| 128 | Disk-LLM | 0.00130 | 1520.855 | 24480.34 | 2220144.13 |
+| 128 | HF CPU | 0.0789 | 17.074 | 21981.11 | - |
+
+What this means right now:
+
+- the full Qwen path is now genuinely exercised end-to-end
+- the current validated postfix baseline is slower than HF CPU and uses more RSS on this Modal setup
+- the logical mapped metric remains useful as a storage-facing signal, but it should not be read as resident RAM
+
+## Legacy Note
+
+The earlier checked-in bundle at [`modal-results-postfix/qwen35-9b-modal-cpu-postfix`](modal-results-postfix/qwen35-9b-modal-cpu-postfix) is now best read as a legacy pre-guard artifact, not the current baseline.
+
+Its `benchmark_runs.csv` reported `layer_count = 0` and `tensors_touched = 3` for Disk-LLM, so it should not be used as the headline comparison for the current branch.
+
+## Why Disk-LLM Exists
+
+Disk-LLM is most compelling when it is judged as a research system rather than a generic inference stack.
+
+- **Layout-first conversion:** checkpoints are repacked into layer-oriented shard files so the runtime layout is deliberate and inspectable.
+- **Memmap-native CPU path:** the project keeps disk-backed behavior visible instead of hiding it inside a larger serving engine.
+- **Storage-facing telemetry:** logical bytes mapped, tensors touched, first-token latency, and per-layer timings make the benchmark story auditable.
+- **Benchmark honesty guards:** the repo now rejects zero-layer benchmark exports instead of letting misleading rows become polished figures.
+- **Remote reproducibility:** the Modal workflow can inspect, pack, benchmark, and archive large-model artifacts without forcing a full local download.
 
 ## Quick Start
 
@@ -218,10 +194,13 @@ The benchmark scripts extend that with repeated-run CSVs, RSS sampling via `psut
 
 ## Roadmap
 
-- rerun the real `Qwen/Qwen3.5-9B` Modal comparison with Disk-LLM and HF CPU side by side
-- add correctness checks beyond throughput and RSS
-- deepen telemetry with cache and disk-fault oriented instrumentation
-- expand the adapter story for additional model families
+- update the README and GitHub Pages from real validated result bundles, even when the current numbers are unfavorable
+- optimize the HF CPU image path so the Modal baseline stops pulling an oversized CPU-unfriendly Torch stack
+- apply only small Disk-LLM runtime tweaks that preserve the project's native NumPy memmap identity
+- rerun the Qwen postfix baseline as `v4`
+- rerun the matching prefetch experiment after the postfix baseline is improved
+- expand to additional model families such as Gemma and GLM once the Qwen path is stable
+- use those later results for the stronger publication pass
 
 ## Development
 

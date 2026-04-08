@@ -3,23 +3,23 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Disk-LLM | Inspectable Disk-Backed LLM Research Kit</title>
-  <meta name="description" content="Disk-LLM is a researcher-first toolkit for packing checkpoints into memmap shards, exposing runtime telemetry, and benchmarking disk-backed inference honestly.">
+  <title>Disk-LLM | Current Qwen Research Snapshot</title>
+  <meta name="description" content="Disk-LLM is an inspectable disk-backed LLM research kit. This page shows the current validated Qwen postfix baseline with real exported benchmark plots and an honest comparison table.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg: #f4efe7;
-      --surface: #fffaf2;
-      --surface-2: #eee4d4;
-      --panel: #ffffff;
+      --surface: rgba(255, 255, 255, 0.78);
+      --panel: #fffaf2;
+      --line: #d6cab6;
       --ink: #101214;
       --muted: #4b5663;
-      --line: #d6cab6;
       --blue: #1f5aa6;
       --blue-deep: #163e73;
       --amber: #c67a2b;
+      --amber-deep: #8f5616;
       --shadow: 0 18px 42px rgba(16, 18, 20, 0.09);
       --radius: 26px;
     }
@@ -38,9 +38,16 @@
 
     a { color: inherit; text-decoration: none; }
     img { max-width: 100%; display: block; }
+    code {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.95em;
+      background: rgba(16, 18, 20, 0.06);
+      padding: 0.12rem 0.35rem;
+      border-radius: 0.45rem;
+    }
 
     .shell {
-      width: min(1240px, calc(100% - 32px));
+      width: min(1220px, calc(100% - 32px));
       margin: 0 auto;
     }
 
@@ -54,11 +61,11 @@
     }
 
     .nav-inner {
+      min-height: 78px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 24px;
-      min-height: 78px;
     }
 
     .brand {
@@ -72,14 +79,14 @@
     }
 
     .brand img {
-      width: 36px;
-      height: 36px;
+      width: 38px;
+      height: 38px;
       object-fit: contain;
     }
 
     .nav-links {
       display: flex;
-      align-items: center;
+      flex-wrap: wrap;
       gap: 20px;
       color: var(--muted);
       font-size: 0.95rem;
@@ -87,37 +94,15 @@
 
     .nav-links a:hover { color: var(--ink); }
 
-    .cta {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      border-radius: 999px;
-      padding: 13px 20px;
-      font-weight: 600;
-      transition: transform 180ms ease, background 180ms ease, color 180ms ease;
-    }
-
-    .cta:hover { transform: translateY(-1px); }
-
-    .cta-primary {
-      background: var(--ink);
-      color: #f7f2ea;
-    }
-
-    .cta-secondary {
-      background: rgba(16, 18, 20, 0.06);
-      color: var(--ink);
-    }
-
     .hero {
       padding: 72px 0 36px;
     }
 
     .hero-grid {
       display: grid;
-      grid-template-columns: 1.05fr 0.95fr;
-      gap: 36px;
-      align-items: end;
+      grid-template-columns: 1fr 0.98fr;
+      gap: 34px;
+      align-items: start;
     }
 
     .eyebrow {
@@ -137,67 +122,104 @@
     }
 
     h1 {
-      font-size: clamp(3rem, 6vw, 5.8rem);
+      font-size: clamp(2.9rem, 6vw, 5.5rem);
       line-height: 0.96;
-      max-width: 12ch;
+      max-width: 11ch;
     }
 
-    .hero-copy p {
-      margin: 24px 0 0;
-      max-width: 58ch;
+    .hero-copy p,
+    .section-head p,
+    .note p,
+    .bullet-list li,
+    .metric span:last-child,
+    .plot-card figcaption,
+    td,
+    .footer {
       color: var(--muted);
-      font-size: 1.12rem;
       line-height: 1.7;
     }
 
-    .hero-actions {
+    .hero-copy p {
+      margin: 22px 0 0;
+      max-width: 62ch;
+      font-size: 1.08rem;
+    }
+
+    .pill-row {
       display: flex;
       flex-wrap: wrap;
-      gap: 14px;
-      margin-top: 28px;
+      gap: 12px;
+      margin: 24px 0 0;
     }
 
-    .hero-note {
-      margin-top: 28px;
-      padding: 18px 20px;
-      border-left: 4px solid var(--amber);
-      background: rgba(255, 255, 255, 0.6);
-      color: var(--muted);
-      line-height: 1.6;
-      border-radius: 0 18px 18px 0;
-    }
-
-    .hero-visual {
-      position: relative;
-    }
-
-    .panel {
-      background: rgba(255, 255, 255, 0.75);
-      border: 1px solid rgba(214, 202, 182, 0.9);
-      border-radius: var(--radius);
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 11px 14px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.7);
+      border: 1px solid rgba(214, 202, 182, 0.95);
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.8rem;
+      color: var(--blue-deep);
       box-shadow: var(--shadow);
     }
 
+    .hero-note,
+    .panel,
+    .plot-card,
+    .metric,
+    .table-shell,
+    .note {
+      background: var(--surface);
+      border: 1px solid rgba(214, 202, 182, 0.92);
+      box-shadow: var(--shadow);
+      border-radius: var(--radius);
+    }
+
+    .hero-note,
+    .note {
+      margin-top: 24px;
+      padding: 18px 20px;
+      border-left: 4px solid var(--amber);
+      border-radius: 0 20px 20px 0;
+    }
+
+    .hero-visual,
+    .plot-card,
+    .metric,
+    .table-shell,
+    .note {
+      overflow: hidden;
+    }
+
+    .hero-visual {
+      padding: 18px;
+      animation: rise 700ms ease both;
+    }
+
+    .hero-visual img {
+      border-radius: 20px;
+      background: #f8f1e4;
+    }
+
     .section {
-      padding: 32px 0 10px;
+      padding: 34px 0 12px;
     }
 
     .section-head {
       display: grid;
       grid-template-columns: 1fr auto;
-      gap: 16px;
+      gap: 18px;
       align-items: end;
       margin-bottom: 24px;
     }
 
-    .section-head p {
-      margin: 14px 0 0;
-      color: var(--muted);
-      max-width: 64ch;
-      line-height: 1.7;
-    }
+    .section-head p { margin: 14px 0 0; max-width: 70ch; }
 
     .meta-tag {
+      align-self: start;
       padding: 10px 14px;
       border-radius: 999px;
       background: rgba(31, 90, 166, 0.08);
@@ -210,11 +232,11 @@
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 16px;
-      margin-top: 22px;
     }
 
     .metric {
       padding: 20px 22px;
+      animation: rise 850ms ease both;
     }
 
     .metric-label {
@@ -229,109 +251,78 @@
       display: block;
       margin-top: 14px;
       font-family: "Space Grotesk", sans-serif;
-      font-size: 2.2rem;
+      font-size: 2.05rem;
       letter-spacing: -0.05em;
     }
 
-    .metric span:last-child {
-      display: block;
-      margin-top: 4px;
-      color: var(--muted);
-    }
-
-    .artifact-grid {
+    .plot-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
       gap: 18px;
-      margin-top: 26px;
     }
 
-    .artifact-grid figure {
-      display: flex;
-      flex-direction: column;
+    .plot-card {
       margin: 0;
-      overflow: hidden;
-      background: var(--panel);
-      border: 1px solid var(--line);
-      border-radius: 22px;
-      box-shadow: var(--shadow);
+      transition: transform 180ms ease, box-shadow 180ms ease;
+      animation: rise 900ms ease both;
     }
 
-    .artifact-grid img {
+    .plot-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 24px 52px rgba(16, 18, 20, 0.13);
+    }
+
+    .plot-card img {
       width: 100%;
       height: auto;
       background: #f6f1e8;
     }
 
-    .artifact-grid figcaption {
+    .plot-card figcaption {
       padding: 14px 16px 18px;
-      color: var(--muted);
-      font-size: 0.94rem;
-      line-height: 1.6;
+      font-size: 0.95rem;
     }
 
-    .status-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 16px;
-      margin-top: 26px;
+    .table-shell {
+      padding: 16px;
+      overflow-x: auto;
     }
 
-    .status-card {
-      padding: 20px 22px;
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 720px;
     }
 
-    .status-card strong {
-      display: block;
-      margin-bottom: 12px;
-      font-size: 1.05rem;
+    th, td {
+      padding: 14px 12px;
+      border-bottom: 1px solid rgba(214, 202, 182, 0.9);
+      text-align: left;
+      vertical-align: top;
     }
 
-    .status-ok { border-top: 4px solid var(--blue); }
-    .status-dev { border-top: 4px solid var(--amber); }
-
-    .status-card p {
-      margin: 0;
-      color: var(--muted);
-      line-height: 1.65;
+    th {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.78rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ink);
     }
 
-    .novelty-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 16px;
-      margin-top: 24px;
+    td strong { color: var(--ink); }
+
+    .negative {
+      color: var(--amber-deep);
+      font-weight: 600;
     }
 
-    .novelty-card {
-      padding: 22px 24px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .novelty-card::before {
-      content: "";
-      position: absolute;
-      inset: 0 auto 0 0;
-      width: 6px;
-      background: linear-gradient(180deg, var(--blue), var(--amber));
-    }
-
-    .novelty-card strong {
-      display: block;
-      margin-bottom: 10px;
-      font-size: 1.08rem;
-    }
-
-    .novelty-card p {
-      margin: 0;
-      color: var(--muted);
-      line-height: 1.7;
+    .bullet-list {
+      margin: 18px 0 0;
+      padding-left: 1.2rem;
     }
 
     .footer {
-      padding: 48px 0 72px;
-      color: var(--muted);
+      padding: 50px 0 72px;
     }
 
     .footer-grid {
@@ -343,13 +334,16 @@
       border-top: 1px solid var(--line);
     }
 
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(18px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
     @media (max-width: 980px) {
       .hero-grid,
       .section-head,
       .metrics,
-      .artifact-grid,
-      .status-grid,
-      .novelty-grid {
+      .plot-grid {
         grid-template-columns: 1fr;
       }
 
@@ -358,10 +352,6 @@
         flex-direction: column;
         align-items: flex-start;
       }
-
-      .nav-links {
-        flex-wrap: wrap;
-      }
     }
   </style>
 </head>
@@ -369,7 +359,7 @@
   <header class="nav">
     <div class="shell nav-inner">
       <a class="brand" href="index.html">
-        <img src="logo.png" alt="Disk-LLM">
+        <img src="logo.png" alt="Disk-LLM logo">
         <span>Disk-LLM</span>
       </a>
       <nav class="nav-links">
@@ -385,199 +375,189 @@
     <section class="hero">
       <div class="hero-grid">
         <div class="hero-copy">
-          <span class="eyebrow">Native NumPy Memmap Research Kit</span>
-          <h1>Disk-backed inference, made inspectable.</h1>
+          <span class="eyebrow">Validated Qwen Research Snapshot</span>
+          <h1>The current Qwen result is real, and it is not flattering.</h1>
           <p>
-            Disk-LLM repacks checkpoints into layer-oriented memmap shards, exposes runtime telemetry, and keeps the benchmarking story explicit. It is built for people who want to understand the storage path, not hide it behind a black-box serving stack.
+            Disk-LLM is an inspectable disk-backed LLM research kit. The latest validated full-model Modal run for <code>Qwen/Qwen3.5-9B</code> is now published here exactly as it landed: real plots, real CSV-backed numbers, and no attempt to hide that the current postfix baseline is slower than the HF CPU reference on this setup.
           </p>
-          <div class="hero-actions">
-            <a class="cta cta-primary" href="documentation.html">Open Documentation</a>
-            <a class="cta cta-secondary" href="https://github.com/kilickursat/disk-llm" target="_blank" rel="noreferrer">View Repository</a>
+          <div class="pill-row">
+            <span class="pill">run <code>qwen35-9b-postfix-v3</code></span>
+            <span class="pill">32 layers exercised</span>
+            <span class="pill">427 tensors touched</span>
+            <span class="pill">resolved SHA <code>c202236</code></span>
           </div>
           <div class="hero-note">
-            Latest repo fix: the Qwen audit path now unwraps nested <code>text_config</code>, resolves <code>model.language_model.layers.*</code>, and refuses zero-layer benchmark output. That means the project now protects itself against the exact misleading run shape the first real Modal artifact exposed.
+            The earlier prettier postfix numbers are now treated as legacy pre-guard output. This page uses the current validated full-model bundle instead, even though the current result is unfavorable.
           </div>
         </div>
         <div class="hero-visual panel">
-          <img src="assets/showcase-hero.svg" alt="Disk-LLM showroom hero">
+          <img src="assets/qwen35-postfix-v3-throughput.png" alt="Qwen postfix v3 throughput plot">
         </div>
       </div>
     </section>
 
-    <section class="section" id="status">
+    <section class="section" id="snapshot-metrics">
       <div class="section-head">
         <div>
-          <span class="eyebrow">Verified Today</span>
-          <h2>What is solid, what is still being audited.</h2>
+          <span class="eyebrow">Snapshot Metrics</span>
+          <h2>The storage artifact is compact enough to inspect, but the runtime path still needs work.</h2>
           <p>
-            The conversion and inspection pipeline is real. The Modal workflow is real. The benchmark harness is real. The part still marked experimental is the native Qwen 3.5 <code>linear_attention</code> runtime path, which should be implemented and rerun before the repo promotes final performance claims.
+            The packed model itself is stable and inspectable. What this baseline tells us is that correctness and full-path honesty now exist together, and that the next engineering focus should be performance, not presentation.
           </p>
         </div>
-        <span class="meta-tag">Modal artifact archived in-repo</span>
+        <span class="meta-tag">Current validated baseline</span>
       </div>
 
       <div class="metrics">
-        <div class="panel metric">
-          <span class="metric-label">Source snapshot</span>
-          <strong>775</strong>
-          <span>tensors discovered</span>
-        </div>
-        <div class="panel metric">
-          <span class="metric-label">Text path kept</span>
+        <div class="metric panel">
+          <span class="metric-label">Packed tensors</span>
           <strong>427</strong>
-          <span>packed tensors</span>
+          <span>text tensors kept in the current Qwen pack</span>
         </div>
-        <div class="panel metric">
-          <span class="metric-label">Shard layout</span>
+        <div class="metric panel">
+          <span class="metric-label">Packed shards</span>
           <strong>34</strong>
-          <span>layer shards</span>
+          <span>layer-oriented shards in the memmap layout</span>
         </div>
-        <div class="panel metric">
-          <span class="metric-label">Packed footprint</span>
+        <div class="metric panel">
+          <span class="metric-label">Footprint</span>
           <strong>16.68</strong>
-          <span>GiB</span>
+          <span>GiB packed footprint on disk</span>
+        </div>
+        <div class="metric panel">
+          <span class="metric-label">Runtime path</span>
+          <strong>32</strong>
+          <span>layers executed in the validated benchmark</span>
         </div>
       </div>
     </section>
 
-    <section class="section" id="pipeline">
+    <section class="section" id="plots">
       <div class="section-head">
         <div>
-          <span class="eyebrow">Workflow</span>
-          <h2>The project is strongest when the pipeline is visible.</h2>
+          <span class="eyebrow">Real Plots</span>
+          <h2>The homepage now uses exported benchmark evidence instead of decorative SVGs.</h2>
           <p>
-            Disk-LLM is not just a runtime. It is an inspect / convert / generate / benchmark / audit loop. The latest fixes reinforce that philosophy by preventing benchmark export when telemetry does not show real layer execution.
+            These plots come from the tracked result bundle at <code>modal-results-postfix/qwen35-9b-postfix-v3</code>. They are the current evidence layer for the project and should be read as a research snapshot, not a victory screen.
           </p>
         </div>
-        <span class="meta-tag">Inspect / Convert / Generate / Benchmark / Audit</span>
-      </div>
-      <div class="panel">
-        <img src="assets/pipeline-map.svg" alt="Disk-LLM pipeline map">
-      </div>
-    </section>
-
-    <section class="section" id="novelties">
-      <div class="section-head">
-        <div>
-          <span class="eyebrow">Novelties</span>
-          <h2>What is genuinely distinctive about Disk-LLM.</h2>
-          <p>
-            The project becomes compelling when it is judged as a research system rather than a generic inference stack. These are the parts that make Disk-LLM novel inside that framing.
-          </p>
-        </div>
-        <span class="meta-tag">Storage path made explicit</span>
-      </div>
-      <div class="novelty-grid">
-        <div class="panel novelty-card">
-          <strong>Layout-first conversion</strong>
-          <p>Disk-LLM repacks checkpoints into layer-oriented shard files so the runtime layout is deliberate, page-friendly, and easy to inspect.</p>
-        </div>
-        <div class="panel novelty-card">
-          <strong>Memmap-native CPU execution</strong>
-          <p>The NumPy runtime works directly from memmap-backed shards, which keeps the storage path visible instead of hiding it in a heavyweight serving engine.</p>
-        </div>
-        <div class="panel novelty-card">
-          <strong>Storage-facing telemetry</strong>
-          <p>Logical bytes mapped, tensors touched, first-token latency, and per-layer timing data turn benchmark runs into auditable artifacts.</p>
-        </div>
-        <div class="panel novelty-card">
-          <strong>Benchmark honesty guardrails</strong>
-          <p>The repo now rejects zero-layer benchmark exports, which means a broken execution path is less likely to become a polished but misleading headline.</p>
-        </div>
-      </div>
-    </section>
-
-    <section class="section" id="qwen-audit">
-      <div class="section-head">
-        <div>
-          <span class="eyebrow">Qwen Audit</span>
-          <h2>The real Qwen 3.5 Modal run changed the repo.</h2>
-          <p>
-            The archived artifact bundle showed a genuine remote run against <code>Qwen/Qwen3.5-9B</code>, but it also revealed that the model uses a multimodal wrapper architecture with nested text config and a <code>linear_attention</code> execution path. The repo now records that honestly instead of quietly treating a zero-layer path as a finished benchmark.
-          </p>
-        </div>
-        <span class="meta-tag">Nested config fixed / adapter still pending</span>
-      </div>
-      <div class="panel">
-        <img src="assets/qwen-audit.svg" alt="Qwen3.5 audit summary">
-      </div>
-    </section>
-
-    <section class="section" id="artifacts">
-      <div class="section-head">
-        <div>
-          <span class="eyebrow">Archived Artifact</span>
-          <h2>Audit figures retained as workflow evidence, not the final headline.</h2>
-          <p>
-            The archived Modal result bundle is still useful because it proves the repo can export CSVs, Markdown summaries, and figures from a real remote run. These redesigned figures are based on the actual archived numbers, but they should still be read as pre-fix audit evidence until the Qwen <code>linear_attention</code> runtime path is implemented and the corrected Disk-LLM versus HF comparison is rerun.
-          </p>
-        </div>
-        <span class="meta-tag">Read the charts as archived evidence</span>
+        <span class="meta-tag">Tracked in-repo</span>
       </div>
 
-      <div class="artifact-grid">
-        <figure>
-          <img src="assets/audit-throughput.svg" alt="Archived throughput audit figure">
-          <figcaption>Throughput audit based on the archived Modal bundle. The prompt-length slowdown is real, but the bundle still lacks the corrected HF comparison.</figcaption>
+      <div class="plot-grid">
+        <figure class="plot-card panel">
+          <img src="assets/qwen35-postfix-v3-throughput.png" alt="Qwen postfix v3 throughput plot">
+          <figcaption>Throughput shows the current gap clearly: Disk-LLM trails the HF CPU reference at both prompt lengths in this validated run.</figcaption>
         </figure>
-        <figure>
-          <img src="assets/audit-latency.svg" alt="Archived first-token latency audit figure">
-          <figcaption>First-token latency is the clearest prompt-sensitivity signal in the archived run and one of the strongest arguments for a corrected rerun.</figcaption>
+        <figure class="plot-card panel">
+          <img src="assets/qwen35-postfix-v3-first-token-latency.png" alt="Qwen postfix v3 first-token latency plot">
+          <figcaption>First-token latency is currently the most severe issue in the full-model path, especially once the prompt grows to 128 tokens.</figcaption>
         </figure>
-        <figure>
-          <img src="assets/audit-logical-mapped.svg" alt="Archived logical mapped bytes audit figure">
-          <figcaption>Logical mapped bytes remain one of Disk-LLM's most distinctive telemetry surfaces because they expose storage-facing behavior, not just resident memory.</figcaption>
+        <figure class="plot-card panel">
+          <img src="assets/qwen35-postfix-v3-logical-mapped.png" alt="Qwen postfix v3 logical mapped bytes plot">
+          <figcaption>Logical mapped bytes remain a distinctive Disk-LLM telemetry surface. They expose how much of the runtime path is being touched, even when they should not be read as resident RAM.</figcaption>
         </figure>
-        <figure>
-          <img src="assets/audit-rss-profile.svg" alt="Archived RSS profile audit figure">
-          <figcaption>The archived run already shows a stable RSS ceiling; the missing milestone is now correctness of the Qwen execution path, not prettier memory plotting.</figcaption>
+        <figure class="plot-card panel">
+          <img src="assets/qwen35-postfix-v3-rss-timeline.png" alt="Qwen postfix v3 RSS timeline plot">
+          <figcaption>The current full-model Disk-LLM baseline peaks above the HF CPU reference on this Modal setup, which is exactly why the next work is optimization rather than polish.</figcaption>
         </figure>
       </div>
     </section>
 
-    <section class="section" id="implementation">
+    <section class="section" id="comparison-table">
       <div class="section-head">
         <div>
-          <span class="eyebrow">Implementation Matrix</span>
-          <h2>Where the project stands right now.</h2>
+          <span class="eyebrow">Comparison Table</span>
+          <h2>The honest reading is straightforward: Qwen works, but this baseline is not yet competitive.</h2>
           <p>
-            The repo already works as a converter, inspector, benchmark harness, and Modal-ready research workflow. The next real milestone is not "more polish," but a correct native adapter for Qwen 3.5 linear attention followed by a new benchmark publication pass.
+            The old checked-in postfix bundle looked much better, but it was not a trustworthy full-model comparison. This table reflects the current validated path instead.
           </p>
         </div>
-        <span class="meta-tag">Updated April 2026</span>
+        <span class="meta-tag">Prompt lengths 8 and 128, generate 2</span>
       </div>
 
-      <div class="status-grid">
-        <div class="panel status-card status-ok">
-          <strong>Converter + inspector</strong>
-          <p>Checkpoint inspection, tensor discovery, text-only packing, and manifest validation are in good shape.</p>
-        </div>
-        <div class="panel status-card status-ok">
-          <strong>Benchmark infrastructure</strong>
-          <p>CSV export, plotting, Modal run orchestration, and repeatable benchmark artifacts are already wired.</p>
-        </div>
-        <div class="panel status-card status-ok">
-          <strong>Audit guardrails</strong>
-          <p>Zero-layer benchmark rows are now rejected instead of being silently written to result bundles.</p>
-        </div>
-        <div class="panel status-card status-dev">
-          <strong>Qwen linear attention</strong>
-          <p>The real Qwen 3.5 text path still needs a native adapter before the repo should promote final performance claims.</p>
-        </div>
-        <div class="panel status-card status-dev">
-          <strong>Final comparison rerun</strong>
-          <p>The next public benchmark should be a post-fix Disk-LLM vs HF CPU comparison, not the archived pre-fix artifact.</p>
-        </div>
-        <div class="panel status-card status-dev">
-          <strong>Research publication pass</strong>
-          <p>Once the rerun lands, the README and site can promote the new figures as the authoritative benchmark story.</p>
-        </div>
+      <div class="table-shell panel">
+        <table>
+          <thead>
+            <tr>
+              <th>Prompt</th>
+              <th>Backend</th>
+              <th>Tokens/s</th>
+              <th>First token</th>
+              <th>Peak RSS</th>
+              <th>Logical mapped</th>
+              <th>Read</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>8</strong></td>
+              <td>Disk-LLM</td>
+              <td class="negative">0.0147</td>
+              <td class="negative">114.217 s</td>
+              <td class="negative">24.46 GB</td>
+              <td>170,780 MB</td>
+              <td>Slower and higher-RSS than HF CPU</td>
+            </tr>
+            <tr>
+              <td><strong>8</strong></td>
+              <td>HF CPU</td>
+              <td>0.1359</td>
+              <td>6.525 s</td>
+              <td>21.98 GB</td>
+              <td>-</td>
+              <td>Current reference</td>
+            </tr>
+            <tr>
+              <td><strong>128</strong></td>
+              <td>Disk-LLM</td>
+              <td class="negative">0.00130</td>
+              <td class="negative">1520.855 s</td>
+              <td class="negative">24.48 GB</td>
+              <td>2,220,144 MB</td>
+              <td>Prompt scaling is currently the main pain point</td>
+            </tr>
+            <tr>
+              <td><strong>128</strong></td>
+              <td>HF CPU</td>
+              <td>0.0789</td>
+              <td>17.074 s</td>
+              <td>21.98 GB</td>
+              <td>-</td>
+              <td>Current reference</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
+    </section>
+
+    <section class="section" id="research-notes">
+      <div class="section-head">
+        <div>
+          <span class="eyebrow">Research Notes</span>
+          <h2>Why publish this anyway.</h2>
+          <p>
+            Disk-LLM is a research repo. The point is not to only show flattering artifacts. The point is to make the storage path, runtime path, and benchmark truth visible enough that improvements can be measured honestly.
+          </p>
+        </div>
+        <span class="meta-tag">Evidence over optics</span>
+      </div>
+
+      <div class="note">
+        <p>
+          The most useful finding from this rerun is not that Qwen is fast today. It is that the repo now has a trustworthy full-model baseline to improve against. The next work items are already clear: optimize the HF CPU image path, apply only small Disk-LLM runtime tweaks, rerun postfix as <code>v4</code>, and then republish the updated snapshot.
+        </p>
+      </div>
+      <ul class="bullet-list">
+        <li>HF CPU image optimization comes first because the current Modal baseline still pulls an oversized Torch stack for a CPU benchmark.</li>
+        <li>Disk-LLM changes stay small and local so the project's native NumPy memmap identity remains intact.</li>
+        <li>The next public benchmark refresh should be based on a new validated postfix <code>v4</code> run, followed by a matching prefetch comparison.</li>
+      </ul>
     </section>
   </main>
 
-  <footer class="footer">
-    <div class="shell footer-grid">
+  <footer class="footer shell">
+    <div class="footer-grid">
       <div>
         <strong style="display:block; font-family:'Space Grotesk', sans-serif; font-size:1.1rem; color:var(--ink); margin-bottom:8px;">Disk-LLM</strong>
         <span>Inspectable disk-backed LLM research kit for memmap-first experiments.</span>

@@ -1,0 +1,38 @@
+{
+  "backends": [
+    "disk_llm",
+    "hf_cpu"
+  ],
+  "benchmark_paths": {
+    "metadata": "/vol/results/Qwen--Qwen3.5-9B/qwen35-9b-postfix-v3/benchmark_metadata.json",
+    "runs": "/vol/results/Qwen--Qwen3.5-9B/qwen35-9b-postfix-v3/benchmark_runs.csv",
+    "summary": "/vol/results/Qwen--Qwen3.5-9B/qwen35-9b-postfix-v3/benchmark_summary.csv",
+    "timeline": "/vol/results/Qwen--Qwen3.5-9B/qwen35-9b-postfix-v3/memory_timeline.csv"
+  },
+  "hf_dtype": "float32",
+  "insight_path": "/vol/results/Qwen--Qwen3.5-9B/qwen35-9b-postfix-v3/benchmark_insights.md",
+  "manifest_path": "/vol/packed/Qwen--Qwen3.5-9B/qwen35-9b-postfix-v3/manifest.json",
+  "max_new_tokens_values": [
+    2
+  ],
+  "packed_dir": "/vol/packed/Qwen--Qwen3.5-9B/qwen35-9b-postfix-v3",
+  "plot_paths": {
+    "comparison_summary": "/vol/results/Qwen--Qwen3.5-9B/qwen35-9b-postfix-v3/plots/comparison_summary.md",
+    "first_token_latency": "/vol/results/Qwen--Qwen3.5-9B/qwen35-9b-postfix-v3/plots/first_token_latency.png",
+    "logical_mapped_mb": "/vol/results/Qwen--Qwen3.5-9B/qwen35-9b-postfix-v3/plots/logical_mapped.png",
+    "rss_timeline": "/vol/results/Qwen--Qwen3.5-9B/qwen35-9b-postfix-v3/plots/rss_timeline.png",
+    "tokens_per_second": "/vol/results/Qwen--Qwen3.5-9B/qwen35-9b-postfix-v3/plots/tokens_per_second.png"
+  },
+  "prompt_lengths": [
+    8,
+    128
+  ],
+  "repo_id": "Qwen/Qwen3.5-9B",
+  "requested_revision": "main",
+  "resolved_sha": "c202236235762e1c871ad0ccb60c8ee5ba337b9a",
+  "results_dir": "/vol/results/Qwen--Qwen3.5-9B/qwen35-9b-postfix-v3",
+  "runs": 1,
+  "source_dir": "/vol/models/Qwen--Qwen3.5-9B/main",
+  "volume_results_path": "/results/Qwen--Qwen3.5-9B/qwen35-9b-postfix-v3",
+  "warmup_runs": 0
+}

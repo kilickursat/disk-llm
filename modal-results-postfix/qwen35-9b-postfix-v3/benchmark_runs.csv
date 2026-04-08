@@ -1,0 +1,5 @@
+run_id,backend,backend_label,prompt_label,prompt_tokens,max_new_tokens,run_index,run_phase,seed,temperature,top_p,generated_tokens,elapsed_seconds,first_token_seconds,tokens_per_second,rss_mb_start,rss_mb_peak,rss_mb_end,rss_delta_mb,io_read_mb,io_write_mb,logical_bytes_mapped_mb,tensors_touched,layer_count,notes
+disk_llm|8|2|0,disk_llm,Disk-LLM,tokens_0008,8,2,0,initial,0,0.0,0.95,2,136.22838474600002,114.21657555499999,0.01468122817230074,3472.3671875,24463.44140625,20582.80859375,17110.44140625,,,170780.3173828125,427,32,
+disk_llm|128|2|0,disk_llm,Disk-LLM,tokens_0128,128,2,0,initial,0,0.0,0.95,2,1541.3024515430002,1520.8546082990001,0.0012976038531553602,20584.80859375,24480.33984375,20600.3203125,15.51171875,,,2220144.1259765625,427,32,
+hf_cpu|8|2|0,hf_cpu,HF CPU,tokens_0008,8,2,0,initial,0,0.0,0.95,2,14.717594744000053,6.525204924000036,0.1358917700064641,21966.5625,21981.11328125,21981.09765625,14.53515625,,,,,,float32_cpu_reference
+hf_cpu|128|2|0,hf_cpu,HF CPU,tokens_0128,128,2,0,initial,0,0.0,0.95,2,25.354935235000085,17.07438804399999,0.07888010682982102,21981.09765625,21981.11328125,21981.09765625,0.0,,,,,,float32_cpu_reference
