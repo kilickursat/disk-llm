@@ -36,6 +36,8 @@ from modal.volume import Volume
 
 APP_NAME = "disk-llm-qwen-benchmark"
 DEFAULT_VOLUME_NAME = "disk-llm-benchmarks"
+HF_CPU_TORCH_VERSION = "2.6.0"
+HF_CPU_TORCH_INDEX_URL = "https://download.pytorch.org/whl/cpu"
 VOLUME_ROOT = Path("/vol")
 MODELS_ROOT = VOLUME_ROOT / "models"
 PACKED_ROOT = VOLUME_ROOT / "packed"
@@ -78,7 +80,11 @@ image = (
     .pip_install(
         "huggingface_hub>=0.31.0",
         "hf_xet>=1.1.0",
-        "torch>=2.6.0",
+    )
+    # Install the HF CPU reference from the official CPU wheel index so Modal does not
+    # resolve the much larger CUDA-flavored torch dependency stack for a CPU benchmark.
+    .run_commands(
+        f"python -m pip install --no-cache-dir --index-url {HF_CPU_TORCH_INDEX_URL} --extra-index-url https://pypi.org/simple torch=={HF_CPU_TORCH_VERSION}"
     )
     .env(
         {
